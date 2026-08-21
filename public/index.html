@@ -1,1 +1,1540 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>RideDZ V1 - تطبيق النقل</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Tahoma,sans-serif;
+}
+
+body{
+    background:#f5f7fb;
+    color:#172033;
+}
+
+header{
+    background:linear-gradient(135deg,#ffc400,#ff9d00);
+    padding:18px;
+    color:white;
+    box-shadow:0 4px 15px #0002;
+}
+
+.header{
+    max-width:1100px;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:bold;
+}
+
+.logo span{
+    font-size:13px;
+    display:block;
+    opacity:.9;
+}
+
+.menu{
+    display:flex;
+    gap:8px;
+}
+
+.menu button{
+    border:0;
+    background:#ffffff30;
+    color:white;
+    padding:10px 14px;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+.menu button:hover{
+    background:white;
+    color:#ff9d00;
+}
+
+.container{
+    max-width:1100px;
+    margin:25px auto;
+    padding:0 15px;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.hero{
+    background:linear-gradient(135deg,#fff8df,#ffffff);
+    border-radius:25px;
+    padding:35px;
+    margin-bottom:20px;
+    box-shadow:0 8px 30px #00000010;
+}
+
+.hero h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    color:#687386;
+    line-height:1.8;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 8px 25px #0000000d;
+}
+
+.card h2{
+    margin-bottom:18px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+label{
+    display:block;
+    margin-bottom:7px;
+    font-weight:bold;
+}
+
+input,
+select{
+    width:100%;
+    padding:14px;
+    border:1px solid #e1e5ec;
+    border-radius:13px;
+    outline:none;
+    font-size:15px;
+    background:#fafbfc;
+}
+
+input:focus,
+select:focus{
+    border-color:#ffb000;
+    background:white;
+}
+
+.btn{
+    width:100%;
+    border:0;
+    padding:15px;
+    border-radius:14px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,#ffc400,#ff9700);
+    color:white;
+    box-shadow:0 6px 15px #ffad0038;
+}
+
+.btn-green{
+    background:#10b981;
+    color:white;
+}
+
+.btn-red{
+    background:#ef4444;
+    color:white;
+}
+
+.price-box{
+    background:#fff8df;
+    border:1px solid #ffe29a;
+    border-radius:15px;
+    padding:18px;
+    margin:15px 0;
+    text-align:center;
+}
+
+.price{
+    font-size:30px;
+    font-weight:bold;
+    color:#ef8d00;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.stat{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 8px 25px #0000000d;
+}
+
+.stat strong{
+    display:block;
+    font-size:28px;
+    color:#ff9d00;
+    margin-top:8px;
+}
+
+.ride{
+    border:1px solid #e8ebf0;
+    border-radius:16px;
+    padding:18px;
+    margin-top:12px;
+}
+
+.ride-row{
+    margin:7px 0;
+}
+
+.status{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:20px;
+    background:#fff3cd;
+    color:#946200;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+}
+
+.actions button{
+    flex:1;
+}
+
+.empty{
+    text-align:center;
+    padding:30px;
+    color:#8b95a5;
+}
+
+.driver-status{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f7f8fa;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:15px;
+}
+
+.switch{
+    width:55px;
+    height:30px;
+    border-radius:30px;
+    background:#d1d5db;
+    position:relative;
+    cursor:pointer;
+}
+
+.switch.active{
+    background:#10b981;
+}
+
+.switch::after{
+    content:"";
+    width:24px;
+    height:24px;
+    background:white;
+    border-radius:50%;
+    position:absolute;
+    top:3px;
+    right:3px;
+    transition:.2s;
+}
+
+.switch.active::after{
+    right:28px;
+}
+
+footer{
+    text-align:center;
+    padding:30px;
+    color:#8a94a5;
+}
+
+@media(max-width:700px){
+
+    .header{
+        flex-direction:column;
+        gap:12px;
+    }
+
+    .menu{
+        width:100%;
+        overflow:auto;
+    }
+
+    .menu button{
+        flex:1;
+        white-space:nowrap;
+    }
+
+    .hero{
+        padding:25px;
+    }
+
+    .hero h1{
+        font-size:25px;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<header>
+
+<div class="header">
+
+<div class="logo">
+🚕 RideDZ
+<span>منصة النقل المحلية</span>
+</div>
+
+<div class="menu">
+
+<button onclick="showPage('customer')">
+👤 الزبون
+</button>
+
+<button onclick="showPage('driver')">
+🚗 السائق
+</button>
+
+<button onclick="showPage('admin')">
+👨‍💼 الإدارة
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- ================= CUSTOMER ================= -->
+
+<section id="customer" class="page active">
+
+<div class="hero">
+
+<h1>
+🚕 اطلب سيارة بسهولة
+</h1>
+
+<p>
+حدد معلوماتك ومكان الانطلاق والوجهة،
+وسنقوم بتسجيل طلب الرحلة.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>👤 معلومات الزبون</h2>
+
+<div class="form-group">
+
+<label>الاسم</label>
+
+<input
+id="customerName"
+type="text"
+placeholder="مثال: محمد"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>رقم الهاتف</label>
+
+<input
+id="customerPhone"
+type="tel"
+placeholder="05xxxxxxxx"
+>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>📍 تفاصيل الرحلة</h2>
+
+<div class="form-group">
+
+<label>نقطة الانطلاق</label>
+
+<input
+id="pickup"
+type="text"
+placeholder="مثال: وسط المدينة"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>الوجهة</label>
+
+<input
+id="destination"
+type="text"
+placeholder="مثال: محطة القطار"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>نوع السيارة</label>
+
+<select id="carType">
+
+<option value="normal">
+🚕 سيارة عادية
+</option>
+
+<option value="comfort">
+🚘 سيارة مريحة
+</option>
+
+</select>
+
+</div>
+
+
+<div class="price-box">
+
+<div>
+السعر التقديري
+</div>
+
+<div class="price">
+<span id="price">500</span> دج
+</div>
+
+</div>
+
+
+<button
+class="btn btn-primary"
+onclick="createRide()"
+>
+🚕 اطلب السيارة الآن
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- ================= DRIVER ================= -->
+
+<section id="driver" class="page">
+
+<div class="hero">
+
+<h1>
+🚗 لوحة السائق
+</h1>
+
+<p>
+سجل معلوماتك ثم فعّل حالة الاتصال لاستقبال طلبات الزبائن.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>🚗 تسجيل السائق</h2>
+
+<div class="form-group">
+
+<label>اسم السائق</label>
+
+<input
+id="driverName"
+placeholder="اسمك"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>رقم الهاتف</label>
+
+<input
+id="driverPhone"
+placeholder="05xxxxxxxx"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>نوع السيارة</label>
+
+<input
+id="driverCar"
+placeholder="مثال: Fiat Panda"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>رقم السيارة</label>
+
+<input
+id="driverPlate"
+placeholder="مثال: 123456-111-48"
+>
+
+</div>
+
+
+<button
+class="btn btn-primary"
+onclick="registerDriver()"
+>
+🚗 تسجيل السائق
+</button>
+
+</div>
+
+
+<div id="driverPanel"></div>
+
+<div class="card">
+
+<h2>📋 الطلبات الحالية</h2>
+
+<div id="driverRides">
+
+<div class="empty">
+لا توجد طلبات حاليًا
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================= ADMIN ================= -->
+
+<section id="admin" class="page">
+
+<div class="hero">
+
+<h1>
+👨‍💼 لوحة الإدارة
+</h1>
+
+<p>
+متابعة الزبائن والسائقين والرحلات.
+</p>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+
+👤 الزبائن
+
+<strong id="customersCount">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+🚗 السائقون
+
+<strong id="driversCount">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+🚕 الرحلات
+
+<strong id="ridesCount">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+✅ المكتملة
+
+<strong id="completedCount">
+0
+</strong>
+
+</div>
+
+</div>
+
+
+<div class="card" style="margin-top:20px">
+
+<h2>🚕 الرحلات</h2>
+
+<div id="adminRides">
+
+<div class="empty">
+جاري تحميل البيانات...
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🚗 السائقون</h2>
+
+<div id="adminDrivers">
+
+<div class="empty">
+لا يوجد سائقون
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<footer>
+
+RideDZ V1 © 2026
+
+</footer>
+
+
+
+<script>
+
+let currentDriver = null;
+
+
+// ================= PAGE =================
+
+function showPage(page){
+
+    document
+    .querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+    document
+    .getElementById(page)
+    .classList.add("active");
+
+    if(page === "driver"){
+        loadDriverRides();
+    }
+
+    if(page === "admin"){
+        loadAdmin();
+    }
+
+}
+
+
+// ================= PRICE =================
+
+document
+.getElementById("carType")
+.addEventListener("change", function(){
+
+    const price =
+    this.value === "comfort"
+    ? 700
+    : 500;
+
+    document
+    .getElementById("price")
+    .textContent = price;
+
+});
+
+
+// ================= CREATE RIDE =================
+
+async function createRide(){
+
+    const customerName =
+    document
+    .getElementById("customerName")
+    .value.trim();
+
+    const customerPhone =
+    document
+    .getElementById("customerPhone")
+    .value.trim();
+
+    const pickup =
+    document
+    .getElementById("pickup")
+    .value.trim();
+
+    const destination =
+    document
+    .getElementById("destination")
+    .value.trim();
+
+    const price =
+    Number(
+        document
+        .getElementById("price")
+        .textContent
+    );
+
+
+    if(
+        !customerName ||
+        !customerPhone ||
+        !pickup ||
+        !destination
+    ){
+
+        alert("⚠️ أكمل جميع المعلومات");
+
+        return;
+    }
+
+
+    try{
+
+        await fetch("/api/customer",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                name:customerName,
+
+                phone:customerPhone
+
+            })
+
+        });
+
+
+        const response =
+        await fetch("/api/rides",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                customerName,
+
+                customerPhone,
+
+                pickup,
+
+                destination,
+
+                price
+
+            })
+
+        });
+
+
+        const data =
+        await response.json();
+
+
+        if(data.success){
+
+            alert(
+                "✅ تم إرسال طلب الرحلة بنجاح!"
+            );
+
+
+            document
+            .getElementById("pickup")
+            .value = "";
+
+            document
+            .getElementById("destination")
+            .value = "";
+
+
+        }else{
+
+            alert(
+                "❌ " + data.message
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ حدث خطأ في الاتصال بالخادم"
+        );
+
+    }
+
+}
+
+
+// ================= REGISTER DRIVER =================
+
+async function registerDriver(){
+
+    const name =
+    document
+    .getElementById("driverName")
+    .value.trim();
+
+    const phone =
+    document
+    .getElementById("driverPhone")
+    .value.trim();
+
+    const car =
+    document
+    .getElementById("driverCar")
+    .value.trim();
+
+    const plate =
+    document
+    .getElementById("driverPlate")
+    .value.trim();
+
+
+    if(!name || !phone || !car || !plate){
+
+        alert(
+            "⚠️ أكمل معلومات السائق"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        const response =
+        await fetch("/api/driver",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                name,
+                phone,
+                car,
+                plate
+
+            })
+
+        });
+
+
+        const data =
+        await response.json();
+
+
+        if(data.success){
+
+            currentDriver = data.driver;
+
+            showDriverPanel();
+
+            loadDriverRides();
+
+            alert(
+                "✅ تم تسجيل السائق بنجاح"
+            );
+
+        }else{
+
+            alert(
+                "❌ " + data.message
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ تعذر الاتصال بالخادم"
+        );
+
+    }
+
+}
+
+
+// ================= DRIVER PANEL =================
+
+function showDriverPanel(){
+
+    if(!currentDriver){
+
+        return;
+
+    }
+
+
+    document
+    .getElementById("driverPanel")
+    .innerHTML = `
+
+    <div class="card">
+
+        <h2>👋 مرحبًا ${currentDriver.name}</h2>
+
+        <div class="driver-status">
+
+            <div>
+
+                <strong>
+                حالة السائق
+                </strong>
+
+                <div id="driverState">
+                🟢 متصل
+                </div>
+
+            </div>
+
+            <div
+            id="driverSwitch"
+            class="switch active"
+            onclick="toggleDriver()">
+            </div>
+
+        </div>
+
+        <div>
+        🚗 ${currentDriver.car}
+        </div>
+
+        <div>
+        📱 ${currentDriver.phone}
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+
+// ================= DRIVER STATUS =================
+
+async function toggleDriver(){
+
+    if(!currentDriver){
+
+        return;
+
+    }
+
+
+    const switchElement =
+    document
+    .getElementById("driverSwitch");
+
+
+    const isOnline =
+    switchElement
+    .classList
+    .contains("active");
+
+
+    try{
+
+        await fetch(
+        "/api/driver/status",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                driverId:currentDriver.id,
+
+                online:!isOnline
+
+            })
+
+        });
+
+
+        switchElement
+        .classList
+        .toggle("active");
+
+
+        document
+        .getElementById("driverState")
+        .textContent =
+        isOnline
+        ? "🔴 غير متصل"
+        : "🟢 متصل";
+
+
+    }catch(error){
+
+        alert(
+            "❌ حدث خطأ"
+        );
+
+    }
+
+}
+
+
+// ================= DRIVER RIDES =================
+
+async function loadDriverRides(){
+
+    try{
+
+        const response =
+        await fetch("/api/rides");
+
+        const data =
+        await response.json();
+
+
+        const container =
+        document
+        .getElementById("driverRides");
+
+
+        if(!data.rides.length){
+
+            container.innerHTML = `
+            <div class="empty">
+            لا توجد طلبات حاليًا
+            </div>
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML =
+        data.rides
+        .map(ride => `
+
+        <div class="ride">
+
+            <div class="ride-row">
+            👤 ${ride.customerName}
+            </div>
+
+            <div class="ride-row">
+            📍 ${ride.pickup}
+            </div>
+
+            <div class="ride-row">
+            🏁 ${ride.destination}
+            </div>
+
+            <div class="ride-row">
+            💰 ${ride.price} دج
+            </div>
+
+            <div class="ride-row">
+
+            <span class="status">
+            ${getStatus(ride.status)}
+            </span>
+
+            </div>
+
+
+            ${
+            ride.status === "pending"
+            ?
+            `
+            <div class="actions">
+
+                <button
+                class="btn btn-green"
+                onclick="acceptRide(${ride.id})">
+                ✅ قبول
+                </button>
+
+            </div>
+            `
+            :
+            ""
+            }
+
+
+            ${
+            ride.status === "accepted"
+            &&
+            currentDriver
+            &&
+            ride.driverId == currentDriver.id
+            ?
+            `
+            <div class="actions">
+
+                <button
+                class="btn btn-primary"
+                onclick="startRide(${ride.id})">
+                🚕 بدء الرحلة
+                </button>
+
+            </div>
+            `
+            :
+            ""
+            }
+
+
+            ${
+            ride.status === "started"
+            &&
+            currentDriver
+            &&
+            ride.driverId == currentDriver.id
+            ?
+            `
+            <div class="actions">
+
+                <button
+                class="btn btn-green"
+                onclick="completeRide(${ride.id})">
+                🏁 إنهاء الرحلة
+                </button>
+
+            </div>
+            `
+            :
+            ""
+            }
+
+        </div>
+
+        `)
+        .join("");
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+
+// ================= ACCEPT =================
+
+async function acceptRide(id){
+
+    if(!currentDriver){
+
+        alert(
+            "⚠️ سجل السائق أولاً"
+        );
+
+        return;
+
+    }
+
+
+    const response =
+    await fetch(
+    `/api/rides/${id}/accept`,{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            driverId:currentDriver.id
+
+        })
+
+    });
+
+
+    const data =
+    await response.json();
+
+
+    if(data.success){
+
+        loadDriverRides();
+
+        alert(
+            "✅ تم قبول الرحلة"
+        );
+
+    }
+
+}
+
+
+// ================= START =================
+
+async function startRide(id){
+
+    await fetch(
+    `/api/rides/${id}/start`,{
+
+        method:"POST"
+
+    });
+
+
+    loadDriverRides();
+
+}
+
+
+// ================= COMPLETE =================
+
+async function completeRide(id){
+
+    await fetch(
+    `/api/rides/${id}/complete`,{
+
+        method:"POST"
+
+    });
+
+
+    loadDriverRides();
+
+}
+
+
+// ================= STATUS =================
+
+function getStatus(status){
+
+    if(status === "pending")
+        return "⏳ في الانتظار";
+
+    if(status === "accepted")
+        return "✅ مقبولة";
+
+    if(status === "started")
+        return "🚕 قيد الرحلة";
+
+    if(status === "completed")
+        return "🏁 مكتملة";
+
+    return status;
+
+}
+
+
+// ================= ADMIN =================
+
+async function loadAdmin(){
+
+    try{
+
+        const response =
+        await fetch("/api/admin");
+
+        const data =
+        await response.json();
+
+
+        document
+        .getElementById("customersCount")
+        .textContent =
+        data.statistics.customers;
+
+
+        document
+        .getElementById("driversCount")
+        .textContent =
+        data.statistics.drivers;
+
+
+        document
+        .getElementById("ridesCount")
+        .textContent =
+        data.statistics.rides;
+
+
+        document
+        .getElementById("completedCount")
+        .textContent =
+        data.statistics.completed;
+
+
+        loadAdminRides(data.rides);
+
+        loadAdminDrivers(data.drivers);
+
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+
+// ================= ADMIN RIDES =================
+
+function loadAdminRides(rides){
+
+    const container =
+    document
+    .getElementById("adminRides");
+
+
+    if(!rides.length){
+
+        container.innerHTML = `
+        <div class="empty">
+        لا توجد رحلات
+        </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+    rides
+    .slice()
+    .reverse()
+    .map(ride => `
+
+    <div class="ride">
+
+        <strong>
+        🚕 رحلة #${ride.id}
+        </strong>
+
+        <div class="ride-row">
+        👤 ${ride.customerName}
+        </div>
+
+        <div class="ride-row">
+        📍 ${ride.pickup}
+        </div>
+
+        <div class="ride-row">
+        🏁 ${ride.destination}
+        </div>
+
+        <div class="ride-row">
+        💰 ${ride.price} دج
+        </div>
+
+        <div class="ride-row">
+
+        <span class="status">
+        ${getStatus(ride.status)}
+        </span>
+
+        </div>
+
+    </div>
+
+    `)
+    .join("");
+
+}
+
+
+// ================= ADMIN DRIVERS =================
+
+function loadAdminDrivers(drivers){
+
+    const container =
+    document
+    .getElementById("adminDrivers");
+
+
+    if(!drivers.length){
+
+        container.innerHTML = `
+        <div class="empty">
+        لا يوجد سائقون
+        </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+    drivers
+    .map(driver => `
+
+    <div class="ride">
+
+        <strong>
+        🚗 ${driver.name}
+        </strong>
+
+        <div class="ride-row">
+        📱 ${driver.phone}
+        </div>
+
+        <div class="ride-row">
+        🚘 ${driver.car}
+        </div>
+
+        <div class="ride-row">
+        🔢 ${driver.plate}
+        </div>
+
+        <div class="ride-row">
+
+        ${
+        driver.online
+        ? "🟢 متصل"
+        : "🔴 غير متصل"
+        }
+
+        </div>
+
+    </div>
+
+    `)
+    .join("");
+
+}
+
+
+// تحديث الطلبات تلقائياً
+
+setInterval(() => {
+
+    if(
+        document
+        .getElementById("driver")
+        .classList
+        .contains("active")
+    ){
+
+        loadDriverRides();
+
+    }
+
+},5000);
+
+
+</script>
+
+</body>
+</html>
