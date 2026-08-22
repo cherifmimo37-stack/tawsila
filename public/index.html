@@ -838,6 +838,14 @@ const distance =
     }
     : null;
   
+  const destinationCoords =
+    destinationLocation
+    ? {
+        lat: destinationLocation.lat,
+        lng: destinationLocation.lng
+    }
+    : null;
+  
     if(
         !customerName ||
         !customerPhone ||
