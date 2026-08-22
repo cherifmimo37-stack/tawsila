@@ -1844,13 +1844,11 @@ let price =
 
 price =
     Math.round(price / 10) * 10;
-
-
-// عرض السعر
 document
-.getElementById("autoPriceValue")
-.innerHTML =
-`${price} دج`;
+.getElementById("price")
+.textContent =
+price;
+
     document
     .getElementById("distanceInfo")
     .innerHTML =
