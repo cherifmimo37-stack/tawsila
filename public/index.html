@@ -450,6 +450,16 @@ placeholder="05xxxxxxxx"
      color:#687386;">
     لم يتم تحديد الموقع بعد
 </div>
+  <div
+id="destinationInfo"
+style="
+margin-top:12px;
+padding:12px;
+background:#f7f8fa;
+border-radius:12px;
+color:#687386;">
+🏁 اضغط على الخريطة لاختيار الوجهة
+</div>
 <div class="form-group">
 
 <label>نقطة الانطلاق</label>
@@ -1574,7 +1584,10 @@ setInterval(() => {
 let map = null;
 let userMarker = null;
 let userLocation = null;
-
+let destinationLocation = null;
+let destinationMarker = null;
+let routeLine = null;
+let selectedDistance = 0;
 
 // إنشاء الخريطة
 function initMap(){
