@@ -127,12 +127,15 @@ app.post("/api/rides", (req, res) => {
     const database = readDatabase();
 
     const {
-        customerName,
-        customerPhone,
-        pickup,
-        destination,
-        price
-    } = req.body;
+    customerName,
+    customerPhone,
+    pickup,
+    destination,
+    price,
+    distance,
+    pickupLocation,
+    destinationCoords
+} = req.body;
 
     if (
         !customerName ||
