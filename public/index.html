@@ -1981,6 +1981,77 @@ price;
     window.open(url, "_blank");
 
 }
+
+  // ================= CUSTOMER RIDE STATUS =================
+
+async function updateCustomerRideStatus(){
+
+    const rideId =
+        localStorage.getItem("currentRideId");
+
+    const statusBox =
+        document.getElementById("customerRideStatus");
+
+    if(!rideId || !statusBox){
+
+        return;
+
+    }
+
+    try{
+
+        const response =
+            await fetch(`/api/rides/${rideId}`);
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            statusBox.innerHTML =
+                "❌ الرحلة غير موجودة";
+
+            return;
+
+        }
+
+        const ride = data.ride;
+
+        if(ride.status === "pending"){
+
+            statusBox.innerHTML =
+                "🔎 جاري البحث عن سائق...";
+
+        }
+
+        else if(ride.status === "accepted"){
+
+            statusBox.innerHTML =
+                "✅ تم قبول الرحلة — السائق في الطريق إليك 🚕";
+
+        }
+
+        else if(ride.status === "started"){
+
+            statusBox.innerHTML =
+                "🚕 الرحلة بدأت";
+
+        }
+
+        else if(ride.status === "completed"){
+
+            statusBox.innerHTML =
+                "🏁 تم إنهاء الرحلة بنجاح";
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
   
 </script>
 
