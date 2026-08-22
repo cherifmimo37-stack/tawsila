@@ -1594,9 +1594,9 @@ setInterval(() => {
 let map = null;
 let userMarker = null;
 let userLocation = null;
+  
 let destinationLocation = null;
 let destinationMarker = null;
-let routeLine = null;
 let selectedDistance = 0;
 
 // إنشاء الخريطة
@@ -1645,6 +1645,8 @@ function initMap(){
     }
 
     destinationMarker.openPopup();
+    
+    calculateDistance();
 
 });
 
@@ -1772,6 +1774,75 @@ function getMyLocation(){
 
     }
 );
+
+  function calculateDistance(){
+
+    if(
+        !userLocation ||
+        !destinationLocation
+    ){
+
+        document
+        .getElementById("distanceInfo")
+        .innerHTML =
+        "📏 حدد موقعك والوجهة لحساب المسافة";
+
+        return;
+    }
+
+    const R = 6371;
+
+    const lat1 =
+        userLocation.lat *
+        Math.PI / 180;
+
+    const lat2 =
+        destinationLocation.lat *
+        Math.PI / 180;
+
+    const dLat =
+        (destinationLocation.lat -
+        userLocation.lat) *
+        Math.PI / 180;
+
+    const dLng =
+        (destinationLocation.lng -
+        userLocation.lng) *
+        Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
+        Math.cos(lat1) *
+        Math.cos(lat2) *
+
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+    const distance =
+        R * c;
+
+    selectedDistance =
+        distance;
+
+    document
+    .getElementById("distanceInfo")
+    .innerHTML =
+    `
+    📏 المسافة التقريبية:
+    <strong>
+    ${distance.toFixed(2)} كم
+    </strong>
+    `;
+}
 </script>
 
 </body>
