@@ -446,6 +446,36 @@ app.post("/api/rides/:id/complete", (req, res) => {
 
 });
 
+app.get("/api/rides/:id", (req, res) => {
+
+    const database = readDatabase();
+
+    const ride = database.rides.find(
+        r => r.id == Number(req.params.id)
+    );
+
+    if (!ride) {
+
+        return res.status(404).json({
+
+            success: false,
+
+            message: "الرحلة غير موجودة"
+
+        });
+
+    }
+
+    res.json({
+
+        success: true,
+
+        ride
+
+    });
+
+});
+
 
 // ================= ADMIN =================
 
