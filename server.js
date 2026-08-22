@@ -168,6 +168,12 @@ app.post("/api/rides", (req, res) => {
 
         price: Number(price) || 0,
 
+        distance: Number(distance) || 0,
+
+pickupLocation,
+
+destinationCoords,
+
         status: "pending",
 
         driverId: null,
