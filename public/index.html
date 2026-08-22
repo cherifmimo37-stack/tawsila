@@ -825,7 +825,10 @@ async function createRide(){
         .getElementById("price")
         .textContent
     );
-
+const distance =
+    Number(
+        selectedDistance.toFixed(2)
+    );
 
     if(
         !customerName ||
