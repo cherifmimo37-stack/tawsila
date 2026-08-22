@@ -1265,6 +1265,29 @@ ${ride.destinationCoords
     : "غير متوفر"}
 </div>
 
+${
+ride.destinationCoords
+?
+`
+<div class="actions">
+
+    <button
+    class="btn btn-primary"
+    onclick="openDestinationLocation(
+        ${ride.destinationCoords.lat},
+        ${ride.destinationCoords.lng}
+    )">
+
+    🏁 فتح موقع الوجهة
+
+    </button>
+
+</div>
+`
+:
+""
+}
+
             <div class="ride-row">
 
             <span class="status">
