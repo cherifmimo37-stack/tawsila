@@ -1619,6 +1619,35 @@ function initMap(){
         }
     ).addTo(map);
 
+  map.on("click", function(e){
+
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+
+    destinationLocation = {
+        lat: lat,
+        lng: lng
+    };
+
+    if(destinationMarker){
+
+        destinationMarker.setLatLng(
+            [lat, lng]
+        );
+
+    }else{
+
+        destinationMarker =
+        L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup("🏁 الوجهة");
+
+    }
+
+    destinationMarker.openPopup();
+
+});
+
 }
 
 
