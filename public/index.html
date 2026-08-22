@@ -1226,6 +1226,22 @@ async function loadDriverRides(){
 📏 ${ride.distance || 0} كم
 </div>
 
+<div class="ride-row">
+📍 موقع الانطلاق:
+${ride.pickupLocation
+    ? ride.pickupLocation.lat.toFixed(5) + ", " +
+      ride.pickupLocation.lng.toFixed(5)
+    : "غير متوفر"}
+</div>
+
+<div class="ride-row">
+🏁 موقع الوجهة:
+${ride.destinationCoords
+    ? ride.destinationCoords.lat.toFixed(5) + ", " +
+      ride.destinationCoords.lng.toFixed(5)
+    : "غير متوفر"}
+</div>
+
             <div class="ride-row">
 
             <span class="status">
