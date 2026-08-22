@@ -830,6 +830,14 @@ const distance =
         selectedDistance.toFixed(2)
     );
 
+  const pickupLocation =
+    userLocation
+    ? {
+        lat: userLocation.lat,
+        lng: userLocation.lng
+    }
+    : null;
+  
     if(
         !customerName ||
         !customerPhone ||
