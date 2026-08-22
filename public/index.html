@@ -1234,6 +1234,29 @@ ${ride.pickupLocation
     : "غير متوفر"}
 </div>
 
+${
+ride.pickupLocation
+?
+`
+<div class="actions">
+
+    <button
+    class="btn btn-primary"
+    onclick="openPickupLocation(
+        ${ride.pickupLocation.lat},
+        ${ride.pickupLocation.lng}
+    )">
+
+    📍 فتح موقع الزبون
+
+    </button>
+
+</div>
+`
+:
+""
+}
+
 <div class="ride-row">
 🏁 موقع الوجهة:
 ${ride.destinationCoords
