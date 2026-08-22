@@ -1856,7 +1856,23 @@ function getMyLocation(){
 
     selectedDistance =
         distance;
+// حساب السعر
+const basePrice = 200;
+const pricePerKm = 50;
 
+let price =
+    basePrice +
+    (distance * pricePerKm);
+
+price =
+    Math.round(price / 10) * 10;
+
+
+// عرض السعر
+document
+.getElementById("autoPriceValue")
+.innerHTML =
+`${price} دج`;
     document
     .getElementById("distanceInfo")
     .innerHTML =
