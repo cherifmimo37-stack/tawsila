@@ -2201,6 +2201,65 @@ function updateDriverOnlineButton(){
     }
 
 }
+
+// ================= COMPLETE =================
+
+async function completeRide(id){
+
+    if(!currentDriver){
+
+        alert("⚠️ سجل السائق أولاً");
+
+        return;
+
+    }
+
+    try{
+
+        const response =
+        await fetch(
+        `/api/rides/${id}/complete`,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                driverId:currentDriver.id
+
+            })
+
+        });
+
+        const data =
+        await response.json();
+
+        if(data.success){
+
+            loadDriverRides();
+
+        }else{
+
+            alert(
+                "❌ " + data.message
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ تعذر الاتصال بالخادم"
+        );
+
+    }
+
+}
   
 </script>
 
