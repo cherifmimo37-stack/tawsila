@@ -2135,6 +2135,54 @@ async function setDriverOnline(online){
     }
 
 }
+
+  // ================= UPDATE DRIVER ONLINE BUTTON =================
+
+function updateDriverOnlineButton(){
+
+    const button =
+        document.getElementById("driverOnlineButton");
+
+    if(!button || !currentDriver){
+
+        return;
+
+    }
+
+    if(currentDriver.online){
+
+        button.innerHTML =
+            "🔴 أنا غير متصل";
+
+        button.className =
+            "btn btn-primary";
+
+        button.onclick =
+            function(){
+
+                setDriverOnline(false);
+
+            };
+
+    }else{
+
+        button.innerHTML =
+            "🟢 أنا متصل وأستقبل الطلبات";
+
+        button.className =
+            "btn btn-green";
+
+        button.onclick =
+            function(){
+
+                setDriverOnline(true);
+
+            };
+
+    }
+
+}
+  
 </script>
 
 </body>
