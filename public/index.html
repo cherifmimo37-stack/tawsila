@@ -2260,6 +2260,18 @@ async function completeRide(id){
     }
 
 }
+
+  // تحديث طلبات السائق تلقائيًا كل 5 ثواني
+
+setInterval(function(){
+
+    if(currentDriver && currentDriver.online){
+
+        loadDriverRides();
+
+    }
+
+}, 5000);
   
 </script>
 
