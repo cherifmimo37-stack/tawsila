@@ -2057,7 +2057,68 @@ async function updateCustomerRideStatus(){
     updateCustomerRideStatus,
     5000
 );
-  
+
+  // ================= DRIVER ONLINE STATUS =================
+
+async function setDriverOnline(online){
+
+    if(!currentDriver){
+
+        alert("⚠️ سجل السائق أولاً");
+
+        return;
+
+    }
+
+    try{
+
+        const response =
+        await fetch("/api/driver/status",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                driverId:currentDriver.id,
+
+                online:online
+
+            })
+
+        });
+
+        const data =
+        await response.json();
+
+        if(data.success){
+
+            currentDriver = data.driver;
+
+            updateDriverOnlineButton();
+
+        }else{
+
+            alert(
+                "❌ " + data.message
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ تعذر الاتصال بالخادم"
+        );
+
+    }
+
+}
 </script>
 
 </body>
