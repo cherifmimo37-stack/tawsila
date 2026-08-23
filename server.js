@@ -186,13 +186,39 @@ destinationCoords,
 
     saveDatabase(database);
 
-    res.json({
+    const availableRides =
+    database.rides.filter(ride => {
 
-        success: true,
+        if(ride.status === "pending"){
 
-        ride
+            return true;
+
+        }
+
+        if(
+            ride.driverId == driverId &&
+            (
+                ride.status === "accepted" ||
+                ride.status === "started"
+            )
+        ){
+
+            return true;
+
+        }
+
+        return false;
 
     });
+
+
+res.json({
+
+    success: true,
+
+    rides: availableRides
+
+});
 
 });
 
