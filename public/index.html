@@ -1481,12 +1481,30 @@ async function startRide(id){
 
 // ================= COMPLETE =================
 
-async function completeRide(id){
+async function startRide(id){
+
+    if(!currentDriver){
+
+        alert("⚠️ سجل السائق أولاً");
+
+        return;
+
+    }
 
     await fetch(
-    `/api/rides/${id}/complete`,{
+    `/api/rides/${id}/start`,{
 
-        method:"POST"
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            driverId:currentDriver.id
+
+        })
 
     });
 
@@ -1494,7 +1512,6 @@ async function completeRide(id){
     loadDriverRides();
 
 }
-
 
 // ================= STATUS =================
 
