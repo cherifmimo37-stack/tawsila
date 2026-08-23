@@ -394,6 +394,18 @@ app.post("/api/rides/:id/accept", (req, res) => {
 
     }
 
+    if(ride.status !== "pending"){
+
+    return res.status(400).json({
+
+        success: false,
+
+        message: "⚠️ هذه الرحلة تم قبولها مسبقًا"
+
+    });
+
+}
+
     if (!driver) {
 
         return res.status(404).json({
