@@ -203,6 +203,56 @@ app.get("/api/rides", (req, res) => {
 
     const database = readDatabase();
 
+    const driverId =
+        Number(req.query.driverId);
+
+    // إذا لم يتم إرسال سائق
+    if(!driverId){
+
+        return res.json({
+
+            success: true,
+
+            rides: []
+
+        });
+
+    }
+
+    const driver =
+        database.drivers.find(
+            d => d.id == driverId
+        );
+
+    // السائق غير موجود
+    if(!driver){
+
+        return res.status(404).json({
+
+            success: false,
+
+            message: "السائق غير موجود",
+
+            rides: []
+
+        });
+
+    }
+
+    // السائق غير متصل
+    if(!driver.online){
+
+        return res.json({
+
+            success: true,
+
+            rides: []
+
+        });
+
+    }
+
+    // السائق متصل
     res.json({
 
         success: true,
