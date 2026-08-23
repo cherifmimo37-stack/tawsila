@@ -281,40 +281,11 @@ app.get("/api/rides", (req, res) => {
     }
 
     // السائق متصل
-    const availableRides =
-        database.rides.filter(ride => {
-
-            // الطلبات الجديدة
-            if(ride.status === "pending"){
-
-                return true;
-
-            }
-
-            // الرحلات الخاصة بهذا السائق
-            if(
-                ride.driverId == driverId &&
-                (
-                    ride.status === "accepted" ||
-                    ride.status === "started"
-                )
-            ){
-
-                return true;
-
-            }
-
-            return false;
-
-        });
-
     res.json({
 
-        success: true,
+    success: true,
 
-        rides: availableRides
-
-    });
+    ride
 
 });
 // ================= DRIVER =================
