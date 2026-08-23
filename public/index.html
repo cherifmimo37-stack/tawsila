@@ -1209,7 +1209,9 @@ async function loadDriverRides(){
     try{
 
         const response =
-        await fetch("/api/rides");
+await fetch(
+    `/api/rides?driverId=${currentDriver ? currentDriver.id : ""}`
+);
 
         const data =
         await response.json();
