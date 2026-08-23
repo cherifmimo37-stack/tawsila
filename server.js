@@ -225,6 +225,8 @@ res.json({
 
 // ================= GET RIDES =================
 
+// ================= GET RIDES =================
+
 app.get("/api/rides", (req, res) => {
 
     const database = readDatabase();
@@ -279,17 +281,42 @@ app.get("/api/rides", (req, res) => {
     }
 
     // السائق متصل
+    const availableRides =
+        database.rides.filter(ride => {
+
+            // الطلبات الجديدة
+            if(ride.status === "pending"){
+
+                return true;
+
+            }
+
+            // الرحلات الخاصة بهذا السائق
+            if(
+                ride.driverId == driverId &&
+                (
+                    ride.status === "accepted" ||
+                    ride.status === "started"
+                )
+            ){
+
+                return true;
+
+            }
+
+            return false;
+
+        });
+
     res.json({
 
         success: true,
 
-        rides: database.rides
+        rides: availableRides
 
     });
 
 });
-
-
 // ================= DRIVER =================
 
 app.post("/api/driver", (req, res) => {
