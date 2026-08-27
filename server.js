@@ -428,6 +428,18 @@ app.post("/api/rides/:id/accept", (req, res) => {
 
     }
 
+    if(ride.status !== "pending"){
+
+    return res.status(409).json({
+
+        success: false,
+
+        message: "❌ هذه الرحلة تم قبولها من سائق آخر"
+
+    });
+
+}
+
     ride.status = "accepted";
 
     ride.driverId = driver.id;
