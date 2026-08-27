@@ -467,6 +467,10 @@ app.post("/api/rides/:id/start", (req, res) => {
         r => r.id == Number(req.params.id)
     );
 
+    const {
+        driverId
+    } = req.body;
+
     if (!ride) {
 
         return res.status(404).json({
@@ -474,6 +478,42 @@ app.post("/api/rides/:id/start", (req, res) => {
             success: false,
 
             message: "الرحلة غير موجودة"
+
+        });
+
+    }
+
+    if (!driverId) {
+
+        return res.status(400).json({
+
+            success: false,
+
+            message: "❌ رقم السائق مطلوب"
+
+        });
+
+    }
+
+    if (ride.driverId != driverId) {
+
+        return res.status(403).json({
+
+            success: false,
+
+            message: "❌ هذه الرحلة ليست مسجلة لهذا السائق"
+
+        });
+
+    }
+
+    if (ride.status !== "accepted") {
+
+        return res.status(409).json({
+
+            success: false,
+
+            message: "❌ لا يمكن بدء الرحلة الآن"
 
         });
 
@@ -492,7 +532,6 @@ app.post("/api/rides/:id/start", (req, res) => {
     });
 
 });
-
 
 // ================= COMPLETE RIDE =================
 
