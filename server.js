@@ -186,45 +186,15 @@ destinationCoords,
 
     saveDatabase(database);
 
-    const availableRides =
-    database.rides.filter(ride => {
-
-        if(ride.status === "pending"){
-
-            return true;
-
-        }
-
-        if(
-            ride.driverId == driverId &&
-            (
-                ride.status === "accepted" ||
-                ride.status === "started"
-            )
-        ){
-
-            return true;
-
-        }
-
-        return false;
-
-    });
-
-
-res.json({
+    res.json({
 
     success: true,
 
-    rides: availableRides
+    ride
 
 });
 
 });
-
-
-// ================= GET RIDES =================
-
 // ================= GET RIDES =================
 
 app.get("/api/rides", (req, res) => {
@@ -234,14 +204,15 @@ app.get("/api/rides", (req, res) => {
     const driverId =
         Number(req.query.driverId);
 
-    // إذا لم يتم إرسال سائق
+    // إذا لم يتم إرسال driverId
+    // نرجع جميع الرحلات
     if(!driverId){
 
         return res.json({
 
             success: true,
 
-            rides: []
+            rides: database.rides
 
         });
 
@@ -252,7 +223,6 @@ app.get("/api/rides", (req, res) => {
             d => d.id == driverId
         );
 
-    // السائق غير موجود
     if(!driver){
 
         return res.status(404).json({
@@ -267,25 +237,41 @@ app.get("/api/rides", (req, res) => {
 
     }
 
-    // السائق غير متصل
-    if(!driver.online){
+    // الرحلات التي يستطيع هذا السائق رؤيتها
+    const availableRides =
+        database.rides.filter(ride => {
 
-        return res.json({
+            // الطلبات الجديدة
+            if(ride.status === "pending"){
 
-            success: true,
+                return true;
 
-            rides: []
+            }
+
+            // رحلات هذا السائق فقط
+            if(
+                ride.driverId == driverId &&
+                (
+                    ride.status === "accepted" ||
+                    ride.status === "started"
+                )
+            ){
+
+                return true;
+
+            }
+
+            return false;
 
         });
 
-    }
-
-    // السائق متصل
     res.json({
 
-    success: true,
+        success: true,
 
-    ride
+        rides: availableRides
+
+    });
 
 });
 // ================= DRIVER =================
