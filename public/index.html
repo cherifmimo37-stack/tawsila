@@ -1253,29 +1253,6 @@ await fetch(
             🏁 ${ride.destination}
             </div>
 
-${
-    ride.destinationCoords
-    ?
-    `
-    <div class="actions">
-
-        <button
-        class="btn btn-primary"
-        onclick="openDestinationLocation(
-            ${ride.destinationCoords.lat},
-            ${ride.destinationCoords.lng}
-        )">
-
-            🏁 فتح الوجهة
-
-        </button>
-
-    </div>
-    `
-    :
-    ""
-}
-
             <div class="ride-row">
             💰 ${ride.price} دج
             </div>
