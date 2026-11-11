@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07111e">
+<title>توصيلة | تسجيل الدخول</title>
+<style>
+:root {
+  --gold:#e5ad20;
+  --gold2:#ffda65;
+  --blue:#1766a7;
+  --dark:#07111e;
+  --silver:#cbd4df;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Tahoma,Arial,sans-serif;
+  color:white;
+  background:#07111e;
+}
+.page{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  background:
+    radial-gradient(ellipse at 15% 45%,#174c76,transparent 48%),
+    linear-gradient(115deg,#102a43,#07111e 65%);
+}
+.visual{
+  position:relative;
+  min-height:720px;
+  overflow:hidden;
+  display:flex;
+  align-items:flex-end;
+  padding:7%;
+  background:
+    linear-gradient(0deg,#06101df2,transparent 65%);
+}
+.city{
+  position:absolute;
+  inset:0 0 25%;
+  opacity:.7;
+  background:
+    repeating-linear-gradient(
+      90deg,transparent 0 55px,
+      #172c40 56px 78px,transparent 79px 115px
+    );
+}
+.city:after{
+  content:"";
+  position:absolute;
+  inset:25% 0 0;
+  background:repeating-linear-gradient(
+    90deg,transparent 0 24px,
+    #e5ad2030 25px 28px,
+    transparent 29px 72px
+  );
+}
+.car-wrap{
+  position:absolute;
+  left:2%;
+  right:2%;
+  bottom:18%;
+  filter:drop-shadow(0 25px 25px #000b);
+}
+.car{width:100%;height:auto}
+.visual-copy{
+  position:relative;
+  z-index:2;
+  max-width:550px;
+}
+.eyebrow{
+  color:var(--gold2);
+  font-size:14px;
+  font-weight:bold;
+}
+.visual-copy h2{
+  font-size:clamp(30px,4vw,55px);
+  line-height:1.3;
+  margin:12px 0;
+}
+.visual-copy p{
+  color:#c5d0dc;
+  line-height:1.9;
+}
+.panel-side{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:35px 24px;
+  background:linear-gradient(145deg,#0a1727f2,#050b13f7);
+  border-right:1px solid #9aa9b52a;
+}
+.panel{width:min(440px,100%)}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  margin-bottom:30px;
+}
+.logo{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  background:linear-gradient(145deg,#ffe07b,#d89a08);
+  display:grid;
+  place-items:center;
+  color:#101a25;
+  font-size:30px;
+  font-weight:900;
+}
+.brand-name{
+  font-size:28px;
+  font-weight:900;
+  color:var(--gold2);
+}
+.brand small{
+  display:block;
+  color:#9eacbb;
+  font-size:12px;
+  margin-top:4px;
+}
+h1{font-size:27px;margin:0 0 8px}
+.lead{
+  font-size:13px;
+  color:#aebbc9;
+  line-height:1.8;
+  margin-bottom:23px;
+}
+.roles{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-bottom:20px;
+}
+.role{
+  border:1px solid #536579;
+  background:#111f30;
+  color:#dce5ed;
+  border-radius:14px;
+  padding:14px 10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.role .ico{
+  display:block;
+  font-size:25px;
+  margin-bottom:7px;
+}
+.role.active{
+  border:2px solid var(--gold);
+  background:linear-gradient(145deg,#1b3854,#13263b);
+  color:var(--gold2);
+}
+label{
+  display:block;
+  font-size:13px;
+  color:#e0e7ee;
+  margin:14px 0 7px;
+}
+input{
+  width:100%;
+  height:49px;
+  border-radius:11px;
+  border:1px solid #405267;
+  background:#0c1928;
+  color:white;
+  padding:0 14px;
+  font:inherit;
+  outline:none;
+}
+input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px #e5ad201c;
+}
+input::placeholder{color:#738398}
+.password{position:relative}
+.password button{
+  position:absolute;
+  left:10px;
+  top:10px;
+  background:none;
+  border:0;
+  color:var(--gold2);
+  cursor:pointer;
+}
+.extra{display:none}
+.extra.show{display:block}
+.submit{
+  width:100%;
+  height:52px;
+  margin-top:22px;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(100deg,#d69b12,#ffdb69);
+  color:#17202b;
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+}
+.mode{
+  text-align:center;
+  color:#aab7c5;
+  font-size:13px;
+  margin:19px 0;
+}
+.mode button{
+  border:0;
+  background:none;
+  color:var(--gold2);
+  font-weight:bold;
+  cursor:pointer;
+}
+.foot{
+  border-top:1px solid #29394b;
+  padding-top:14px;
+  color:#8191a3;
+  font-size:11px;
+  line-height:1.8;
+}
+.toast{
+  display:none;
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  max-width:420px;
+  margin:auto;
+  background:#12263b;
+  border:1px solid var(--gold);
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+}
+@media(max-width:850px){
+  .page{grid-template-columns:1fr}
+  .visual{
+    min-height:290px;
+    order:2;
+    padding:25px;
+  }
+  .car-wrap{
+    bottom:7%;
+    opacity:.75;
+  }
+  .panel-side{
+    order:1;
+    padding:30px 20px 35px;
+    border:0;
+  }
+  .panel{max-width:440px}
+  .brand{margin-bottom:22px}
+  .visual-copy h2{font-size:27px}
+  .visual-copy p{font-size:12px}
+}
+@media(max-width:420px){
+  .panel-side{padding:25px 17px}
+  .visual{min-height:250px}
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<section class="visual">
+  <div class="city"></div>
+
+  <div class="car-wrap">
+    <svg class="car" viewBox="0 0 900 390"
+         role="img" aria-label="سيارة أجرة صفراء">
+      <defs>
+        <linearGradient id="body" x2="0" y2="1">
+          <stop stop-color="#ffe47b"/>
+          <stop offset=".38" stop-color="#e7ad19"/>
+          <stop offset=".75" stop-color="#a86c08"/>
+          <stop offset="1" stop-color="#33260f"/>
+        </linearGradient>
+        <linearGradient id="glass" x2="0" y2="1">
+          <stop stop-color="#8ab9d5"/>
+          <stop offset="1" stop-color="#102d48"/>
+        </linearGradient>
+        <linearGradient id="metal" x2="0" y2="1">
+          <stop stop-color="#f7fbff"/>
+          <stop offset=".5" stop-color="#8292a2"/>
+          <stop offset="1" stop-color="#263545"/>
+        </linearGradient>
+      </defs>
+
+      <ellipse cx="460" cy="330" rx="390" ry="35"
+               fill="#000" opacity=".55"/>
+
+      <path d="M115 267 Q130 215 205 199
+      L300 112 Q330 82 390 78
+      L570 80 Q620 82 665 130
+      L750 205 Q810 216 830 260
+      L824 300 Q810 322 770 322
+      L150 322 Q108 315 105 288Z"
+      fill="url(#body)" stroke="#ffe18a" stroke-width="5"/>
+
+      <path d="M317 119 Q340 94 389 94
+      L565 96 Q601 98 633 135
+      L681 192 L260 192Z"
+      fill="url(#glass)" stroke="#4b5c69" stroke-width="8"/>
+
+      <path d="M466 99 L468 191"
+            stroke="#a9bac7" stroke-width="8"/>
+
+      <path d="M251 205 L693 205"
+            stroke="#fff0b5" stroke-width="5"/>
+
+      <path d="M110 263 Q160 240 225 242
+      L710 242 Q780 242 827 267
+      L817 289 L120 289Z"
+      fill="#172535" opacity=".9"/>
+
+      <path d="M115 256 L180 245 L174 274 L112 281Z"
+            fill="#f7f8eb"/>
+
+      <path d="M748 244 L817 261 L824 281 L756 274Z"
+            fill="#e7f5ff"/>
+
+      <rect x="425" y="63" width="105" height="25"
+            rx="8" fill="#f7c532" stroke="#fff0a5" stroke-width="3"/>
+
+      <text x="478" y="81" text-anchor="middle"
+            font-size="15" font-weight="bold" fill="#17202b">TAXI</text>
+
+      <circle cx="260" cy="306" r="67"
+              fill="#080d14" stroke="#aeb9c5" stroke-width="8"/>
+      <circle cx="260" cy="306" r="39" fill="url(#metal)"/>
+      <circle cx="260" cy="306" r="14" fill="#263747"/>
+
+      <circle cx="690" cy="306" r="67"
+              fill="#080d14" stroke="#aeb9c5" stroke-width="8"/>
+      <circle cx="690" cy="306" r="39" fill="url(#metal)"/>
+      <circle cx="690" cy="306" r="14" fill="#263747"/>
+    </svg>
+  </div>
+
+  <div class="visual-copy">
+    <div class="eyebrow">توصيلة • مشوارك يبدأ هنا</div>
+    <h2>طريقك أسهل…<br>مع توصيلـة</h2>
+    <p>
+      تنقّل بثقة، واطلب رحلتك أو انضم كسائق
+      في منصة جزائرية صُممت لتقريب المسافات.
+    </p>
+  </div>
+</section>
+
+<aside class="panel-side">
+<div class="panel">
+
+  <div class="brand">
+    <div class="logo">ت</div>
+    <div>
+      <div class="brand-name">توصيلة</div>
+      <small>رحلتك بأمان وسهولة 🇩🇿</small>
+    </div>
+  </div>
+
+  <h1 id="title">مرحباً بعودتك</h1>
+  <p class="lead" id="lead">
+    سجّل الدخول لمتابعة رحلاتك وخدماتك.
+  </p>
+
+  <div class="roles">
+    <button class="role active" id="customer"
+            onclick="chooseRole('customer')" type="button">
+      <span class="ico">👤</span>أنا زبون
+    </button>
+
+    <button class="role" id="driver"
+            onclick="chooseRole('driver')" type="button">
+      <span class="ico">🚘</span>أنا سائق
+    </button>
+  </div>
+
+  <form id="authForm">
+
+    <div class="extra" id="nameField">
+      <label for="fullname">الاسم الكامل</label>
+      <input id="fullname" autocomplete="name"
+             placeholder="اكتب اسمك الكامل">
+    </div>
+
+    <label for="phone">رقم الهاتف</label>
+    <input id="phone" type="tel" inputmode="tel"
+           autocomplete="tel"
+           placeholder="05 أو 06 أو 07..." required>
+
+    <label for="password">كلمة المرور</label>
+    <div class="password">
+      <input id="password" type="password"
+             autocomplete="current-password"
+             placeholder="أدخل كلمة المرور" required>
+      <button type="button" onclick="showPassword()">إظهار</button>
+    </div>
+
+    <div class="extra" id="driverFields">
+      <label for="car">نوع السيارة</label>
+      <input id="car" placeholder="مثال: سيارة سياحية">
+
+      <label for="plate">رقم لوحة الترقيم</label>
+      <input id="plate" placeholder="رقم التسجيل">
+    </div>
+
+    <button class="submit" id="submit" type="submit">
+      تسجيل الدخول
+    </button>
+  </form>
+
+  <div class="mode">
+    <span id="modeText">ليس لديك حساب؟</span>
+    <button type="button" id="modeButton"
+            onclick="toggleMode()">إنشاء حساب جديد</button>
+  </div>
+
+  <div class="foot">
+    واجهة أولية للمعاينة فقط. لا تُرسل البيانات ولا تنشئ
+    حسابات حقيقية حالياً. سيتم ربطها بنظام الدخول الآمن
+    للمشروع بعد اعتماد التصميم.
+  </div>
+
+</div>
+</aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let role = 'customer';
+let mode = 'login';
+
+function chooseRole(value) {
+  role = value;
+
+  document.getElementById('customer')
+    .classList.toggle('active', role === 'customer');
+
+  document.getElementById('driver')
+    .classList.toggle('active', role === 'driver');
+
+  refreshUI();
+}
+
+function toggleMode() {
+  mode = mode === 'login' ? 'signup' : 'login';
+  refreshUI();
+}
+
+function refreshUI() {
+  const signup = mode === 'signup';
+  const driver = role === 'driver';
+
+  document.getElementById('title').textContent =
+    signup ? 'إنشاء حساب جديد' : 'مرحباً بعودتك';
+
+  document.getElementById('lead').textContent =
+    signup
+      ? (driver
+          ? 'أدخل معلوماتك للانضمام إلى شبكة سائقي توصيلـة.'
+          : 'أنشئ حسابك واطلب رحلتك بكل سهولة.')
+      : 'سجّل الدخول لمتابعة رحلاتك وخدماتك.';
+
+  document.getElementById('nameField')
+    .classList.toggle('show', signup);
+
+  document.getElementById('driverFields')
+    .classList.toggle('show', signup && driver);
+
+  document.getElementById('submit').textContent =
+    signup ? 'إنشاء الحساب' : 'تسجيل الدخول';
+
+  document.getElementById('modeText').textContent =
+    signup ? 'لديك حساب بالفعل؟' : 'ليس لديك حساب؟';
+
+  document.getElementById('modeButton').textContent =
+    signup ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+}
+
+function showPassword() {
+  const field = document.getElementById('password');
+
+  field.type =
+    field.type === 'password' ? 'text' : 'password';
+}
+
+document.getElementById('authForm')
+  .addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const toast = document.getElementById('toast');
+
+    toast.textContent =
+      'هذه معاينة للتصميم فقط. لم يتم إرسال أو حفظ أي بيانات.';
+
+    toast.style.display = 'block';
+
+    setTimeout(function() {
+      toast.style.display = 'none';
+    }, 3200);
+  });
+</script>
+
+</body>
+</html>
