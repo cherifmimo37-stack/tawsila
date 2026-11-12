@@ -1,11 +1,28 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const { Pool } = require("pg");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 const DATABASE_FILE = path.join(__dirname, "database.json");
+// ================= POSTGRESQL =================
+
+const pool = process.env.DATABASE_URL
+    ? new Pool({
+        connectionString: process.env.DATABASE_URL,
+        max: 5,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000
+    })
+    : null;
+
+if (pool) {
+    pool.on("error", (error) => {
+        console.error("PostgreSQL pool error:", error.message);
+    });
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -683,8 +700,22 @@ app.get("/api/admin", (req, res) => {
 
 app.listen(PORT, () => {
 
-    console.log(
-        `Yassir V1 running on port ${PORT}`
-    );
+    console.log(`Tawsila running on port ${PORT}`);
+
+    if (!pool) {
+        console.error("DATABASE_URL is missing!");
+        return;
+    }
+
+    pool.query("SELECT 1 AS connected")
+        .then(() => {
+            console.log("PostgreSQL connection successful!");
+        })
+        .catch((error) => {
+            console.error(
+                "PostgreSQL connection failed:",
+                error.message
+            );
+        });
 
 });
