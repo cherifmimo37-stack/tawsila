@@ -110,6 +110,93 @@ async function verifyPassword(password, storedHash){
 
 }
 
+// ================= DRIVER SESSION SECURITY =================
+
+function hashSessionToken(token){
+
+    return crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+}
+
+
+async function createDriverSession(driverId){
+
+    // حذف الجلسات المنتهية
+    await pool.query(
+        "DELETE FROM driver_sessions WHERE expires_at <= NOW()"
+    );
+
+    // إنشاء رمز عشوائي قوي
+    const token = crypto
+        .randomBytes(32)
+        .toString("hex");
+
+    const tokenHash = hashSessionToken(token);
+
+    // صلاحية الجلسة 30 يوماً
+    const expiresAt = new Date(
+        Date.now() + (30 * 24 * 60 * 60 * 1000)
+    );
+
+    await pool.query(
+        `INSERT INTO driver_sessions
+         (token_hash, driver_id, expires_at)
+         VALUES ($1, $2, $3)`,
+        [
+            tokenHash,
+            String(driverId),
+            expiresAt
+        ]
+    );
+
+    return {
+        token,
+        expiresAt
+    };
+
+}
+
+
+ // ================= VERIFY DRIVER SESSION =================
+
+async function getDriverFromSession(token){
+
+    if(
+        typeof token !== "string" ||
+        !/^[a-f0-9]{64}$/i.test(token)
+    ){
+        return null;
+    }
+
+    const tokenHash = hashSessionToken(token);
+
+    const result = await pool.query(
+        `SELECT drivers.*
+         FROM driver_sessions
+         INNER JOIN drivers
+         ON drivers.id = driver_sessions.driver_id
+         WHERE driver_sessions.token_hash = $1
+         AND driver_sessions.expires_at > NOW()`,
+        [tokenHash]
+    );
+
+    if(!result.rowCount){
+        return null;
+    }
+
+    return formatDriver(result.rows[0]);
+
+}
+
+// ================= END VERIFY DRIVER SESSION =================
+
+
+// ================= END DRIVER SESSION SECURITY =================
+
+
 // ================= END PASSWORD SECURITY =================
 
 
@@ -462,10 +549,14 @@ app.post("/api/driver", async (req, res) => {
             ]
         );
 
-        res.json({
-            success: true,
-            driver: formatDriver(result.rows[0])
-        });
+        const session = await createDriverSession(result.rows[0].id);
+
+return res.json({
+    success:true,
+    driver:formatDriver(result.rows[0]),
+    token:session.token,
+    expiresAt:session.expiresAt
+});
 
     } catch (error) {
 
@@ -479,6 +570,93 @@ app.post("/api/driver", async (req, res) => {
         return sendError(res, error);
     }
 });
+
+
+ // ================= DRIVER LOGIN =================
+
+app.post("/api/driver/login", async (req, res) => {
+
+    try{
+
+        const phone = String(req.body.phone || "").trim();
+        const password = req.body.password;
+
+        if(
+            !phone ||
+            typeof password !== "string" ||
+            password.length < 1 ||
+            password.length > 128
+        ){
+
+            return res.status(400).json({
+                success: false,
+                message: "أدخل رقم الهاتف وكلمة المرور"
+            });
+
+        }
+
+        const result = await pool.query(
+            `SELECT *
+             FROM drivers
+             WHERE phone = $1`,
+            [phone]
+        );
+
+        if(!result.rowCount){
+
+            return res.status(401).json({
+                success: false,
+                message: "رقم الهاتف أو كلمة المرور غير صحيحة"
+            });
+
+        }
+
+        const driverRow = result.rows[0];
+
+        // الحسابات القديمة تحتاج تفعيل كلمة المرور
+        if(!driverRow.password_hash){
+
+            return res.status(403).json({
+                success: false,
+                message: "حسابك قديم ويحتاج تفعيل كلمة المرور من الإدارة"
+            });
+
+        }
+
+        const passwordValid = await verifyPassword(
+            password,
+            driverRow.password_hash
+        );
+
+        if(!passwordValid){
+
+            return res.status(401).json({
+                success: false,
+                message: "رقم الهاتف أو كلمة المرور غير صحيحة"
+            });
+
+        }
+
+        const session = await createDriverSession(
+            driverRow.id
+        );
+
+        return res.json({
+            success: true,
+            driver: formatDriver(driverRow),
+            token: session.token,
+            expiresAt: session.expiresAt
+        });
+
+    }catch(error){
+
+        return sendError(res, error);
+
+    }
+
+});
+
+// ================= END DRIVER LOGIN =================
 
 // ================= DRIVER STATUS =================
 
