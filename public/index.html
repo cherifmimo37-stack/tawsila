@@ -419,6 +419,109 @@ section {
   border-radius: 16px;
 }
 
+
+/* ===== WELCOME SCREEN DESIGN ===== */
+.welcome-screen {
+  background: linear-gradient(145deg,#092746,#174c7d);
+  color: white;
+  text-align: center;
+  padding: 35px 20px;
+  border-radius: 25px;
+  min-height: 540px;
+  box-shadow: 0 12px 35px #09274625;
+}
+
+.welcome-logo {
+  width: 125px;
+  height: 125px;
+  object-fit: contain;
+  margin: 10px auto 20px;
+}
+
+.welcome-screen h1 {
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.welcome-screen > p {
+  color: #d9e8f8;
+  margin-bottom: 35px;
+  line-height: 1.8;
+}
+
+.welcome-options {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 18px;
+  max-width: 720px;
+  margin: auto;
+}
+
+.welcome-option {
+  background: white !important;
+  color: #123b67 !important;
+  border: 2px solid transparent !important;
+  border-radius: 20px !important;
+  padding: 25px 15px !important;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  box-shadow: 0 8px 25px #0002 !important;
+}
+
+.welcome-option > span {
+  font-size: 42px;
+}
+
+.welcome-option strong {
+  font-size: 22px;
+}
+
+.welcome-option small {
+  font-size: 13px;
+  color: #65758a;
+  line-height: 1.7;
+}
+
+.welcome-option b {
+  background: #ff8a24;
+  color: white;
+  padding: 11px 20px;
+  border-radius: 10px;
+}
+
+.welcome-option:hover {
+  border-color: #ff8a24 !important;
+  transform: translateY(-4px);
+}
+
+.welcome-footer {
+  margin-top: 35px;
+  color: #d9e8f8;
+  font-size: 13px;
+}
+
+@media(max-width:600px) {
+  .welcome-options {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-screen {
+    padding: 25px 15px;
+  }
+
+  .welcome-screen h1 {
+    font-size: 25px;
+  }
+
+  .welcome-option {
+    min-height: 185px;
+  }
+}
+
   
 </style>
 
@@ -463,9 +566,43 @@ section {
 <div class="container">
 
 
+<!-- ===== TAWSILA WELCOME SCREEN ===== -->
+<section id="welcome" class="page active">
+  <div class="welcome-screen">
+    <img src="/logo.svg" alt="توصيلة" class="welcome-logo">
+
+    <h1>مرحبا بك في توصيلة</h1>
+    <p>تنقّل بسهولة وأمان داخل ورقلة</p>
+
+    <div class="welcome-options">
+      <button class="welcome-option customer-option"
+              onclick="showPage('customer')">
+        <span>👤</span>
+        <strong>أنا زبون</strong>
+        <small>اطلب سيارة وحدد وجهتك بسهولة</small>
+        <b>طلب سيارة ←</b>
+      </button>
+
+      <button class="welcome-option driver-option"
+              onclick="showPage('driver')">
+        <span>🚗</span>
+        <strong>أنا سائق</strong>
+        <small>استقبل الطلبات وابدأ العمل معنا</small>
+        <b>دخول السائق ←</b>
+      </button>
+    </div>
+
+    <div class="welcome-footer">
+      توصيلة — خدمتك للتنقل في ورقلة
+    </div>
+  </div>
+</section>
+<!-- ===== END WELCOME SCREEN ===== -->
+
+  
 <!-- ================= CUSTOMER ================= -->
 
-<section id="customer" class="page active">
+<section id="customer" class="page">
 
 <div class="hero">
 
@@ -880,6 +1017,13 @@ function showPage(page){
     .getElementById(page)
     .classList.add("active");
 
+    if(page === "customer"){
+        setTimeout(() => {
+            initMap();
+            if(map) map.invalidateSize();
+        }, 200);
+    }
+
     if(page === "driver"){
         loadDriverRides();
     }
@@ -887,10 +1031,7 @@ function showPage(page){
     if(page === "admin"){
         loadAdmin();
     }
-
 }
-
-
 // ================= PRICE =================
 
 document
@@ -2035,14 +2176,6 @@ function getMyLocation(){
     );
 
 }
-  window.addEventListener(
-    "load",
-    function(){
-
-        initMap();
-
-    }
-);
 
   function calculateDistance(){
 
