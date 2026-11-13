@@ -109,11 +109,12 @@ webView.webChromeClient = object : WebChromeClient() {
         callback: android.webkit.GeolocationPermissions.Callback?
     ) {
 
-        if (origin != "https://tawsila-rdxk.onrender.com") {
-            callback?.invoke(origin, false, false)
-            return
-        }
+        val host = android.net.Uri.parse(origin ?: "").host
 
+if (host != "tawsila-rdxk.onrender.com") {
+    callback?.invoke(origin, false, false)
+    return
+}
         val fine = checkSelfPermission(
             android.Manifest.permission.ACCESS_FINE_LOCATION
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
