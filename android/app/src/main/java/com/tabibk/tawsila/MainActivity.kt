@@ -67,7 +67,44 @@ class MainActivity : Activity() {
             }
         }
 
-        webView.webChromeClient = WebChromeClient()
+        
+webView.settings.apply {
+    setGeolocationEnabled(true)
+}
+
+webView.webChromeClient = object : WebChromeClient() {
+
+    override fun onGeolocationPermissionsShowPrompt(
+        origin: String?,
+        callback: android.webkit.GeolocationPermissions.Callback?
+    ) {
+
+        if (origin == "https://tawsila-rdxk.onrender.com") {
+
+            if (
+                checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                callback?.invoke(origin, true, false)
+            } else {
+                callback?.invoke(origin, false, false)
+
+                requestPermissions(
+                    arrayOf(
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    ),
+                    1001
+                )
+            }
+
+        } else {
+            callback?.invoke(origin, false, false)
+        }
+    }
+}
 
         setContentView(webView)
 
