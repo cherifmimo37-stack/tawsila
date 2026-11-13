@@ -1896,6 +1896,13 @@ const distance =
         return;
     }
 
+  if(selectedDistance <= 0){
+
+    alert("⏳ انتظر حتى يتم حساب مسافة الطريق بنجاح");
+
+    return;
+}
+
     try{
 
         await fetch("/api/customer",{
@@ -1968,6 +1975,13 @@ userLocation = null;
 destinationLocation = null;
 
 selectedDistance = 0;
+
+routeRequestId++;
+
+if(routeLine && map){
+    map.removeLayer(routeLine);
+    routeLine = null;
+}          
 
 if(userMarker){
     map.removeLayer(userMarker);
@@ -2779,6 +2793,8 @@ let userLocation = null;
 let destinationLocation = null;
 let destinationMarker = null;
 let selectedDistance = 0;
+let routeRequestId = 0; 
+let routeLine = null;  
 
 // إنشاء الخريطة
 function initMap(){
@@ -2960,83 +2976,102 @@ function getMyLocation(){
 
 }
 
-  function calculateDistance(){
+// ================= ROAD DISTANCE =================
 
-    if(
-        !userLocation ||
-        !destinationLocation
-    ){
+async function calculateDistance(){
 
-        document
-        .getElementById("distanceInfo")
-        .innerHTML =
-        "📏 حدد موقعك والوجهة لحساب المسافة";
+    if(!userLocation || !destinationLocation){
+
+        selectedDistance = 0;
+        updateCustomerPrice();
+
+        document.getElementById("distanceInfo").textContent =
+            "📏 حدد موقعك والوجهة لحساب المسافة";
+
+        if(routeLine && map){
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
 
         return;
     }
 
-    const R = 6371;
+    const requestId = ++routeRequestId;
 
-    const lat1 =
-        userLocation.lat *
-        Math.PI / 180;
-
-    const lat2 =
-        destinationLocation.lat *
-        Math.PI / 180;
-
-    const dLat =
-        (destinationLocation.lat -
-        userLocation.lat) *
-        Math.PI / 180;
-
-    const dLng =
-        (destinationLocation.lng -
-        userLocation.lng) *
-        Math.PI / 180;
-
-    const a =
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
-
-        Math.cos(lat1) *
-        Math.cos(lat2) *
-
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        );
-
-    const distance =
-        R * c;
-
-    selectedDistance =
-        distance;
-
+    selectedDistance = 0;
     updateCustomerPrice();
 
-    document
-    .getElementById("distanceInfo")
-    .innerHTML =
-    `
-    📏 المسافة التقريبية:
-    <strong>
-    ${distance.toFixed(2)} كم
-    </strong>
-    `;
-}
+    if(routeLine && map){
+        map.removeLayer(routeLine);
+        routeLine = null;
+    }
 
-  function openPickupLocation(lat, lng){
+    document.getElementById("distanceInfo").textContent =
+        "⏳ جارٍ حساب مسافة الطريق...";
 
-    const url =
-        `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    try{
 
-    window.open(url, "_blank");
+        const start =
+            `${userLocation.lng},${userLocation.lat}`;
+
+        const end =
+            `${destinationLocation.lng},${destinationLocation.lat}`;
+
+        const url =
+            `https://router.project-osrm.org/route/v1/driving/${start};${end}?overview=full&geometries=geojson`;
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        if(requestId !== routeRequestId){
+            return;
+        }
+
+        if(!data.routes || !data.routes.length){
+            throw new Error("لم يتم العثور على طريق");
+        }
+
+        const route = data.routes[0];
+
+        selectedDistance = route.distance / 1000;
+
+        updateCustomerPrice();
+
+        routeLine = L.geoJSON(
+            route.geometry,
+            {
+                style:{
+                    color:"#c99732",
+                    weight:6,
+                    opacity:0.9
+                }
+            }
+        ).addTo(map);
+
+        map.fitBounds(routeLine.getBounds(), {
+            padding:[30,30]
+        });
+
+        document.getElementById("distanceInfo").innerHTML =
+            `📏 مسافة الطريق:
+            <strong>${selectedDistance.toFixed(2)} كم</strong>`;
+
+    }catch(error){
+
+        if(requestId !== routeRequestId){
+            return;
+        }
+
+        console.error(error);
+
+        selectedDistance = 0;
+        updateCustomerPrice();
+
+        document.getElementById("distanceInfo").textContent =
+            "❌ تعذر حساب مسافة الطريق. حاول مرة أخرى.";
+
+    }
 
 }
 
