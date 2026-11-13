@@ -1787,6 +1787,9 @@ function showPage(page){
 // ================= PRICE =================
 
 
+
+// ================= PRICE =================
+
 function selectCustomerCar(type) {
     document.getElementById("carType").value = type;
 
@@ -1812,24 +1815,12 @@ function updateCustomerPrice() {
     }
 
     price = Math.round(price / 10) * 10;
+
     document.getElementById("price").textContent = price;
 }
 
 document.getElementById("carType")
     .addEventListener("change", updateCustomerPrice);
-
-
-    const price =
-    this.value === "comfort"
-    ? 700
-    : 500;
-
-    document
-    .getElementById("price")
-    .textContent = price;
-
-});
-
 
 // ================= CREATE RIDE =================
 
@@ -1936,6 +1927,7 @@ const distance =
                 destination,
 
                 price,
+              carType: document.getElementById("carType").value,
 distance,
 pickupLocation,
 destinationCoords              
@@ -2529,40 +2521,7 @@ async function startRide(id){
     }
 
 }
-// ================= COMPLETE =================
-
-async function startRide(id){
-
-    if(!currentDriver){
-
-        alert("⚠️ سجل السائق أولاً");
-
-        return;
-
-    }
-
-    await fetch(
-    `/api/rides/${id}/start`,{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-
-            driverId:currentDriver.id
-
-        })
-
-    });
-
-
-    loadDriverRides();
-
-}
-
+  // ================= COMPLETE =================
 // ================= STATUS =================
 
 function getStatus(status){
@@ -2881,6 +2840,9 @@ function getMyLocation(){
                 lng
             };
 
+          document.getElementById("pickup").value =
+    "موقعي الحالي (" + lat.toFixed(5) + ", " + lng.toFixed(5) + ")";
+
 
             initMap();
 
@@ -2889,6 +2851,7 @@ function getMyLocation(){
                 [lat,lng],
                 16
             );
+          calculateDistance();
 
 
             if(userMarker){
@@ -3023,20 +2986,8 @@ function getMyLocation(){
 
     selectedDistance =
         distance;
-// حساب السعر
-const basePrice = 200;
-const pricePerKm = 50;
 
-let price =
-    basePrice +
-    (distance * pricePerKm);
-
-price =
-    Math.round(price / 10) * 10;
-document
-.getElementById("price")
-.textContent =
-price;
+    updateCustomerPrice();
 
     document
     .getElementById("distanceInfo")
