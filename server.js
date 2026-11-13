@@ -1,721 +1,676 @@
+
 const express = require("express");
 const path = require("path");
-const fs = require("fs");
 const { Pool } = require("pg");
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
-const DATABASE_FILE = path.join(__dirname, "database.json");
-// ================= POSTGRESQL =================
 
-const pool = process.env.DATABASE_URL
-    ? new Pool({
-        connectionString: process.env.DATABASE_URL,
-        max: 5,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000
-    })
-    : null;
+if (!process.env.DATABASE_URL) {
+    console.error("DATABASE_URL is missing!");
+    process.exit(1);
+}
 
-if (pool) {
-    pool.on("error", (error) => {
-        console.error("PostgreSQL pool error:", error.message);
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 5,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
+});
+
+pool.on("error", (error) => {
+    console.error("PostgreSQL pool error:", error.message);
+});
+
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+
+function sendError(res, error) {
+    console.error(error);
+    return res.status(500).json({
+        success: false,
+        message: "حدث خطأ في الخادم، حاول مرة أخرى"
     });
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(express.static(path.join(__dirname, "public")));
-
-
-// ================= DATABASE =================
-
-function readDatabase() {
-
-    try {
-
-        if (!fs.existsSync(DATABASE_FILE)) {
-
-            const data = {
-                drivers: [],
-                customers: [],
-                rides: []
-            };
-
-            fs.writeFileSync(
-                DATABASE_FILE,
-                JSON.stringify(data, null, 2)
-            );
-
-            return data;
-        }
-
-        return JSON.parse(
-            fs.readFileSync(DATABASE_FILE, "utf8")
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        return {
-            drivers: [],
-            customers: [],
-            rides: []
-        };
-    }
+function validText(value) {
+    return typeof value === "string" && value.trim().length > 0;
 }
 
-
-function saveDatabase(database) {
-
-    fs.writeFileSync(
-        DATABASE_FILE,
-        JSON.stringify(database, null, 2)
-    );
-
+function validId(value) {
+    return /^\d{1,16}$/.test(String(value || ""));
 }
 
+// ================= DATABASE SETUP =================
+
+async function initializeDatabase() {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS customers (
+            id BIGINT PRIMARY KEY,
+            name TEXT NOT NULL,
+            phone TEXT NOT NULL UNIQUE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS drivers (
+            id BIGINT PRIMARY KEY,
+            name TEXT NOT NULL,
+            phone TEXT NOT NULL UNIQUE,
+            car TEXT NOT NULL,
+            plate TEXT NOT NULL,
+            online BOOLEAN NOT NULL DEFAULT TRUE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS rides (
+            id BIGINT PRIMARY KEY,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT NOT NULL,
+            pickup TEXT NOT NULL,
+            destination TEXT NOT NULL,
+            price NUMERIC NOT NULL DEFAULT 0,
+            distance NUMERIC NOT NULL DEFAULT 0,
+            car_type TEXT,
+            pickup_location JSONB,
+            destination_coords JSONB,
+            status TEXT NOT NULL DEFAULT 'pending'
+                CHECK (status IN ('pending', 'accepted', 'started', 'completed')),
+            driver_id BIGINT REFERENCES drivers(id),
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS rides_status_idx
+        ON rides(status)
+    `);
+
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS rides_driver_id_idx
+        ON rides(driver_id)
+    `);
+
+    console.log("PostgreSQL tables are ready.");
+}
+
+// ================= DATA FORMAT =================
+
+function formatDriver(row) {
+    return {
+        id: Number(row.id),
+        name: row.name,
+        phone: row.phone,
+        car: row.car,
+        plate: row.plate,
+        online: row.online,
+        createdAt: row.created_at
+    };
+}
+
+function formatRide(row) {
+    return {
+        id: Number(row.id),
+        customerName: row.customer_name,
+        customerPhone: row.customer_phone,
+        pickup: row.pickup,
+        destination: row.destination,
+        price: Number(row.price),
+        distance: Number(row.distance),
+        carType: row.car_type,
+        pickupLocation: row.pickup_location,
+        destinationCoords: row.destination_coords,
+        status: row.status,
+        driverId: row.driver_id === null ? null : Number(row.driver_id),
+        createdAt: row.created_at
+    };
+}
 
 // ================= HOME =================
 
 app.get("/", (req, res) => {
-
-    res.sendFile(
-        path.join(__dirname, "public", "index.html")
-    );
-
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-
 
 // ================= CUSTOMER =================
 
-app.post("/api/customer", (req, res) => {
+app.post("/api/customer", async (req, res) => {
+    try {
+        const name = String(req.body.name || "").trim();
+        const phone = String(req.body.phone || "").trim();
 
-    const database = readDatabase();
+        if (!validText(name) || !validText(phone)) {
+            return res.status(400).json({
+                success: false,
+                message: "أدخل الاسم ورقم الهاتف"
+            });
+        }
 
-    const {
-        name,
-        phone
-    } = req.body;
+        const result = await pool.query(
+            `INSERT INTO customers (id, name, phone)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (phone)
+             DO UPDATE SET name = EXCLUDED.name
+             RETURNING *`,
+            [Date.now(), name, phone]
+        );
 
-    if (!name || !phone) {
+        const row = result.rows[0];
 
-        return res.status(400).json({
-            success: false,
-            message: "أدخل الاسم ورقم الهاتف"
+        res.json({
+            success: true,
+            customer: {
+                id: Number(row.id),
+                name: row.name,
+                phone: row.phone,
+                createdAt: row.created_at
+            }
         });
-
+    } catch (error) {
+        return sendError(res, error);
     }
-
-    const customer = {
-
-        id: Date.now(),
-
-        name,
-
-        phone,
-
-        createdAt: new Date().toISOString()
-
-    };
-
-    database.customers.push(customer);
-
-    saveDatabase(database);
-
-    res.json({
-
-        success: true,
-
-        customer
-
-    });
-
 });
-
 
 // ================= CREATE RIDE =================
 
-app.post("/api/rides", (req, res) => {
+app.post("/api/rides", async (req, res) => {
+    try {
+        const {
+            customerName,
+            customerPhone,
+            pickup,
+            destination,
+            price,
+            distance,
+            carType,
+            pickupLocation,
+            destinationCoords
+        } = req.body;
 
-    const database = readDatabase();
+        if (
+            !validText(customerName) ||
+            !validText(customerPhone) ||
+            !validText(pickup) ||
+            !validText(destination)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "أكمل جميع المعلومات"
+            });
+        }
 
-    const {
-    customerName,
-    customerPhone,
-    pickup,
-    destination,
-    price,
-    distance,
-    pickupLocation,
-    destinationCoords
-} = req.body;
+        const numericPrice = Number(price);
+        const numericDistance = Number(distance);
 
-    if (
-        !customerName ||
-        !customerPhone ||
-        !pickup ||
-        !destination
-    ) {
+        if (
+            !Number.isFinite(numericPrice) ||
+            numericPrice < 0 ||
+            !Number.isFinite(numericDistance) ||
+            numericDistance < 0
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "السعر أو المسافة غير صحيحين"
+            });
+        }
 
-        return res.status(400).json({
+        const customerPhoneClean = String(customerPhone).trim();
+        const customerNameClean = String(customerName).trim();
 
-            success: false,
-
-            message: "أكمل جميع المعلومات"
-
-        });
-
-    }
-
-    const ride = {
-
-        id: Date.now(),
-
-        customerName,
-
-        customerPhone,
-
-        pickup,
-
-        destination,
-
-        price: Number(price) || 0,
-
-        distance: Number(distance) || 0,
-
-pickupLocation,
-
-destinationCoords,
-
-        status: "pending",
-
-        driverId: null,
-
-        createdAt: new Date().toISOString()
-
-    };
-
-    database.rides.push(ride);
-
-    saveDatabase(database);
-
-    res.json({
-
-    success: true,
-
-    ride
-
-});
-
-});
-// ================= GET RIDES =================
-
-app.get("/api/rides", (req, res) => {
-
-    const database = readDatabase();
-
-    const driverId =
-        Number(req.query.driverId);
-
-    // إذا لم يتم إرسال driverId
-    // نرجع جميع الرحلات
-    if(!driverId){
-
-        return res.json({
-
-            success: true,
-
-            rides: database.rides
-
-        });
-
-    }
-
-    const driver =
-        database.drivers.find(
-            d => d.id == driverId
+        await pool.query(
+            `INSERT INTO customers (id, name, phone)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (phone)
+             DO UPDATE SET name = EXCLUDED.name`,
+            [Date.now(), customerNameClean, customerPhoneClean]
         );
 
-    if(!driver){
+        const id = Date.now();
 
-        return res.status(404).json({
+        const result = await pool.query(
+            `INSERT INTO rides (
+                id, customer_name, customer_phone,
+                pickup, destination, price, distance,
+                car_type, pickup_location, destination_coords
+             )
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+             RETURNING *`,
+            [
+                id,
+                customerNameClean,
+                customerPhoneClean,
+                String(pickup).trim(),
+                String(destination).trim(),
+                numericPrice,
+                numericDistance,
+                carType === "comfort" ? "comfort" : "normal",
+                pickupLocation || null,
+                destinationCoords || null
+            ]
+        );
 
-            success: false,
-
-            message: "السائق غير موجود",
-
-            rides: []
-
+        res.json({
+            success: true,
+            ride: formatRide(result.rows[0])
         });
-
+    } catch (error) {
+        return sendError(res, error);
     }
+});
 
-    // الرحلات التي يستطيع هذا السائق رؤيتها
-    const availableRides =
-        database.rides.filter(ride => {
+// ================= GET RIDES FOR DRIVER =================
 
-            // الطلبات الجديدة
-            if(ride.status === "pending"){
+app.get("/api/rides", async (req, res) => {
+    try {
+        const driverId = String(req.query.driverId || "");
 
-                return true;
+        // لا نعرض الرحلات للعامة دون هوية سائق
+        if (!validId(driverId)) {
+            return res.json({
+                success: true,
+                rides: []
+            });
+        }
 
-            }
+        const driverResult = await pool.query(
+            "SELECT id FROM drivers WHERE id = $1",
+            [driverId]
+        );
 
-            // رحلات هذا السائق فقط
-            if(
-                ride.driverId == driverId &&
-                (
-                    ride.status === "accepted" ||
-                    ride.status === "started"
+        if (!driverResult.rowCount) {
+            return res.status(404).json({
+                success: false,
+                message: "السائق غير موجود",
+                rides: []
+            });
+        }
+
+        const result = await pool.query(
+            `SELECT * FROM rides
+             WHERE status = 'pending'
+                OR (
+                    driver_id = $1
+                    AND status IN ('accepted', 'started')
                 )
-            ){
+             ORDER BY created_at DESC`,
+            [driverId]
+        );
 
-                return true;
-
-            }
-
-            return false;
-
+        res.json({
+            success: true,
+            rides: result.rows.map(formatRide)
         });
-
-    res.json({
-
-        success: true,
-
-        rides: availableRides
-
-    });
-
-});
-// ================= DRIVER =================
-
-app.post("/api/driver", (req, res) => {
-
-    const database = readDatabase();
-
-    const {
-        name,
-        phone,
-        car,
-        plate
-    } = req.body;
-
-    if (!name || !phone || !car || !plate) {
-
-        return res.status(400).json({
-
-            success: false,
-
-            message: "أكمل معلومات السائق"
-
-        });
-
+    } catch (error) {
+        return sendError(res, error);
     }
-
-    const driver = {
-
-        id: Date.now(),
-
-        name,
-
-        phone,
-
-        car,
-
-        plate,
-
-        online: true,
-
-        createdAt: new Date().toISOString()
-
-    };
-
-    database.drivers.push(driver);
-
-    saveDatabase(database);
-
-    res.json({
-
-        success: true,
-
-        driver
-
-    });
-
 });
 
+// ================= REGISTER DRIVER =================
+
+app.post("/api/driver", async (req, res) => {
+    try {
+        const name = String(req.body.name || "").trim();
+        const phone = String(req.body.phone || "").trim();
+        const car = String(req.body.car || "").trim();
+        const plate = String(req.body.plate || "").trim();
+
+        if (!name || !phone || !car || !plate) {
+            return res.status(400).json({
+                success: false,
+                message: "أكمل معلومات السائق"
+            });
+        }
+
+        const existing = await pool.query(
+            "SELECT id FROM drivers WHERE phone = $1",
+            [phone]
+        );
+
+        if (existing.rowCount) {
+            return res.status(409).json({
+                success: false,
+                message: "رقم الهاتف مسجل من قبل. تسجيل دخول السائق يحتاج إلى تفعيل."
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO drivers (id, name, phone, car, plate)
+             VALUES ($1,$2,$3,$4,$5)
+             RETURNING *`,
+            [Date.now(), name, phone, car, plate]
+        );
+
+        res.json({
+            success: true,
+            driver: formatDriver(result.rows[0])
+        });
+    } catch (error) {
+        if (error.code === "23505") {
+            return res.status(409).json({
+                success: false,
+                message: "رقم الهاتف مسجل من قبل"
+            });
+        }
+        return sendError(res, error);
+    }
+});
 
 // ================= DRIVER STATUS =================
 
-app.post("/api/driver/status", (req, res) => {
+app.post("/api/driver/status", async (req, res) => {
+    try {
+        const { driverId, online } = req.body;
 
-    const database = readDatabase();
+        if (!validId(driverId) || typeof online !== "boolean") {
+            return res.status(400).json({
+                success: false,
+                message: "بيانات حالة السائق غير صحيحة"
+            });
+        }
 
-    const {
-        driverId,
-        online
-    } = req.body;
+        const result = await pool.query(
+            `UPDATE drivers
+             SET online = $1
+             WHERE id = $2
+             RETURNING *`,
+            [online, String(driverId)]
+        );
 
-    const driver = database.drivers.find(
-        d => d.id == driverId
-    );
+        if (!result.rowCount) {
+            return res.status(404).json({
+                success: false,
+                message: "السائق غير موجود"
+            });
+        }
 
-    if (!driver) {
-
-        return res.status(404).json({
-
-            success: false,
-
-            message: "السائق غير موجود"
-
+        res.json({
+            success: true,
+            driver: formatDriver(result.rows[0])
         });
-
+    } catch (error) {
+        return sendError(res, error);
     }
-
-    driver.online = Boolean(online);
-
-    saveDatabase(database);
-
-    res.json({
-
-        success: true,
-
-        driver
-
-    });
-
 });
-
 
 // ================= ACCEPT RIDE =================
 
-app.post("/api/rides/:id/accept", (req, res) => {
+app.post("/api/rides/:id/accept", async (req, res) => {
+    try {
+        const rideId = req.params.id;
+        const driverId = String(req.body.driverId || "");
 
-    const database = readDatabase();
+        if (!validId(rideId) || !validId(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "رقم الرحلة أو السائق غير صحيح"
+            });
+        }
 
-    const ride = database.rides.find(
-        r => r.id == Number(req.params.id)
-    );
+        const driverResult = await pool.query(
+            "SELECT id, online FROM drivers WHERE id = $1",
+            [driverId]
+        );
 
-    const {
-        driverId
-    } = req.body;
+        if (!driverResult.rowCount) {
+            return res.status(404).json({
+                success: false,
+                message: "السائق غير موجود"
+            });
+        }
 
-    const driver = database.drivers.find(
-        d => d.id == driverId
-    );
+        if (!driverResult.rows[0].online) {
+            return res.status(403).json({
+                success: false,
+                message: "يجب أن تكون متصلاً لقبول الرحلات"
+            });
+        }
 
-    if (!ride) {
+        // تحديث ذري: سائق واحد فقط يستطيع قبول الرحلة
+        const result = await pool.query(
+            `UPDATE rides
+             SET status = 'accepted', driver_id = $1
+             WHERE id = $2 AND status = 'pending'
+             RETURNING *`,
+            [driverId, rideId]
+        );
 
-        return res.status(404).json({
+        if (!result.rowCount) {
+            return res.status(409).json({
+                success: false,
+                message: "هذه الرحلة تم قبولها مسبقاً أو لم تعد متاحة"
+            });
+        }
 
-            success: false,
-
-            message: "الطلب غير موجود"
-
+        res.json({
+            success: true,
+            ride: formatRide(result.rows[0])
         });
-
+    } catch (error) {
+        return sendError(res, error);
     }
-
-    if(ride.status !== "pending"){
-
-    return res.status(400).json({
-
-        success: false,
-
-        message: "⚠️ هذه الرحلة تم قبولها مسبقًا"
-
-    });
-
-}
-
-    if (!driver) {
-
-        return res.status(404).json({
-
-            success: false,
-
-            message: "السائق غير موجود"
-
-        });
-
-    }
-
-    if(ride.status !== "pending"){
-
-    return res.status(409).json({
-
-        success: false,
-
-        message: "❌ هذه الرحلة تم قبولها من سائق آخر"
-
-    });
-
-}
-
-    ride.status = "accepted";
-
-    ride.driverId = driver.id;
-
-    saveDatabase(database);
-
-    res.json({
-
-        success: true,
-
-        ride
-
-    });
-
 });
-
 
 // ================= START RIDE =================
 
-app.post("/api/rides/:id/start", (req, res) => {
+app.post("/api/rides/:id/start", async (req, res) => {
+    try {
+        const rideId = req.params.id;
+        const driverId = String(req.body.driverId || "");
 
-    const database = readDatabase();
+        if (!validId(rideId) || !validId(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "بيانات الرحلة غير صحيحة"
+            });
+        }
 
-    const ride = database.rides.find(
-        r => r.id == Number(req.params.id)
-    );
+        const result = await pool.query(
+            `UPDATE rides
+             SET status = 'started'
+             WHERE id = $1
+               AND driver_id = $2
+               AND status = 'accepted'
+             RETURNING *`,
+            [rideId, driverId]
+        );
 
-    const {
-        driverId
-    } = req.body;
+        if (!result.rowCount) {
+            return res.status(409).json({
+                success: false,
+                message: "لا يمكن بدء الرحلة. تحقق من حالة الرحلة والسائق."
+            });
+        }
 
-    if (!ride) {
-
-        return res.status(404).json({
-
-            success: false,
-
-            message: "الرحلة غير موجودة"
-
+        res.json({
+            success: true,
+            ride: formatRide(result.rows[0])
         });
-
+    } catch (error) {
+        return sendError(res, error);
     }
-
-    if (!driverId) {
-
-        return res.status(400).json({
-
-            success: false,
-
-            message: "❌ رقم السائق مطلوب"
-
-        });
-
-    }
-
-    if (ride.driverId != driverId) {
-
-        return res.status(403).json({
-
-            success: false,
-
-            message: "❌ هذه الرحلة ليست مسجلة لهذا السائق"
-
-        });
-
-    }
-
-    if (ride.status !== "accepted") {
-
-        return res.status(409).json({
-
-            success: false,
-
-            message: "❌ لا يمكن بدء الرحلة الآن"
-
-        });
-
-    }
-
-    ride.status = "started";
-
-    saveDatabase(database);
-
-    res.json({
-
-        success: true,
-
-        ride
-
-    });
-
 });
 
 // ================= COMPLETE RIDE =================
 
-app.post("/api/rides/:id/complete", (req, res) => {
+app.post("/api/rides/:id/complete", async (req, res) => {
+    try {
+        const rideId = req.params.id;
+        const driverId = String(req.body.driverId || "");
 
-    const database = readDatabase();
+        if (!validId(rideId) || !validId(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "بيانات الرحلة غير صحيحة"
+            });
+        }
 
-    const ride = database.rides.find(
-        r => r.id == Number(req.params.id)
-    );
+        const result = await pool.query(
+            `UPDATE rides
+             SET status = 'completed'
+             WHERE id = $1
+               AND driver_id = $2
+               AND status = 'started'
+             RETURNING *`,
+            [rideId, driverId]
+        );
 
-    const {
-        driverId
-    } = req.body;
+        if (!result.rowCount) {
+            return res.status(409).json({
+                success: false,
+                message: "لا يمكن إنهاء الرحلة. تحقق من حالتها."
+            });
+        }
 
-    if (!ride) {
-
-        return res.status(404).json({
-
-            success: false,
-
-            message: "الرحلة غير موجودة"
-
+        res.json({
+            success: true,
+            ride: formatRide(result.rows[0])
         });
-
+    } catch (error) {
+        return sendError(res, error);
     }
-
-    if (!driverId) {
-
-        return res.status(400).json({
-
-            success: false,
-
-            message: "❌ رقم السائق مطلوب"
-
-        });
-
-    }
-
-    if (ride.driverId != driverId) {
-
-        return res.status(403).json({
-
-            success: false,
-
-            message: "❌ هذه الرحلة ليست مسجلة لهذا السائق"
-
-        });
-
-    }
-
-    if (ride.status !== "started") {
-
-        return res.status(409).json({
-
-            success: false,
-
-            message: "❌ لا يمكن إنهاء الرحلة الآن"
-
-        });
-
-    }
-
-    ride.status = "completed";
-
-    saveDatabase(database);
-
-    res.json({
-
-        success: true,
-
-        ride
-
-    });
-
 });
 
-app.get("/api/rides/:id", (req, res) => {
+// ================= PUBLIC RIDE STATUS =================
 
-    const database = readDatabase();
+// الزبون يحتاج حالة الرحلة فقط، وليس بياناته الشخصية
+app.get("/api/rides/:id", async (req, res) => {
+    try {
+        if (!validId(req.params.id)) {
+            return res.status(400).json({
+                success: false,
+                message: "رقم الرحلة غير صحيح"
+            });
+        }
 
-    const ride = database.rides.find(
-        r => r.id == Number(req.params.id)
-    );
+        const result = await pool.query(
+            "SELECT id, status FROM rides WHERE id = $1",
+            [req.params.id]
+        );
 
-    if (!ride) {
+        if (!result.rowCount) {
+            return res.status(404).json({
+                success: false,
+                message: "الرحلة غير موجودة"
+            });
+        }
 
-        return res.status(404).json({
-
-            success: false,
-
-            message: "الرحلة غير موجودة"
-
+        res.json({
+            success: true,
+            ride: {
+                id: Number(result.rows[0].id),
+                status: result.rows[0].status
+            }
         });
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
 
+// ================= ADMIN LOGIN =================
+
+app.post("/api/admin/login", (req, res) => {
+    const adminKey = process.env.ADMIN_KEY;
+
+    if (!adminKey) {
+        return res.status(503).json({
+            success: false,
+            message: "إعداد دخول الإدارة غير مكتمل في الخادم"
+        });
     }
 
-    res.json({
+    const suppliedKey = String(req.body.key || "");
 
-        success: true,
+    if (suppliedKey !== adminKey) {
+        return res.status(401).json({
+            success: false,
+            message: "رمز الإدارة غير صحيح"
+        });
+    }
 
-        ride
-
-    });
-
+    res.json({ success: true });
 });
 
+// ================= ADMIN DATA =================
 
-// ================= ADMIN =================
+app.get("/api/admin", async (req, res) => {
+    try {
+        const adminKey = process.env.ADMIN_KEY;
 
-app.get("/api/admin", (req, res) => {
+        if (!adminKey) {
+            return res.status(503).json({
+                success: false,
+                message: "إعداد دخول الإدارة غير مكتمل"
+            });
+        }
 
-    const database = readDatabase();
+        if (req.get("x-admin-key") !== adminKey) {
+            return res.status(401).json({
+                success: false,
+                message: "يجب تسجيل الدخول إلى الإدارة"
+            });
+        }
 
-    res.json({
+        const [
+            customersCount,
+            driversCount,
+            ridesCount,
+            pendingCount,
+            completedCount,
+            drivers,
+            customers,
+            rides
+        ] = await Promise.all([
+            pool.query("SELECT COUNT(*) FROM customers"),
+            pool.query("SELECT COUNT(*) FROM drivers"),
+            pool.query("SELECT COUNT(*) FROM rides"),
+            pool.query("SELECT COUNT(*) FROM rides WHERE status = 'pending'"),
+            pool.query("SELECT COUNT(*) FROM rides WHERE status = 'completed'"),
+            pool.query("SELECT * FROM drivers ORDER BY created_at DESC"),
+            pool.query("SELECT * FROM customers ORDER BY created_at DESC"),
+            pool.query("SELECT * FROM rides ORDER BY created_at DESC")
+        ]);
 
-        success: true,
-
-        statistics: {
-
-            customers: database.customers.length,
-
-            drivers: database.drivers.length,
-
-            rides: database.rides.length,
-
-            pending: database.rides.filter(
-                r => r.status === "pending"
-            ).length,
-
-            completed: database.rides.filter(
-                r => r.status === "completed"
-            ).length
-
-        },
-
-        drivers: database.drivers,
-
-        customers: database.customers,
-
-        rides: database.rides
-
-    });
-
+        res.json({
+            success: true,
+            statistics: {
+                customers: Number(customersCount.rows[0].count),
+                drivers: Number(driversCount.rows[0].count),
+                rides: Number(ridesCount.rows[0].count),
+                pending: Number(pendingCount.rows[0].count),
+                completed: Number(completedCount.rows[0].count)
+            },
+            drivers: drivers.rows.map(formatDriver),
+            customers: customers.rows.map(row => ({
+                id: Number(row.id),
+                name: row.name,
+                phone: row.phone,
+                createdAt: row.created_at
+            })),
+            rides: rides.rows.map(formatRide)
+        });
+    } catch (error) {
+        return sendError(res, error);
+    }
 });
-
 
 // ================= START SERVER =================
 
-app.listen(PORT, () => {
+async function startServer() {
+    try {
+        await initializeDatabase();
 
-    console.log(`Tawsila running on port ${PORT}`);
-
-    if (!pool) {
-        console.error("DATABASE_URL is missing!");
-        return;
-    }
-
-    pool.query("SELECT 1 AS connected")
-        .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Tawsila running on port ${PORT}`);
             console.log("PostgreSQL connection successful!");
-        })
-        .catch((error) => {
-            console.error(
-                "PostgreSQL connection failed:",
-                error.message
-            );
         });
+    } catch (error) {
+        console.error("Database initialization failed:", error);
+        process.exit(1);
+    }
+}
 
-});
+startServer();
