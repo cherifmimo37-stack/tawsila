@@ -8,6 +8,8 @@
     <application
         android:allowBackup="false"
         android:label="توصيلة"
+        android:icon="@drawable/tawsila_launcher"
+        android:roundIcon="@drawable/tawsila_launcher"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:usesCleartextTraffic="false"
         android:supportsRtl="true">
