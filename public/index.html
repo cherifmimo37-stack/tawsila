@@ -338,6 +338,88 @@ footer{
 .leaflet-container{
     font-family:Arial,Tahoma,sans-serif;
 }
+
+
+/* ===== TAWSILA PREMIUM DESIGN ===== */
+:root {
+  --tawsila-blue: #123b67;
+  --tawsila-dark: #092746;
+  --tawsila-light: #eef5fc;
+  --tawsila-orange: #ff8a24;
+  --tawsila-white: #ffffff;
+}
+
+body {
+  background: var(--tawsila-light);
+  color: var(--tawsila-dark);
+  font-family: Arial, sans-serif;
+}
+
+header {
+  background: linear-gradient(120deg, var(--tawsila-dark), var(--tawsila-blue)) !important;
+  color: white !important;
+  box-shadow: 0 5px 20px rgba(9,39,70,.16);
+}
+
+.header {
+  padding: 14px 18px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white !important;
+}
+
+.logo span {
+  color: #d9e8f8 !important;
+  font-size: 13px;
+}
+
+button,
+.btn {
+  border-radius: 12px !important;
+  font-weight: bold;
+  transition: .2s ease;
+}
+
+button:hover,
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #d8e3ef !important;
+  border-radius: 11px !important;
+  padding: 12px !important;
+  background: white;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--tawsila-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255,138,36,.12);
+}
+
+#map {
+  border-radius: 16px;
+  border: 2px solid white;
+  box-shadow: 0 5px 18px rgba(9,39,70,.09);
+}
+
+.card,
+.panel,
+section {
+  border-radius: 16px;
+}
+
+  
 </style>
 
 </head>
