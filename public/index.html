@@ -2267,74 +2267,65 @@ function showDriverPanel(){
 // ================= DRIVER STATUS =================
 
 
- // ================= DRIVER STATUS =================
+ // ================= TOGGLE DRIVER STATUS =================
 
 async function toggleDriver(){
 
-    if(!currentDriver){
+    if(!currentDriver) return;
+
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token){
+        alert("⚠️ انتهت جلسة الدخول، يرجى تسجيل الدخول من جديد");
         return;
     }
 
-    const switchElement =
-        document.getElementById("driverSwitch");
+    const switchElement = document.getElementById("driverSwitch");
+    const stateElement = document.getElementById("driverState");
 
-    const stateElement =
-        document.getElementById("driverState");
+    if(!switchElement || !stateElement) return;
 
-    if(!switchElement || !stateElement){
-        return;
-    }
-
-    const isOnline =
-        switchElement.classList.contains("active");
+    const isOnline = switchElement.classList.contains("active");
 
     try{
 
-        const response = await fetch(
-            "/api/driver/status",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    driverId:currentDriver.id,
-                    online:!isOnline
-                })
-            }
-        );
+        const response = await fetch("/api/driver/status",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + token
+            },
+            body:JSON.stringify({
+                online:!isOnline
+            })
+        });
 
         const data = await response.json();
 
         if(!response.ok || !data.success){
 
-            alert(
-                "❌ تعذر تغيير حالة السائق: " +
-                (data.message || "حاول مرة أخرى")
-            );
+            alert("❌ " + (data.message || "تعذر تغيير حالة السائق"));
 
             return;
         }
 
+        currentDriver = data.driver;
+
         switchElement.classList.toggle("active", !isOnline);
 
         stateElement.textContent =
-            !isOnline
-            ? "🟢 متصل"
-            : "🔴 غير متصل";
-
-        currentDriver.online = !isOnline;
+            !isOnline ? "🟢 متصل" : "🔴 غير متصل";
 
     }catch(error){
 
-        console.error("Driver status error:", error);
+        console.error("Driver status error:",error);
 
         alert("❌ تعذر الاتصال بالخادم");
 
     }
-
 }
 
+// ================= END TOGGLE DRIVER STATUS =================
  // ================= HTML SECURITY =================
 
 function escapeHTML(value){
@@ -2378,9 +2369,23 @@ async function loadDriverRides(){
 
     try{
 
-        const response = await fetch(
-            `/api/rides?driverId=${encodeURIComponent(currentDriver.id)}`
-        );
+        const token = localStorage.getItem("driverSessionToken");
+
+if(!token){
+    container.innerHTML = `
+        <div class="empty">
+            يرجى تسجيل الدخول لعرض الرحلات
+        </div>
+    `;
+    return;
+}
+
+const response = await fetch("/api/rides",{
+    method:"GET",
+    headers:{
+        "Authorization":"Bearer " + token
+    }
+});
 
         const data = await response.json();
 
@@ -2566,19 +2571,24 @@ async function loadDriverRides(){
 // ================= ACCEPT =================
 
 
- // ================= ACCEPT =================
+// ================= ACCEPT RIDE =================
 
 async function acceptRide(id){
 
     if(!currentDriver){
-
-        alert("⚠️ سجل السائق أولاً");
-
+        alert("⚠️ سجل دخولك كسائق أولاً");
         return;
     }
 
     if(!id){
         alert("⚠️ رقم الرحلة غير صحيح");
+        return;
+    }
+
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token){
+        alert("⚠️ جلسة الدخول غير موجودة، سجل الدخول من جديد");
         return;
     }
 
@@ -2588,14 +2598,11 @@ async function acceptRide(id){
             `/api/rides/${encodeURIComponent(id)}/accept`,
             {
                 method:"POST",
-
                 headers:{
-                    "Content-Type":"application/json"
+                    "Content-Type":"application/json",
+                    "Authorization":"Bearer " + token
                 },
-
-                body:JSON.stringify({
-                    driverId:currentDriver.id
-                })
+                body:JSON.stringify({})
             }
         );
 
@@ -2619,7 +2626,7 @@ async function acceptRide(id){
 
     }catch(error){
 
-        console.error("Accept ride error:", error);
+        console.error("Accept ride error:",error);
 
         alert("❌ تعذر الاتصال بالخادم، حاول مرة أخرى");
 
@@ -2627,67 +2634,62 @@ async function acceptRide(id){
 
 }
 
-// ================= START =================
+// ================= END ACCEPT RIDE =================
+
+// ================= START RIDE =================
 
 async function startRide(id){
 
     if(!currentDriver){
-
-        alert("⚠️ سجل السائق أولاً");
-
+        alert("⚠️ سجل دخولك كسائق أولاً");
         return;
+    }
 
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token){
+        alert("⚠️ جلسة الدخول غير موجودة، سجل الدخول من جديد");
+        return;
     }
 
     try{
 
-        const response =
-        await fetch(
-        `/api/rides/${id}/start`,{
+        const response = await fetch(
+            `/api/rides/${encodeURIComponent(id)}/start`,
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":"Bearer " + token
+                },
+                body:JSON.stringify({})
+            }
+        );
 
-            method:"POST",
+        const data = await response.json();
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+        if(!response.ok || !data.success){
 
-            body:JSON.stringify({
+            alert("❌ " + (data.message || "تعذر بدء الرحلة"));
 
-                driverId:currentDriver.id
-
-            })
-
-        });
-
-        const data =
-        await response.json();
-
-        if(data.success){
-
-            loadDriverRides();
-
-            alert("🚕 بدأت الرحلة");
-
-        }else{
-
-            alert(
-                "❌ " + data.message
-            );
-
+            return;
         }
+
+        alert("🚕 بدأت الرحلة");
+
+        await loadDriverRides();
 
     }catch(error){
 
-        console.error(error);
+        console.error("Start ride error:",error);
 
-        alert(
-            "❌ تعذر الاتصال بالخادم"
-        );
+        alert("❌ تعذر الاتصال بالخادم");
 
     }
 
 }
-  // ================= COMPLETE =================
+
+// ================= END START RIDE =================
 // ================= STATUS =================
 
 function getStatus(status){
@@ -3379,66 +3381,60 @@ function updateDriverOnlineButton(){
 
 }
 
-// ================= COMPLETE =================
+// ================= COMPLETE RIDE =================
 
 async function completeRide(id){
 
     if(!currentDriver){
-
-        alert("⚠️ سجل السائق أولاً");
-
+        alert("⚠️ سجل دخولك كسائق أولاً");
         return;
+    }
 
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token){
+        alert("⚠️ جلسة الدخول غير موجودة، سجل الدخول من جديد");
+        return;
     }
 
     try{
 
-        const response =
-        await fetch(
-        `/api/rides/${id}/complete`,{
+        const response = await fetch(
+            `/api/rides/${encodeURIComponent(id)}/complete`,
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":"Bearer " + token
+                },
+                body:JSON.stringify({})
+            }
+        );
 
-            method:"POST",
+        const data = await response.json();
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+        if(!response.ok || !data.success){
 
-            body:JSON.stringify({
+            alert("❌ " + (data.message || "تعذر إنهاء الرحلة"));
 
-                driverId:currentDriver.id
-
-            })
-
-        });
-
-        const data =
-        await response.json();
-
-        if(data.success){
-
-            loadDriverRides();
-
-            alert("🏁 تم إنهاء الرحلة بنجاح");
-
-        }else{
-
-            alert(
-                "❌ " + data.message
-            );
-
+            return;
         }
+
+        alert("🏁 تم إنهاء الرحلة بنجاح");
+
+        await loadDriverRides();
 
     }catch(error){
 
-        console.error(error);
+        console.error("Complete ride error:",error);
 
-        alert(
-            "❌ تعذر الاتصال بالخادم"
-        );
+        alert("❌ تعذر الاتصال بالخادم");
 
     }
 
 }
+
+// ================= END COMPLETE RIDE =================
   
 </script>
 
