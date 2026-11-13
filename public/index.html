@@ -1801,6 +1801,48 @@ RideDZ V1 © 2026
 
 
 let currentDriver = null;
+
+  // ================= RESTORE DRIVER SESSION =================
+
+async function restoreDriverSession(){
+
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token) return;
+
+    try{
+
+        const response = await fetch("/api/driver/me",{
+            method:"GET",
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        });
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success || !data.driver){
+
+            localStorage.removeItem("driverSessionToken");
+            currentDriver = null;
+            return;
+        }
+
+        currentDriver = data.driver;
+
+        showDriverPanel();
+
+        loadDriverRides();
+
+    }catch(error){
+
+        console.error("Restore driver session error:",error);
+
+    }
+}
+
+// ================= END RESTORE DRIVER SESSION =================
+  
 let selectedEntryRole = "customer";
 
 function selectEntryRole(role) {
@@ -1854,9 +1896,14 @@ function showPage(page){
     }
 
     if(page === "driver"){
+
+    if(!currentDriver){
+        restoreDriverSession();
+    }else{
         loadDriverRides();
     }
 
+}
     if(page === "admin"){
         loadAdmin();
     }
