@@ -1495,9 +1495,6 @@ section {
 </section>
 <!-- ================= END CUSTOMER PREMIUM ================= -->
 
-
-</section>
-
 <!-- ================= DRIVER ================= -->
 
 <section id="driver" class="page">
@@ -1951,13 +1948,34 @@ localStorage.setItem(
             );
 
 
-            document
-            .getElementById("pickup")
-            .value = "";
+            // الاحتفاظ بالعناوين للعرض
+// ومسح إحداثيات الرحلة السابقة
 
-            document
-            .getElementById("destination")
-            .value = "";
+userLocation = null;
+destinationLocation = null;
+
+selectedDistance = 0;
+
+if(userMarker){
+    map.removeLayer(userMarker);
+    userMarker = null;
+}
+
+if(destinationMarker){
+    map.removeLayer(destinationMarker);
+    destinationMarker = null;
+}
+
+document.getElementById("locationInfo").textContent =
+    "لم يتم تحديد موقع الانطلاق بعد";
+
+document.getElementById("destinationInfo").textContent =
+    "🏁 لم يتم تحديد الوجهة بعد";
+
+document.getElementById("distanceInfo").textContent =
+    "📏 المسافة: بانتظار تحديد الموقع والوجهة";
+
+updateCustomerPrice();
 
 
         }else{
@@ -3261,17 +3279,6 @@ async function completeRide(id){
         );
 
     }
-
-}
-
-  // ================= OPEN DESTINATION =================
-
-function openDestinationLocation(lat, lng){
-
-    const url =
-        `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-
-    window.open(url, "_blank");
 
 }
   
