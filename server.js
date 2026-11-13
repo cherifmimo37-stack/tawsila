@@ -447,28 +447,30 @@ app.post("/api/rides", async (req, res) => {
 
 app.get("/api/rides", async (req, res) => {
     try {
-        const driverId = String(req.query.driverId || "");
 
-        // لا نعرض الرحلات للعامة دون هوية سائق
-        if (!validId(driverId)) {
-            return res.json({
-                success: true,
-                rides: []
-            });
-        }
+        const authHeader = req.get("authorization") || "";
 
-        const driverResult = await pool.query(
-            "SELECT id FROM drivers WHERE id = $1",
-            [driverId]
-        );
-
-        if (!driverResult.rowCount) {
-            return res.status(404).json({
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
                 success: false,
-                message: "السائق غير موجود",
+                message: "يرجى تسجيل الدخول كسائق",
                 rides: []
             });
         }
+
+        const token = authHeader.slice(7);
+
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة",
+                rides: []
+            });
+        }
+
+        const driverId = String(driver.id);
 
         const result = await pool.query(
             `SELECT * FROM rides
@@ -481,17 +483,17 @@ app.get("/api/rides", async (req, res) => {
             [driverId]
         );
 
-        res.json({
+        return res.json({
             success: true,
             rides: result.rows.map(formatRide)
         });
+
     } catch (error) {
         return sendError(res, error);
     }
 });
 
-
-
+// ================= END GET RIDES =================
  // ================= REGISTER DRIVER =================
 
 app.post("/api/driver", async (req, res) => {
@@ -755,15 +757,37 @@ app.post("/api/driver/status", async (req, res) => {
 
 app.post("/api/rides/:id/accept", async (req, res) => {
     try {
-        const rideId = req.params.id;
-        const driverId = String(req.body.driverId || "");
 
-        if (!validId(rideId) || !validId(driverId)) {
+        const rideId = req.params.id;
+
+        if (!validId(rideId)) {
             return res.status(400).json({
                 success: false,
-                message: "رقم الرحلة أو السائق غير صحيح"
+                message: "رقم الرحلة غير صحيح"
             });
         }
+
+        // التحقق من جلسة السائق
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "يرجى تسجيل الدخول من جديد"
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة"
+            });
+        }
+
+        const driverId = String(driver.id);
 
         const driverResult = await pool.query(
             "SELECT id, online FROM drivers WHERE id = $1",
@@ -800,28 +824,52 @@ app.post("/api/rides/:id/accept", async (req, res) => {
             });
         }
 
-        res.json({
+        return res.json({
             success: true,
             ride: formatRide(result.rows[0])
         });
+
     } catch (error) {
         return sendError(res, error);
     }
 });
 
+// ================= END ACCEPT RIDE =================
+
 // ================= START RIDE =================
 
 app.post("/api/rides/:id/start", async (req, res) => {
     try {
-        const rideId = req.params.id;
-        const driverId = String(req.body.driverId || "");
 
-        if (!validId(rideId) || !validId(driverId)) {
+        const rideId = req.params.id;
+
+        if (!validId(rideId)) {
             return res.status(400).json({
                 success: false,
-                message: "بيانات الرحلة غير صحيحة"
+                message: "رقم الرحلة غير صحيح"
             });
         }
+
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "يرجى تسجيل الدخول من جديد"
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة"
+            });
+        }
+
+        const driverId = String(driver.id);
 
         const result = await pool.query(
             `UPDATE rides
@@ -840,10 +888,11 @@ app.post("/api/rides/:id/start", async (req, res) => {
             });
         }
 
-        res.json({
+        return res.json({
             success: true,
             ride: formatRide(result.rows[0])
         });
+
     } catch (error) {
         return sendError(res, error);
     }
@@ -853,15 +902,36 @@ app.post("/api/rides/:id/start", async (req, res) => {
 
 app.post("/api/rides/:id/complete", async (req, res) => {
     try {
-        const rideId = req.params.id;
-        const driverId = String(req.body.driverId || "");
 
-        if (!validId(rideId) || !validId(driverId)) {
+        const rideId = req.params.id;
+
+        if (!validId(rideId)) {
             return res.status(400).json({
                 success: false,
-                message: "بيانات الرحلة غير صحيحة"
+                message: "رقم الرحلة غير صحيح"
             });
         }
+
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "يرجى تسجيل الدخول من جديد"
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة"
+            });
+        }
+
+        const driverId = String(driver.id);
 
         const result = await pool.query(
             `UPDATE rides
@@ -880,15 +950,17 @@ app.post("/api/rides/:id/complete", async (req, res) => {
             });
         }
 
-        res.json({
+        return res.json({
             success: true,
             ride: formatRide(result.rows[0])
         });
+
     } catch (error) {
         return sendError(res, error);
     }
 });
 
+// ================= END COMPLETE RIDE =================
 // ================= PUBLIC RIDE STATUS =================
 
 // الزبون يحتاج حالة الرحلة فقط، وليس بياناته الشخصية
