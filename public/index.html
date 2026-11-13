@@ -1575,7 +1575,43 @@ section {
 
 </div>
 
+<!-- ================= DRIVER LOGIN ================= -->
 
+<div class="card">
+
+    <h2>🔐 دخول السائق</h2>
+
+    <div class="form-group">
+        <label>رقم الهاتف</label>
+
+        <input
+            type="tel"
+            id="driverLoginPhone"
+            placeholder="05xxxxxxxx"
+            autocomplete="username"
+        >
+    </div>
+
+    <div class="form-group">
+        <label>كلمة المرور السرية</label>
+
+        <input
+            type="password"
+            id="driverLoginPassword"
+            placeholder="أدخل كلمة المرور"
+            autocomplete="current-password"
+        >
+    </div>
+
+    <button
+        class="btn btn-primary"
+        onclick="loginDriver()">
+        🔐 تسجيل الدخول
+    </button>
+
+</div>
+
+<!-- ================= END DRIVER LOGIN ================= -->
 <div class="card">
 
 <h2>🚗 تسجيل السائق</h2>
@@ -2212,59 +2248,78 @@ async function registerDriver(){
 
 }
 
-// ================= DRIVER PANEL =================
+// ================= DRIVER LOGIN =================
 
-function showDriverPanel(){
+async function loginDriver(){
 
-    if(!currentDriver){
+    const phone =
+        document.getElementById("driverLoginPhone").value.trim();
+
+    const password =
+        document.getElementById("driverLoginPassword").value;
+
+    if(!phone || !password){
+
+        alert("⚠️ أدخل رقم الهاتف وكلمة المرور");
+
         return;
     }
 
-    document
-    .getElementById("driverPanel")
-    .innerHTML = `
+    try{
 
-    <div class="card">
+        const response = await fetch("/api/driver/login",{
 
-        <h2>👋 مرحبًا ${escapeHTML(currentDriver.name)}</h2>
+            method:"POST",
 
-        <div class="driver-status">
+            headers:{
+                "Content-Type":"application/json"
+            },
 
-            <div>
+            body:JSON.stringify({
+                phone,
+                password
+            })
 
-                <strong>
-                حالة السائق
-                </strong>
+        });
 
-                <div id="driverState">
-                🟢 متصل
-                </div>
+        const data = await response.json();
 
-            </div>
+        if(!response.ok || !data.success || !data.driver || !data.token){
 
-            <div
-            id="driverSwitch"
-            class="switch active"
-            onclick="toggleDriver()">
-            </div>
+            alert("❌ " + (data.message || "تعذر تسجيل الدخول"));
 
-        </div>
+            return;
+        }
 
-        <div>
-        🚗 ${escapeHTML(currentDriver.car)}
-        </div>
+        currentDriver = data.driver;
 
-        <div>
-        📱 ${escapeHTML(currentDriver.phone)}
-        </div>
+        localStorage.setItem(
+            "driverSessionToken",
+            data.token
+        );
 
-    </div>
+        document.getElementById("driverLoginPassword").value = "";
 
-    `;
+        showDriverPanel();
+
+        await loadDriverRides();
+
+        alert("✅ مرحباً بك، تم تسجيل الدخول بنجاح");
+
+    }catch(error){
+
+        console.error("Driver login error:",error);
+
+        alert("❌ تعذر الاتصال بالخادم");
+
+    }
 
 }
 
-// ================= DRIVER STATUS =================
+// ================= END DRIVER LOGIN =================  
+
+
+  
 
 
  // ================= TOGGLE DRIVER STATUS =================
@@ -3281,7 +3336,16 @@ async function setDriverOnline(online){
         alert("⚠️ سجل السائق أولاً");
 
         return;
+    }
 
+    const token =
+        localStorage.getItem("driverSessionToken");
+
+    if(!token){
+
+        alert("⚠️ جلسة الدخول غير موجودة، سجل الدخول من جديد");
+
+        return;
     }
 
     try{
@@ -3292,12 +3356,11 @@ async function setDriverOnline(online){
             method:"POST",
 
             headers:{
-                "Content-Type":"application/json"
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + token
             },
 
             body:JSON.stringify({
-
-                driverId:currentDriver.id,
 
                 online:online
 
@@ -3308,27 +3371,22 @@ async function setDriverOnline(online){
         const data =
         await response.json();
 
-        if(data.success){
+        if(!response.ok || !data.success){
 
-            currentDriver = data.driver;
+            alert("❌ " + (data.message || "تعذر تغيير حالة السائق"));
 
-            updateDriverOnlineButton();
-
-        }else{
-
-            alert(
-                "❌ " + data.message
-            );
-
+            return;
         }
+
+        currentDriver = data.driver;
+
+        updateDriverOnlineButton();
 
     }catch(error){
 
-        console.error(error);
+        console.error("Driver status error:",error);
 
-        alert(
-            "❌ تعذر الاتصال بالخادم"
-        );
+        alert("❌ تعذر الاتصال بالخادم");
 
     }
 
