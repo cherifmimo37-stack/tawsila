@@ -657,17 +657,70 @@ app.post("/api/driver/login", async (req, res) => {
 });
 
 // ================= END DRIVER LOGIN =================
+// ================= DRIVER SESSION =================
 
+app.get("/api/driver/me", async (req, res) => {
+    try {
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير موجودة"
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "انتهت صلاحية الجلسة، يرجى تسجيل الدخول"
+            });
+        }
+
+        return res.json({
+            success: true,
+            driver
+        });
+
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
+
+// ================= END DRIVER SESSION =================
 // ================= DRIVER STATUS =================
 
 app.post("/api/driver/status", async (req, res) => {
     try {
-        const { driverId, online } = req.body;
 
-        if (!validId(driverId) || typeof online !== "boolean") {
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "يرجى تسجيل الدخول من جديد"
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة"
+            });
+        }
+
+        const { online } = req.body;
+
+        if (typeof online !== "boolean") {
             return res.status(400).json({
                 success: false,
-                message: "بيانات حالة السائق غير صحيحة"
+                message: "حالة السائق غير صحيحة"
             });
         }
 
@@ -676,7 +729,7 @@ app.post("/api/driver/status", async (req, res) => {
              SET online = $1
              WHERE id = $2
              RETURNING *`,
-            [online, String(driverId)]
+            [online, String(driver.id)]
         );
 
         if (!result.rowCount) {
@@ -686,14 +739,17 @@ app.post("/api/driver/status", async (req, res) => {
             });
         }
 
-        res.json({
+        return res.json({
             success: true,
             driver: formatDriver(result.rows[0])
         });
+
     } catch (error) {
         return sendError(res, error);
     }
 });
+
+// ================= END DRIVER STATUS =================
 
 // ================= ACCEPT RIDE =================
 
