@@ -1885,91 +1885,70 @@ document.getElementById("carType")
 
 // ================= CREATE RIDE =================
 
+
 async function createRide(){
 
     const customerName =
-    document
-    .getElementById("customerName")
-    .value.trim();
+        document.getElementById("customerName").value.trim();
 
     const customerPhone =
-    document
-    .getElementById("customerPhone")
-    .value.trim();
+        document.getElementById("customerPhone").value.trim();
 
     const pickup =
-    document
-    .getElementById("pickup")
-    .value.trim();
+        document.getElementById("pickup").value.trim();
 
     const destination =
-    document
-    .getElementById("destination")
-    .value.trim();
+        document.getElementById("destination").value.trim();
 
     const price =
-    Number(
-        document
-        .getElementById("price")
-        .textContent
-    );
-const distance =
-    Number(
-        selectedDistance.toFixed(2)
-    );
+        Number(document.getElementById("price").textContent);
 
-  const pickupLocation =
-    userLocation
-    ? {
-        lat: userLocation.lat,
-        lng: userLocation.lng
-    }
-    : null;
-  
-  const destinationCoords =
-    destinationLocation
-    ? {
-        lat: destinationLocation.lat,
-        lng: destinationLocation.lng
-    }
-    : null;
-  
-    if(
-        !customerName ||
-        !customerPhone ||
-        !pickup ||
-        !destination
-    ){
+    const distance =
+        Number(selectedDistance.toFixed(2));
 
+    const pickupLocation = userLocation
+        ? {
+            lat: userLocation.lat,
+            lng: userLocation.lng
+        }
+        : null;
+
+    const destinationCoords = destinationLocation
+        ? {
+            lat: destinationLocation.lat,
+            lng: destinationLocation.lng
+        }
+        : null;
+
+    if(!customerName || !customerPhone || !pickup || !destination){
         alert("⚠️ أكمل جميع المعلومات");
-
         return;
     }
 
-      if(!userLocation){
-
+    if(!userLocation){
         alert("📍 يرجى تحديد موقع الانطلاق عبر GPS");
-
         return;
     }
 
     if(!destinationLocation){
-
         alert("🏁 يرجى اختيار الوجهة من الخريطة");
-
         return;
     }
 
-  if(selectedDistance <= 0){
+    if(selectedDistance <= 0){
+        alert("⏳ انتظر حتى يتم حساب مسافة الطريق بنجاح");
+        return;
+    }
 
-    alert("⏳ انتظر حتى يتم حساب مسافة الطريق بنجاح");
-
-    return;
-}
+    if(!Number.isFinite(price) || price <= 0){
+        alert("⚠️ سعر الرحلة غير صحيح");
+        return;
+    }
 
     try{
 
-        await fetch("/api/customer",{
+        // تسجيل بيانات الزبون أولاً
+        const customerResponse = await fetch("/api/customer",{
 
             method:"POST",
 
@@ -1978,18 +1957,26 @@ const distance =
             },
 
             body:JSON.stringify({
-
                 name:customerName,
-
                 phone:customerPhone
-
             })
 
         });
 
+        const customerData = await customerResponse.json();
 
-        const response =
-        await fetch("/api/rides",{
+        if(!customerResponse.ok || !customerData.success){
+
+            alert(
+                "❌ تعذر تسجيل بيانات الزبون: " +
+                (customerData.message || "حاول مرة أخرى")
+            );
+
+            return;
+        }
+
+        // بعد نجاح تسجيل الزبون ننشئ الرحلة
+        const response = await fetch("/api/rides",{
 
             method:"POST",
 
@@ -2000,95 +1987,82 @@ const distance =
             body:JSON.stringify({
 
                 customerName,
-
                 customerPhone,
-
                 pickup,
-
                 destination,
-
                 price,
-              carType: document.getElementById("carType").value,
-distance,
-pickupLocation,
-destinationCoords              
+                carType:document.getElementById("carType").value,
+                distance,
+                pickupLocation,
+                destinationCoords
+
             })
 
         });
 
+        const data = await response.json();
 
-        const data =
-        await response.json();
-
-
-        if(data.success){
-          
-localStorage.setItem(
-    "currentRideId",
-    data.ride.id
-);
-            alert(
-                "✅ تم إرسال طلب الرحلة بنجاح!"
-            );
-
-
-            // الاحتفاظ بالعناوين للعرض
-// ومسح إحداثيات الرحلة السابقة
-
-userLocation = null;
-destinationLocation = null;
-
-selectedDistance = 0;
-
-routeRequestId++;
-
-if(routeLine && map){
-    map.removeLayer(routeLine);
-    routeLine = null;
-}          
-
-if(userMarker){
-    map.removeLayer(userMarker);
-    userMarker = null;
-}
-
-if(destinationMarker){
-    map.removeLayer(destinationMarker);
-    destinationMarker = null;
-}
-
-document.getElementById("locationInfo").textContent =
-    "لم يتم تحديد موقع الانطلاق بعد";
-
-document.getElementById("destinationInfo").textContent =
-    "🏁 لم يتم تحديد الوجهة بعد";
-
-document.getElementById("distanceInfo").textContent =
-    "📏 المسافة: بانتظار تحديد الموقع والوجهة";
-
-updateCustomerPrice();
-
-
-        }else{
+        if(!response.ok || !data.success || !data.ride){
 
             alert(
-                "❌ " + data.message
+                "❌ تعذر إنشاء الرحلة: " +
+                (data.message || "حاول مرة أخرى")
             );
 
+            return;
         }
+
+        localStorage.setItem(
+            "currentRideId",
+            data.ride.id
+        );
+
+        alert("✅ تم إرسال طلب الرحلة بنجاح!");
+
+        // الاحتفاظ بالعناوين ومسح إحداثيات الرحلة السابقة
+        userLocation = null;
+        destinationLocation = null;
+        selectedDistance = 0;
+
+        routeRequestId++;
+
+        if(routeLine && map){
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
+
+        if(userMarker && map){
+            map.removeLayer(userMarker);
+            userMarker = null;
+        }
+
+        if(destinationMarker && map){
+            map.removeLayer(destinationMarker);
+            destinationMarker = null;
+        }
+
+        document.getElementById("locationInfo").textContent =
+            "لم يتم تحديد موقع الانطلاق بعد";
+
+        document.getElementById("destinationInfo").textContent =
+            "🏁 لم يتم تحديد الوجهة بعد";
+
+        document.getElementById("distanceInfo").textContent =
+            "📏 المسافة: بانتظار تحديد الموقع والوجهة";
+
+        updateCustomerPrice();
+
+        updateCustomerRideStatus();
 
     }catch(error){
 
-        console.error(error);
+        console.error("Create ride error:",error);
 
-        alert(
-            "❌ حدث خطأ في الاتصال بالخادم"
-        );
+        alert("❌ حدث خطأ في الاتصال بالخادم");
 
     }
 
 }
-
 
 // ================= REGISTER DRIVER =================
 
@@ -2186,16 +2160,14 @@ async function registerDriver(){
 }
 
 
+
 // ================= DRIVER PANEL =================
 
 function showDriverPanel(){
 
     if(!currentDriver){
-
         return;
-
     }
-
 
     document
     .getElementById("driverPanel")
@@ -2203,7 +2175,7 @@ function showDriverPanel(){
 
     <div class="card">
 
-        <h2>👋 مرحبًا ${currentDriver.name}</h2>
+        <h2>👋 مرحبًا ${escapeHTML(currentDriver.name)}</h2>
 
         <div class="driver-status">
 
@@ -2228,11 +2200,11 @@ function showDriverPanel(){
         </div>
 
         <div>
-        🚗 ${currentDriver.car}
+        🚗 ${escapeHTML(currentDriver.car)}
         </div>
 
         <div>
-        📱 ${currentDriver.phone}
+        📱 ${escapeHTML(currentDriver.phone)}
         </div>
 
     </div>
@@ -2241,74 +2213,76 @@ function showDriverPanel(){
 
 }
 
-
 // ================= DRIVER STATUS =================
+
+
+ // ================= DRIVER STATUS =================
 
 async function toggleDriver(){
 
     if(!currentDriver){
-
         return;
-
     }
 
-
     const switchElement =
-    document
-    .getElementById("driverSwitch");
+        document.getElementById("driverSwitch");
 
+    const stateElement =
+        document.getElementById("driverState");
+
+    if(!switchElement || !stateElement){
+        return;
+    }
 
     const isOnline =
-    switchElement
-    .classList
-    .contains("active");
-
+        switchElement.classList.contains("active");
 
     try{
 
-        await fetch(
-        "/api/driver/status",{
+        const response = await fetch(
+            "/api/driver/status",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    driverId:currentDriver.id,
+                    online:!isOnline
+                })
+            }
+        );
 
-            method:"POST",
+        const data = await response.json();
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+        if(!response.ok || !data.success){
 
-            body:JSON.stringify({
+            alert(
+                "❌ تعذر تغيير حالة السائق: " +
+                (data.message || "حاول مرة أخرى")
+            );
 
-                driverId:currentDriver.id,
+            return;
+        }
 
-                online:!isOnline
+        switchElement.classList.toggle("active", !isOnline);
 
-            })
+        stateElement.textContent =
+            !isOnline
+            ? "🟢 متصل"
+            : "🔴 غير متصل";
 
-        });
-
-
-        switchElement
-        .classList
-        .toggle("active");
-
-
-        document
-        .getElementById("driverState")
-        .textContent =
-        isOnline
-        ? "🔴 غير متصل"
-        : "🟢 متصل";
-
+        currentDriver.online = !isOnline;
 
     }catch(error){
 
-        alert(
-            "❌ حدث خطأ"
-        );
+        console.error("Driver status error:", error);
+
+        alert("❌ تعذر الاتصال بالخادم");
 
     }
 
 }
-
 
  // ================= HTML SECURITY =================
 
@@ -2540,54 +2514,67 @@ async function loadDriverRides(){
 
 // ================= ACCEPT =================
 
+
+ // ================= ACCEPT =================
+
 async function acceptRide(id){
 
     if(!currentDriver){
 
-        alert(
-            "⚠️ سجل السائق أولاً"
-        );
+        alert("⚠️ سجل السائق أولاً");
 
         return;
-
     }
 
+    if(!id){
+        alert("⚠️ رقم الرحلة غير صحيح");
+        return;
+    }
 
-    const response =
-    await fetch(
-    `/api/rides/${id}/accept`,{
+    try{
 
-        method:"POST",
+        const response = await fetch(
+            `/api/rides/${encodeURIComponent(id)}/accept`,
+            {
+                method:"POST",
 
-        headers:{
-            "Content-Type":"application/json"
-        },
+                headers:{
+                    "Content-Type":"application/json"
+                },
 
-        body:JSON.stringify({
-
-            driverId:currentDriver.id
-
-        })
-
-    });
-
-
-    const data =
-    await response.json();
-
-
-    if(data.success){
-
-        loadDriverRides();
-
-        alert(
-            "✅ تم قبول الرحلة"
+                body:JSON.stringify({
+                    driverId:currentDriver.id
+                })
+            }
         );
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+
+            alert(
+                "❌ لم يتم قبول الرحلة: " +
+                (data.message || "ربما تم قبولها من سائق آخر")
+            );
+
+            await loadDriverRides();
+
+            return;
+        }
+
+        alert("✅ تم قبول الرحلة بنجاح");
+
+        await loadDriverRides();
+
+    }catch(error){
+
+        console.error("Accept ride error:", error);
+
+        alert("❌ تعذر الاتصال بالخادم، حاول مرة أخرى");
 
     }
 
 }
-
 
 // ================= START =================
 
@@ -3133,9 +3120,10 @@ async function calculateDistance(){
 }
 
   
- // ================= OPEN PICKUP LOCATION =================
 
-function openPickupLocation(lat, lng){
+ // ================= OPEN DESTINATION LOCATION =================
+
+function openDestinationLocation(lat, lng){
 
     lat = Number(lat);
     lng = Number(lng);
@@ -3147,20 +3135,10 @@ function openPickupLocation(lat, lng){
         lng < -180 || lng > 180
     ){
 
-        alert("⚠️ موقع الانطلاق غير صحيح");
+        alert("⚠️ موقع الوجهة غير صحيح");
 
         return;
     }
-
-    const url =
-        `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-
-    window.open(url, "_blank");
-
-}
-
-
-  function openDestinationLocation(lat, lng){
 
     const url =
         `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
@@ -3179,71 +3157,67 @@ async function updateCustomerRideStatus(){
     const statusBox =
         document.getElementById("customerRideStatus");
 
-    if(!rideId || !statusBox){
-
-        return;
-
-    }
+    if(!rideId || !statusBox) return;
 
     try{
 
-        const response =
-            await fetch(`/api/rides/${rideId}`);
+        const response = await fetch(
+            `/api/rides/${encodeURIComponent(rideId)}`
+        );
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
-        if(!data.success){
+        if(!response.ok || !data.status){
 
-            statusBox.innerHTML =
-                "❌ الرحلة غير موجودة";
+            statusBox.textContent =
+                "❌ تعذر جلب حالة الرحلة";
 
             return;
-
         }
 
-        const ride = data.ride;
+        if(data.status === "pending"){
 
-        if(ride.status === "pending"){
-
-            statusBox.innerHTML =
+            statusBox.textContent =
                 "🔎 جاري البحث عن سائق...";
 
         }
+        else if(data.status === "accepted"){
 
-        else if(ride.status === "accepted"){
-
-            statusBox.innerHTML =
+            statusBox.textContent =
                 "✅ تم قبول الرحلة — السائق في الطريق إليك 🚕";
 
         }
+        else if(data.status === "started"){
 
-        else if(ride.status === "started"){
-
-            statusBox.innerHTML =
+            statusBox.textContent =
                 "🚕 الرحلة بدأت";
 
         }
+        else if(data.status === "completed"){
 
-        else if(ride.status === "completed"){
-
-            statusBox.innerHTML =
+            statusBox.textContent =
                 "🏁 تم إنهاء الرحلة بنجاح";
+
+        }
+        else{
+
+            statusBox.textContent =
+                "حالة الرحلة: " + data.status;
 
         }
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "Customer ride status error:",
+            error
+        );
+
+        statusBox.textContent =
+            "⚠️ تعذر الاتصال بالخادم";
 
     }
-
 }
-  
-  setInterval(
-    updateCustomerRideStatus,
-    5000
-);
 
   // ================= DRIVER ONLINE STATUS =================
 
