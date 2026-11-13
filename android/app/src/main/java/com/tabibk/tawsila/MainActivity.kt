@@ -16,9 +16,41 @@ import android.widget.Toast
 class MainActivity : Activity() {
 
     private lateinit var webView: WebView
+private var pendingGeoCallback:
+    android.webkit.GeolocationPermissions.Callback? = null
+
+private var pendingGeoOrigin: String? = null
+
 
     private val appUrl = "https://tawsila-rdxk.onrender.com/"
+override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+) {
+    super.onRequestPermissionsResult(
+        requestCode,
+        permissions,
+        grantResults
+    )
 
+    if (requestCode == 1001) {
+
+        val granted = grantResults.any {
+            it == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+
+        val callback = pendingGeoCallback
+        val origin = pendingGeoOrigin
+
+        if (callback != null && origin != null) {
+            callback.invoke(origin, granted, false)
+        }
+
+        pendingGeoCallback = null
+        pendingGeoOrigin = null
+    }
+}
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -67,10 +99,8 @@ class MainActivity : Activity() {
             }
         }
 
-        
-webView.settings.apply {
-    setGeolocationEnabled(true)
-}
+
+webView.settings.setGeolocationEnabled(true)
 
 webView.webChromeClient = object : WebChromeClient() {
 
@@ -79,29 +109,32 @@ webView.webChromeClient = object : WebChromeClient() {
         callback: android.webkit.GeolocationPermissions.Callback?
     ) {
 
-        if (origin == "https://tawsila-rdxk.onrender.com") {
-
-            if (
-                checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                    android.content.pm.PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                    android.content.pm.PackageManager.PERMISSION_GRANTED
-            ) {
-                callback?.invoke(origin, true, false)
-            } else {
-                callback?.invoke(origin, false, false)
-
-                requestPermissions(
-                    arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION
-                    ),
-                    1001
-                )
-            }
-
-        } else {
+        if (origin != "https://tawsila-rdxk.onrender.com") {
             callback?.invoke(origin, false, false)
+            return
+        }
+
+        val fine = checkSelfPermission(
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        val coarse = checkSelfPermission(
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if (fine || coarse) {
+            callback?.invoke(origin, true, false)
+        } else {
+            pendingGeoCallback = callback
+            pendingGeoOrigin = origin
+
+            requestPermissions(
+                arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1001
+            )
         }
     }
 }
