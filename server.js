@@ -692,7 +692,59 @@ app.get("/api/driver/me", async (req, res) => {
     }
 });
 
+
 // ================= END DRIVER SESSION =================
+// ================= DRIVER LOGOUT =================
+
+app.post("/api/driver/logout", async (req, res) => {
+
+    try{
+
+        const authHeader =
+            req.get("authorization") || "";
+
+        if(!authHeader.startsWith("Bearer ")){
+
+            return res.status(401).json({
+                success:false,
+                message:"جلسة الدخول غير موجودة"
+            });
+
+        }
+
+        const token = authHeader.slice(7);
+
+        if(!/^[a-f0-9]{64}$/i.test(token)){
+
+            return res.status(401).json({
+                success:false,
+                message:"رمز الجلسة غير صالح"
+            });
+
+        }
+
+        const tokenHash = hashSessionToken(token);
+
+        await pool.query(
+            `DELETE FROM driver_sessions
+             WHERE token_hash = $1`,
+            [tokenHash]
+        );
+
+        return res.json({
+            success:true,
+            message:"تم تسجيل الخروج بنجاح"
+        });
+
+    }catch(error){
+
+        return sendError(res, error);
+
+    }
+
+});
+
+// ================= END DRIVER LOGOUT =================
 // ================= DRIVER STATUS =================
 
 app.post("/api/driver/status", async (req, res) => {
