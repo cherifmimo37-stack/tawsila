@@ -1232,102 +1232,166 @@ section {
 <div class="container">
 
 
-
 <!-- ===== TAWSILA PREMIUM WELCOME ===== -->
+<style>
+.tawsila-home {
+  min-height: 85vh;
+  padding: 35px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(34,115,160,.35), transparent 35%),
+    radial-gradient(circle at 85% 85%, rgba(196,151,50,.18), transparent 35%),
+    linear-gradient(135deg,#071727,#102d43 55%,#071522);
+  border-radius: 22px;
+  color: white;
+  box-sizing: border-box;
+}
+
+.tawsila-home-brand {
+  text-align: center;
+  margin-bottom: 38px;
+}
+
+.tawsila-home-brand img {
+  width: 105px;
+  height: 105px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+}
+
+.tawsila-home-brand h1 {
+  color: #e5bd65;
+  font-size: 34px;
+  margin: 5px 0;
+  font-weight: 900;
+}
+
+.tawsila-home-brand p {
+  color: #c5d5e2;
+  letter-spacing: 4px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.tawsila-home-title {
+  text-align: center;
+  font-size: 21px;
+  margin: 0 0 25px;
+  color: #fff;
+}
+
+.tawsila-entry-cards {
+  width: 100%;
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 18px;
+}
+
+.tawsila-entry-card {
+  min-height: 205px;
+  border: 1px solid rgba(229,189,101,.48);
+  border-radius: 20px;
+  padding: 25px 15px;
+  background: linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045));
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s;
+  box-shadow: 0 12px 30px rgba(0,0,0,.2);
+}
+
+.tawsila-entry-card:active {
+  transform: scale(.97);
+}
+
+.tawsila-entry-icon {
+  display: block;
+  font-size: 47px;
+  margin-bottom: 15px;
+}
+
+.tawsila-entry-card strong {
+  display: block;
+  color: #f0cc79;
+  font-size: 21px;
+  margin-bottom: 10px;
+}
+
+.tawsila-entry-card small {
+  display: block;
+  color: #d4e0e9;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.tawsila-home-footer {
+  margin-top: 35px;
+  color: #a9bdcc;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media(max-width:520px) {
+  .tawsila-entry-cards {
+    grid-template-columns: 1fr;
+    max-width: 340px;
+  }
+
+  .tawsila-entry-card {
+    min-height: 165px;
+  }
+
+  .tawsila-home {
+    padding: 28px 14px;
+  }
+}
+</style>
+
 <section id="welcome" class="page active">
-  <div class="entry-layout">
+  <div class="tawsila-home">
 
-    <div class="entry-showcase">
-      <div class="entry-brand">
-        <img src="/logo.svg" alt="توصيلة">
-        <div>
-          <h1>توصيلة</h1>
-          <span>TAWSILA</span>
-        </div>
-      </div>
-
-      <h2>رحلتك بأمان .. وسهولة</h2>
-      <div class="entry-city">ورقلة • الجزائر</div>
-
-      <div class="entry-scene">
-        <div class="entry-skyline">
-          <i></i><i></i><i></i><i></i><i></i>
-        </div>
-        <div class="entry-road"></div>
-        <div class="entry-car">
-          <div class="entry-taxi-sign">TAXI</div>
-          <div class="entry-car-window"></div>
-          <div class="entry-car-body"></div>
-          <div class="entry-wheel one"></div>
-          <div class="entry-wheel two"></div>
-        </div>
-      </div>
-
-      <div class="entry-benefits">
-        <div><b>✓</b> أمان عالي</div>
-        <div><b>♧</b> دعم متواصل</div>
-        <div><b>ϟ</b> سرعة الوصول</div>
-        <div><b>⌖</b> تتبع مباشر</div>
-      </div>
-
-      <div class="entry-slogan">توصيلة .. دائماً في خدمتك</div>
+    <div class="tawsila-home-brand">
+      <img src="/logo.svg" alt="شعار توصيلة">
+      <h1>توصيلة</h1>
+      <p>TAWSILA · OUARGLA</p>
     </div>
 
-    <div class="entry-panel">
-      <div class="entry-panel-heading">اختر طريقة الدخول</div>
+    <h2 class="tawsila-home-title">
+      مرحباً بك، اختر طريقة الدخول
+    </h2>
 
-      <div class="entry-role-picker">
-        <button type="button" id="roleCustomer"
-          class="entry-role selected"
-          onclick="selectEntryRole('customer')">
-          <span>👤</span>
-          <strong>زبون</strong>
-          <small>اطلب سيارة الآن</small>
-        </button>
+    <div class="tawsila-entry-cards">
 
-        <button type="button" id="roleDriver"
-          class="entry-role"
-          onclick="selectEntryRole('driver')">
-          <span>🚗</span>
-          <strong>سائق</strong>
-          <small>انضم إلى فريقنا</small>
-        </button>
-      </div>
-
-      <div class="entry-fields">
-        <label for="entryPhone">رقم الهاتف</label>
-        <input id="entryPhone" type="tel"
-          placeholder="أدخل رقم الهاتف">
-
-        <label for="entryPassword">كلمة المرور</label>
-        <input id="entryPassword" type="password"
-          placeholder="كلمة المرور">
-      </div>
-
-      <button class="entry-submit" onclick="continueEntry()">
-        متابعة وتسجيل الدخول ←
+      <button type="button"
+        class="tawsila-entry-card"
+        onclick="showPage('customer')">
+        <span class="tawsila-entry-icon">👤</span>
+        <strong>دخول الزبون</strong>
+        <small>اطلب رحلتك وحدد مكان الانطلاق والوجهة بسهولة</small>
       </button>
 
-      <button class="entry-forgot" onclick="entryNotice()">
-        نسيت كلمة المرور؟
+      <button type="button"
+        class="tawsila-entry-card"
+        onclick="showPage('driver')">
+        <span class="tawsila-entry-icon">🚘</span>
+        <strong>دخول السائق</strong>
+        <small>تابع طلبات الزبائن واستقبل رحلاتك</small>
       </button>
 
-      <div class="entry-separator">أو</div>
+    </div>
 
-      <button class="entry-create" onclick="continueEntry()">
-        إنشاء حساب جديد ＋
-      </button>
-
-      <p class="entry-note">
-        مرحباً بك في توصيلة، خدمتك للتنقل في ورقلة
-      </p>
+    <div class="tawsila-home-footer">
+      توصيلة · خدمتك للتنقل في ورقلة
     </div>
 
   </div>
 </section>
 <!-- ===== END TAWSILA PREMIUM WELCOME ===== -->
-
-  
 
 <!-- ================= CUSTOMER PREMIUM ================= -->
 <section id="customer" class="page">
