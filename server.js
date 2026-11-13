@@ -2,6 +2,7 @@
 const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,6 +42,76 @@ function validText(value) {
 function validId(value) {
     return /^\d{1,16}$/.test(String(value || ""));
 }
+
+
+// ================= PASSWORD SECURITY =================
+
+const scryptAsync = require("util").promisify(crypto.scrypt);
+
+async function hashPassword(password){
+
+    const salt = crypto.randomBytes(16).toString("hex");
+
+    const key = await scryptAsync(
+        password,
+        salt,
+        64
+    );
+
+    return salt + ":" + key.toString("hex");
+}
+
+
+async function verifyPassword(password, storedHash){
+
+    try{
+
+        if(
+            typeof password !== "string" ||
+            typeof storedHash !== "string"
+        ){
+            return false;
+        }
+
+        const parts = storedHash.split(":");
+
+        if(parts.length !== 2){
+            return false;
+        }
+
+        const salt = parts[0];
+        const storedKey = Buffer.from(parts[1], "hex");
+
+        if(
+            !/^[a-f0-9]{32}$/i.test(salt) ||
+            storedKey.length !== 64
+        ){
+            return false;
+        }
+
+        const key = await scryptAsync(
+            password,
+            salt,
+            64
+        );
+
+        return crypto.timingSafeEqual(
+            key,
+            storedKey
+        );
+
+    }catch(error){
+
+        console.error("Password verification error:", error);
+
+        return false;
+
+    }
+
+}
+
+// ================= END PASSWORD SECURITY =================
+
 
 // ================= DATABASE SETUP =================
 
@@ -83,6 +154,12 @@ async function initializeDatabase() {
             driver_id BIGINT REFERENCES drivers(id),
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+    `);
+
+        // إضافة كلمة المرور دون المساس بالحسابات القديمة
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS password_hash TEXT
     `);
 
     await pool.query(`
