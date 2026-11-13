@@ -1882,6 +1882,19 @@ const distance =
         return;
     }
 
+      if(!userLocation){
+
+        alert("📍 يرجى تحديد موقع الانطلاق عبر GPS");
+
+        return;
+    }
+
+    if(!destinationLocation){
+
+        alert("🏁 يرجى اختيار الوجهة من الخريطة");
+
+        return;
+    }
 
     try{
 
