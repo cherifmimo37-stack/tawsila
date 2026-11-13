@@ -2145,6 +2145,8 @@ async function registerDriver(){
 
         currentDriver = data.driver;
 
+      localStorage.setItem("driverSessionToken", data.token);
+
         document.getElementById("driverPassword").value = "";
 
         showDriverPanel();
