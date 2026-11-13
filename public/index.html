@@ -1601,6 +1601,22 @@ id="driverPhone"
 placeholder="05xxxxxxxx"
 >
 
+  
+<div class="form-group">
+
+<label>كلمة المرور السرية</label>
+
+<input
+type="password"
+id="driverPassword"
+placeholder="اختر كلمة مرور من 8 أحرف على الأقل"
+minlength="8"
+autocomplete="new-password"
+>
+
+</div>
+
+  
 </div>
 
 
@@ -2064,46 +2080,43 @@ async function createRide(){
 
 }
 
-// ================= REGISTER DRIVER =================
+
+ // ================= REGISTER DRIVER =================
 
 async function registerDriver(){
 
     const name =
-    document
-    .getElementById("driverName")
-    .value.trim();
+        document.getElementById("driverName").value.trim();
 
     const phone =
-    document
-    .getElementById("driverPhone")
-    .value.trim();
+        document.getElementById("driverPhone").value.trim();
+
+    const password =
+        document.getElementById("driverPassword").value;
 
     const car =
-    document
-    .getElementById("driverCar")
-    .value.trim();
+        document.getElementById("driverCar").value.trim();
 
     const plate =
-    document
-    .getElementById("driverPlate")
-    .value.trim();
+        document.getElementById("driverPlate").value.trim();
 
+    if(!name || !phone || !password || !car || !plate){
 
-    if(!name || !phone || !car || !plate){
-
-        alert(
-            "⚠️ أكمل معلومات السائق"
-        );
+        alert("⚠️ أكمل جميع معلومات السائق");
 
         return;
-
     }
 
+    if(password.length < 8){
+
+        alert("⚠️ كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+
+        return;
+    }
 
     try{
 
-        const response =
-        await fetch("/api/driver",{
+        const response = await fetch("/api/driver",{
 
             method:"POST",
 
@@ -2112,54 +2125,43 @@ async function registerDriver(){
             },
 
             body:JSON.stringify({
-
                 name,
                 phone,
+                password,
                 car,
                 plate
-
             })
 
         });
 
+        const data = await response.json();
 
-        const data =
-        await response.json();
+        if(!response.ok || !data.success || !data.driver){
 
+            alert("❌ " + (data.message || "تعذر تسجيل السائق"));
 
-        if(data.success){
-
-            currentDriver = data.driver;
-
-            showDriverPanel();
-
-            loadDriverRides();
-
-            alert(
-                "✅ تم تسجيل السائق بنجاح"
-            );
-
-        }else{
-
-            alert(
-                "❌ " + data.message
-            );
-
+            return;
         }
+
+        currentDriver = data.driver;
+
+        document.getElementById("driverPassword").value = "";
+
+        showDriverPanel();
+
+        loadDriverRides();
+
+        alert("✅ تم تسجيل السائق بنجاح");
 
     }catch(error){
 
-        console.error(error);
+        console.error("Driver registration error:",error);
 
-        alert(
-            "❌ تعذر الاتصال بالخادم"
-        );
+        alert("❌ تعذر الاتصال بالخادم");
 
     }
 
 }
-
-
 
 // ================= DRIVER PANEL =================
 
