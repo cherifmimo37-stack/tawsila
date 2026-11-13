@@ -522,6 +522,322 @@ section {
   }
 }
 
+
+/* ===== TAWSILA PREMIUM NIGHT GOLD ===== */
+.entry-layout {
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:25px;
+  padding:22px;
+  min-height:700px;
+  border-radius:25px;
+  overflow:hidden;
+  color:white;
+  background:radial-gradient(circle at top,#164b7c,#07172d 55%,#02060d);
+  box-shadow:0 15px 40px #0003;
+}
+
+.entry-showcase {
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:640px;
+  padding:15px;
+}
+
+.entry-brand {
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.entry-brand img {
+  width:105px;
+  height:105px;
+  object-fit:contain;
+}
+
+.entry-brand h1 {
+  color:#ffc400;
+  font-size:55px;
+  font-weight:1000;
+}
+
+.entry-brand span {
+  letter-spacing:6px;
+  font-size:18px;
+}
+
+.entry-showcase h2 {
+  font-size:28px;
+  margin-top:12px;
+}
+
+.entry-city {
+  color:#ffc400;
+  font-weight:bold;
+  margin-top:8px;
+}
+
+.entry-scene {
+  height:300px;
+  position:relative;
+  overflow:hidden;
+  border-radius:20px;
+  background:linear-gradient(#092b50,#16436a 65%,#080d15);
+}
+
+.entry-skyline {
+  position:absolute;
+  bottom:85px;
+  width:100%;
+  height:150px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-around;
+}
+
+.entry-skyline i {
+  width:13%;
+  height:75%;
+  background:linear-gradient(90deg,#071421,#24425e,#071421);
+  border:1px solid #607b92;
+}
+
+.entry-skyline i:nth-child(2) {height:100%}
+.entry-skyline i:nth-child(3) {height:60%}
+.entry-skyline i:nth-child(4) {height:85%}
+
+.entry-road {
+  position:absolute;
+  bottom:0;
+  height:90px;
+  width:100%;
+  background:linear-gradient(#28394a,#05080d);
+  border-top:4px solid #ffc400;
+}
+
+.entry-car {
+  position:absolute;
+  width:75%;
+  height:130px;
+  bottom:35px;
+  left:8%;
+  filter:drop-shadow(0 10px 12px #000);
+}
+
+.entry-car-body {
+  position:absolute;
+  bottom:15px;
+  left:3%;
+  width:94%;
+  height:72px;
+  border:3px solid #ffe78b;
+  border-radius:45px 45px 15px 15px;
+  background:linear-gradient(#ffe66b,#ffb000 60%,#d87900);
+}
+
+.entry-car-window {
+  position:absolute;
+  z-index:2;
+  top:23px;
+  left:28%;
+  width:45%;
+  height:55px;
+  border:4px solid #e4a000;
+  border-radius:30px 30px 5px 5px;
+  background:linear-gradient(135deg,#b7d6e8,#102b45);
+}
+
+.entry-taxi-sign {
+  position:absolute;
+  z-index:3;
+  top:0;
+  left:43%;
+  background:#ffc400;
+  color:#111;
+  font-weight:bold;
+  padding:5px 14px;
+  border-radius:6px;
+}
+
+.entry-wheel {
+  position:absolute;
+  z-index:4;
+  bottom:0;
+  width:38px;
+  height:38px;
+  border:5px solid #05080d;
+  border-radius:50%;
+  background:#9da9b6;
+}
+
+.entry-wheel.one {left:17%}
+.entry-wheel.two {right:17%}
+
+.entry-benefits {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  text-align:center;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.entry-benefits div {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+
+.entry-benefits b {
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border:2px solid #ffc400;
+  border-radius:50%;
+  color:#ffc400;
+  font-size:24px;
+  background:#020914;
+}
+
+.entry-slogan {
+  text-align:center;
+  font-size:19px;
+  font-weight:bold;
+  margin-top:20px;
+}
+
+.entry-panel {
+  align-self:center;
+  width:100%;
+  max-width:470px;
+  margin:auto;
+  padding:28px 23px;
+  border:2px solid #697586;
+  border-radius:28px;
+  background:linear-gradient(145deg,#171e28,#020407 75%);
+  box-shadow:0 15px 35px #000b;
+}
+
+.entry-panel-heading {
+  background:linear-gradient(#ffe02c,#f2a900);
+  color:#17130a;
+  text-align:center;
+  padding:15px;
+  margin:-48px 0 28px;
+  border-radius:12px;
+  font-size:22px;
+  font-weight:1000;
+  box-shadow:0 5px 0 #895000;
+}
+
+.entry-role-picker {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:22px;
+}
+
+.entry-role {
+  min-height:140px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border:2px solid #58616d;
+  border-radius:18px;
+  color:white;
+  background:linear-gradient(145deg,#202936,#070a0f);
+}
+
+.entry-role span {font-size:38px}
+.entry-role strong {font-size:22px}
+.entry-role small {color:#c4cedb}
+
+.entry-role.selected {
+  border-color:#ffc400;
+  box-shadow:0 0 18px #ffc40035;
+  background:linear-gradient(145deg,#0756a8,#031c3a);
+}
+
+.entry-fields label {
+  color:#e2e8f0;
+  margin:12px 0 7px;
+}
+
+.entry-fields input {
+  background:#151c27;
+  color:white;
+  border:1px solid #647080;
+  padding:15px;
+  border-radius:12px;
+}
+
+.entry-fields input::placeholder {color:#aab4c2}
+
+.entry-submit,.entry-create {
+  width:100%;
+  padding:15px;
+  margin-top:18px;
+  border-radius:13px;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.entry-submit {
+  color:#15110a;
+  background:linear-gradient(#ffe02b,#f5a900);
+  border:1px solid #ffe78a;
+}
+
+.entry-forgot {
+  display:block;
+  margin:14px auto;
+  background:transparent;
+  color:#ffdc65;
+  text-decoration:underline;
+}
+
+.entry-separator {
+  text-align:center;
+  color:#ffc400;
+  margin:15px;
+}
+
+.entry-create {
+  background:transparent;
+  color:white;
+  border:1px solid #ffc400;
+}
+
+.entry-note {
+  color:#9ca9b9;
+  font-size:12px;
+  text-align:center;
+  margin-top:15px;
+  line-height:1.7;
+}
+
+@media(max-width:850px) {
+  .entry-layout {grid-template-columns:1fr}
+  .entry-showcase {min-height:500px}
+  .entry-panel {margin:25px auto}
+}
+
+@media(max-width:480px) {
+  .entry-layout {padding:10px}
+  .entry-brand h1 {font-size:40px}
+  .entry-brand img {width:80px;height:80px}
+  .entry-scene {height:220px}
+  .entry-showcase {min-height:430px;padding:10px 3px}
+  .entry-benefits {font-size:10px}
+  .entry-benefits b {width:40px;height:40px}
+  .entry-panel {padding:25px 14px}
+}
   
 </style>
 
@@ -566,38 +882,100 @@ section {
 <div class="container">
 
 
-<!-- ===== TAWSILA WELCOME SCREEN ===== -->
+
+<!-- ===== TAWSILA PREMIUM WELCOME ===== -->
 <section id="welcome" class="page active">
-  <div class="welcome-screen">
-    <img src="/logo.svg" alt="توصيلة" class="welcome-logo">
+  <div class="entry-layout">
 
-    <h1>مرحبا بك في توصيلة</h1>
-    <p>تنقّل بسهولة وأمان داخل ورقلة</p>
+    <div class="entry-showcase">
+      <div class="entry-brand">
+        <img src="/logo.svg" alt="توصيلة">
+        <div>
+          <h1>توصيلة</h1>
+          <span>TAWSILA</span>
+        </div>
+      </div>
 
-    <div class="welcome-options">
-      <button class="welcome-option customer-option"
-              onclick="showPage('customer')">
-        <span>👤</span>
-        <strong>أنا زبون</strong>
-        <small>اطلب سيارة وحدد وجهتك بسهولة</small>
-        <b>طلب سيارة ←</b>
-      </button>
+      <h2>رحلتك بأمان .. وسهولة</h2>
+      <div class="entry-city">ورقلة • الجزائر</div>
 
-      <button class="welcome-option driver-option"
-              onclick="showPage('driver')">
-        <span>🚗</span>
-        <strong>أنا سائق</strong>
-        <small>استقبل الطلبات وابدأ العمل معنا</small>
-        <b>دخول السائق ←</b>
-      </button>
+      <div class="entry-scene">
+        <div class="entry-skyline">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="entry-road"></div>
+        <div class="entry-car">
+          <div class="entry-taxi-sign">TAXI</div>
+          <div class="entry-car-window"></div>
+          <div class="entry-car-body"></div>
+          <div class="entry-wheel one"></div>
+          <div class="entry-wheel two"></div>
+        </div>
+      </div>
+
+      <div class="entry-benefits">
+        <div><b>✓</b> أمان عالي</div>
+        <div><b>♧</b> دعم متواصل</div>
+        <div><b>ϟ</b> سرعة الوصول</div>
+        <div><b>⌖</b> تتبع مباشر</div>
+      </div>
+
+      <div class="entry-slogan">توصيلة .. دائماً في خدمتك</div>
     </div>
 
-    <div class="welcome-footer">
-      توصيلة — خدمتك للتنقل في ورقلة
+    <div class="entry-panel">
+      <div class="entry-panel-heading">اختر طريقة الدخول</div>
+
+      <div class="entry-role-picker">
+        <button type="button" id="roleCustomer"
+          class="entry-role selected"
+          onclick="selectEntryRole('customer')">
+          <span>👤</span>
+          <strong>زبون</strong>
+          <small>اطلب سيارة الآن</small>
+        </button>
+
+        <button type="button" id="roleDriver"
+          class="entry-role"
+          onclick="selectEntryRole('driver')">
+          <span>🚗</span>
+          <strong>سائق</strong>
+          <small>انضم إلى فريقنا</small>
+        </button>
+      </div>
+
+      <div class="entry-fields">
+        <label for="entryPhone">رقم الهاتف</label>
+        <input id="entryPhone" type="tel"
+          placeholder="أدخل رقم الهاتف">
+
+        <label for="entryPassword">كلمة المرور</label>
+        <input id="entryPassword" type="password"
+          placeholder="كلمة المرور">
+      </div>
+
+      <button class="entry-submit" onclick="continueEntry()">
+        متابعة وتسجيل الدخول ←
+      </button>
+
+      <button class="entry-forgot" onclick="entryNotice()">
+        نسيت كلمة المرور؟
+      </button>
+
+      <div class="entry-separator">أو</div>
+
+      <button class="entry-create" onclick="continueEntry()">
+        إنشاء حساب جديد ＋
+      </button>
+
+      <p class="entry-note">
+        مرحباً بك في توصيلة، خدمتك للتنقل في ورقلة
+      </p>
     </div>
+
   </div>
 </section>
-<!-- ===== END WELCOME SCREEN ===== -->
+<!-- ===== END TAWSILA PREMIUM WELCOME ===== -->
 
   
 <!-- ================= CUSTOMER ================= -->
@@ -1002,7 +1380,39 @@ RideDZ V1 © 2026
 
 <script>
 
+
 let currentDriver = null;
+let selectedEntryRole = "customer";
+
+function selectEntryRole(role) {
+    selectedEntryRole = role;
+
+    document.getElementById("roleCustomer")
+        .classList.toggle("selected", role === "customer");
+
+    document.getElementById("roleDriver")
+        .classList.toggle("selected", role === "driver");
+}
+
+function continueEntry() {
+    const phone = document.getElementById("entryPhone").value.trim();
+
+    if (!phone) {
+        alert("أدخل رقم الهاتف أولاً");
+        document.getElementById("entryPhone").focus();
+        return;
+    }
+
+    alert("نظام الحسابات قيد التجهيز. يمكنك متابعة تجربة واجهة " +
+        (selectedEntryRole === "customer" ? "الزبون" : "السائق"));
+
+    showPage(selectedEntryRole);
+}
+
+function entryNotice() {
+    alert("استرجاع كلمة المرور سيتم تفعيله عند إضافة نظام الحسابات.");
+}
+
 
 
 // ================= PAGE =================
