@@ -838,7 +838,357 @@ section {
   .entry-benefits b {width:40px;height:40px}
   .entry-panel {padding:25px 14px}
 }
-  
+
+ 
+/* ===== CUSTOMER PREMIUM INTERFACE ===== */
+
+.customer-welcome {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:25px;
+  margin-bottom:18px;
+  color:white;
+  border-radius:22px;
+  background:linear-gradient(120deg,#07182c,#124477);
+  border:1px solid #315a80;
+  box-shadow:0 10px 25px #09274620;
+}
+
+.customer-welcome h1 {
+  font-size:27px;
+  margin:12px 0;
+  color:#ffcf35;
+}
+
+.customer-welcome p {
+  color:#d5e2f0;
+  line-height:1.8;
+}
+
+.customer-welcome img {
+  width:90px;
+  height:90px;
+  object-fit:contain;
+}
+
+.customer-tag {
+  color:#ffc400;
+  font-size:11px;
+  letter-spacing:2px;
+  font-weight:bold;
+}
+
+.customer-steps {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:18px 0;
+}
+
+.customer-step {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  color:#74849a;
+  font-size:12px;
+  padding:12px 5px;
+  background:#fff;
+  border:1px solid #dce5ef;
+  border-radius:12px;
+}
+
+.customer-step b {
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:#e8eef5;
+}
+
+.customer-step.active {
+  color:#123b67;
+  border-color:#e4ad20;
+  font-weight:bold;
+}
+
+.customer-step.active b {
+  color:#111;
+  background:#ffc400;
+}
+
+.customer-card {
+  border:1px solid #e2eaf2;
+  border-radius:19px;
+  padding:22px;
+  box-shadow:0 7px 22px #0927460b;
+}
+
+.customer-section-title {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:22px;
+}
+
+.customer-section-title h2 {
+  color:#123b67;
+  font-size:19px;
+  margin:0 0 5px;
+}
+
+.customer-section-title p {
+  color:#8995a5;
+  font-size:12px;
+}
+
+.customer-icon {
+  display:grid;
+  place-items:center;
+  width:45px;
+  height:45px;
+  border-radius:13px;
+  background:#edf4fc;
+  font-size:23px;
+}
+
+.customer-card label {
+  color:#233d59;
+}
+
+.customer-card input:not([type=radio]) {
+  background:#f8fafc;
+  border:1px solid #dce5ef !important;
+  min-height:49px;
+}
+
+.customer-card input:focus {
+  background:white;
+  border-color:#e5ae25 !important;
+}
+
+.field-hint {
+  display:block;
+  color:#8995a5;
+  font-size:12px;
+  margin-top:8px;
+}
+
+.gps-button {
+  width:100%;
+  min-height:52px;
+  color:#fff;
+  background:linear-gradient(120deg,#124c80,#092746);
+  border:1px solid #315d87;
+  border-radius:13px;
+  font-weight:bold;
+  font-size:15px;
+}
+
+.gps-button span {
+  color:#ffc400;
+  font-size:22px;
+  margin-left:8px;
+}
+
+.location-message,
+.distance-message {
+  padding:14px;
+  margin:14px 0;
+  border-radius:12px;
+  background:#f1f6fc;
+  color:#36516f;
+  font-size:13px;
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+
+.distance-message {
+  background:#fff8e4;
+  border:1px solid #f5df9c;
+  color:#745315;
+  font-weight:bold;
+}
+
+.map-heading {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin:20px 0 12px;
+  color:#183d63;
+}
+
+.map-heading span {
+  font-size:12px;
+  color:#8a96a5;
+}
+
+#map {
+  width:100%;
+  height:340px;
+  border-radius:16px;
+  border:2px solid #e4ebf3;
+  overflow:hidden;
+}
+
+.car-choices {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.car-choice {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:9px;
+  padding:20px 10px;
+  border:2px solid #e0e8f0;
+  border-radius:17px;
+  background:#fafcff;
+  text-align:center;
+  cursor:pointer;
+}
+
+.car-choice input {
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.car-choice.selected {
+  border-color:#e3ae26;
+  background:#fffaf0;
+  box-shadow:0 5px 15px #e3ae261c;
+}
+
+.car-emoji {
+  font-size:35px;
+}
+
+.car-choice strong {
+  color:#123b67;
+}
+
+.car-choice small {
+  color:#8995a5;
+}
+
+.car-choice b {
+  color:#9b7013;
+  font-size:12px;
+}
+
+.customer-hidden-select {
+  display:none;
+}
+
+.customer-price-card {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:20px;
+  margin:20px 0;
+  border-radius:17px;
+  border:1px solid #e6c76c;
+  background:linear-gradient(120deg,#fff9e8,#fff);
+}
+
+.customer-price-card span {
+  display:block;
+  color:#35475c;
+  font-weight:bold;
+}
+
+.customer-price-card small {
+  display:block;
+  color:#9099a6;
+  font-size:11px;
+  margin-top:8px;
+}
+
+.customer-price {
+  text-align:center;
+  white-space:nowrap;
+}
+
+.customer-price strong {
+  color:#bd8310;
+  font-size:31px;
+}
+
+.customer-price span {
+  color:#bd8310;
+  display:inline;
+}
+
+.customer-order-button {
+  width:100%;
+  min-height:60px;
+  border:0;
+  border-radius:15px;
+  color:#17120a;
+  background:linear-gradient(120deg,#ffdc43,#efa900);
+  box-shadow:0 7px 18px #e8ac2735;
+  font-size:18px;
+  font-weight:1000;
+}
+
+.customer-ride-status {
+  padding:17px;
+  margin-top:17px;
+  border:1px solid #dce5ef;
+  border-radius:14px;
+  background:#f4f8fc;
+  color:#284968;
+  text-align:center;
+  font-weight:bold;
+  line-height:1.8;
+}
+
+.customer-security {
+  text-align:center;
+  padding:17px 5px;
+  color:#8592a1;
+  font-size:12px;
+}
+
+@media(max-width:600px) {
+  .customer-welcome {
+    padding:19px;
+  }
+
+  .customer-welcome h1 {
+    font-size:21px;
+  }
+
+  .customer-welcome img {
+    width:70px;
+    height:70px;
+  }
+
+  .customer-card {
+    padding:17px;
+  }
+
+  #map {
+    height:290px;
+  }
+
+  .customer-step {
+    font-size:10px;
+  }
+
+  .customer-price strong {
+    font-size:26px;
+  }
+}
+ 
 </style>
 
 </head>
@@ -978,183 +1328,175 @@ section {
 <!-- ===== END TAWSILA PREMIUM WELCOME ===== -->
 
   
-<!-- ================= CUSTOMER ================= -->
 
+<!-- ================= CUSTOMER PREMIUM ================= -->
 <section id="customer" class="page">
 
-<div class="hero">
+  <div class="customer-welcome">
+    <div>
+      <span class="customer-tag">TAWSILA • OUARGLA</span>
+      <h1>رحلتك تبدأ من هنا 🚕</h1>
+      <p>حدد موقعك ووجهتك، واترك علينا تسهيل تنقلك.</p>
+    </div>
+    <img src="/logo.svg" alt="توصيلة">
+  </div>
 
-<h1>
-🚕 اطلب سيارة بسهولة
-</h1>
+  <div class="customer-steps">
+    <div class="customer-step active"><b>1</b><span>معلوماتك</span></div>
+    <div class="customer-step"><b>2</b><span>الوجهة</span></div>
+    <div class="customer-step"><b>3</b><span>تأكيد الطلب</span></div>
+  </div>
 
-<p>
-حدد معلوماتك ومكان الانطلاق والوجهة،
-وسنقوم بتسجيل طلب الرحلة.
-</p>
+  <div class="card customer-card">
+    <div class="customer-section-title">
+      <span class="customer-icon">👤</span>
+      <div>
+        <h2>معلومات الزبون</h2>
+        <p>أدخل معلومات الاتصال الخاصة بك</p>
+      </div>
+    </div>
 
-</div>
+    <div class="form-group">
+      <label for="customerName">الاسم الكامل</label>
+      <input id="customerName" type="text"
+        placeholder="مثال: محمد بن أحمد"
+        autocomplete="name">
+    </div>
 
+    <div class="form-group">
+      <label for="customerPhone">رقم الهاتف</label>
+      <input id="customerPhone" type="tel"
+        placeholder="مثال: 0550123456"
+        autocomplete="tel"
+        inputmode="tel">
+      <small class="field-hint">📱 حتى يتمكن السائق من التواصل معك</small>
+    </div>
+  </div>
 
-<div class="card">
+  <div class="card customer-card">
+    <div class="customer-section-title">
+      <span class="customer-icon">📍</span>
+      <div>
+        <h2>مكان الانطلاق</h2>
+        <p>أين تريد أن يصطحبك السائق؟</p>
+      </div>
+    </div>
 
-<h2>👤 معلومات الزبون</h2>
+    <button type="button" class="gps-button"
+      onclick="getMyLocation()">
+      <span>⌖</span>
+      تحديد موقعي الحالي عبر GPS
+    </button>
 
-<div class="form-group">
+    <div id="locationInfo" class="location-message">
+      لم يتم تحديد موقع الانطلاق بعد
+    </div>
 
-<label>الاسم</label>
+    <div class="form-group">
+      <label for="pickup">عنوان الانطلاق</label>
+      <input id="pickup" type="text"
+        placeholder="مثال: حي النصر، ورقلة">
+    </div>
+  </div>
 
-<input
-id="customerName"
-type="text"
-placeholder="مثال: محمد"
->
+  <div class="card customer-card">
+    <div class="customer-section-title">
+      <span class="customer-icon">🏁</span>
+      <div>
+        <h2>إلى أين تريد الذهاب؟</h2>
+        <p>اكتب الوجهة أو اخترها مباشرة من الخريطة</p>
+      </div>
+    </div>
 
-</div>
+    <div class="form-group">
+      <label for="destination">عنوان الوجهة</label>
+      <input id="destination" type="text"
+        placeholder="مثال: جامعة ورقلة">
+    </div>
 
+    <div class="map-heading">
+      <strong>📍 اختر الوجهة من الخريطة</strong>
+      <span>اضغط على المكان المطلوب</span>
+    </div>
 
-<div class="form-group">
+    <div id="map"></div>
 
-<label>رقم الهاتف</label>
+    <div id="destinationInfo" class="location-message">
+      🏁 لم يتم تحديد الوجهة بعد
+    </div>
 
-<input
-id="customerPhone"
-type="tel"
-placeholder="05xxxxxxxx"
->
+    <div id="distanceInfo" class="distance-message">
+      📏 المسافة: بانتظار تحديد الموقع والوجهة
+    </div>
+  </div>
 
-</div>
+  <div class="card customer-card">
+    <div class="customer-section-title">
+      <span class="customer-icon">🚘</span>
+      <div>
+        <h2>اختيار السيارة</h2>
+        <p>اختر نوع الرحلة المناسب لك</p>
+      </div>
+    </div>
 
-</div>
+    <div class="car-choices">
+      <label class="car-choice selected" id="normalCarChoice">
+        <input type="radio" name="customerCar"
+          value="normal" checked
+          onchange="selectCustomerCar('normal')">
+        <span class="car-emoji">🚕</span>
+        <strong>سيارة عادية</strong>
+        <small>رحلة اقتصادية</small>
+        <b>اختيار</b>
+      </label>
 
+      <label class="car-choice" id="comfortCarChoice">
+        <input type="radio" name="customerCar"
+          value="comfort"
+          onchange="selectCustomerCar('comfort')">
+        <span class="car-emoji">🚘</span>
+        <strong>سيارة مريحة</strong>
+        <small>راحة إضافية</small>
+        <b>اختيار</b>
+      </label>
+    </div>
 
-<div class="card">
+    <select id="carType" class="customer-hidden-select">
+      <option value="normal" selected>سيارة عادية</option>
+      <option value="comfort">سيارة مريحة</option>
+    </select>
+  </div>
 
-<h2>📍 تفاصيل الرحلة</h2>
-<div id="map"></div>
+  <div class="customer-price-card">
+    <div>
+      <span>السعر التقديري للرحلة</span>
+      <small>قد يتغير حسب المسافة والتسعيرة المعتمدة</small>
+    </div>
+    <div class="customer-price">
+      <strong id="price">500</strong>
+      <span>دج</span>
+    </div>
+  </div>
 
-<button
-    type="button"
-    class="btn btn-primary"
-    onclick="getMyLocation()"
-    style="margin-top:12px;">
-    📍 تحديد موقعي الحالي
-</button>
+  <button type="button" class="customer-order-button"
+    onclick="createRide()">
+    🚕 تأكيد وطلب السيارة
+  </button>
 
-<div id="locationInfo"
-     style="
-     margin-top:12px;
-     padding:12px;
-     background:#f7f8fa;
-     border-radius:12px;
-     color:#687386;">
-    لم يتم تحديد الموقع بعد
-</div>
-  <div
-id="destinationInfo"
-style="
-margin-top:12px;
-padding:12px;
-background:#f7f8fa;
-border-radius:12px;
-color:#687386;">
-🏁 اضغط على الخريطة لاختيار الوجهة
-</div>
-  <div
-id="distanceInfo"
-style="
-margin-top:12px;
-padding:12px;
-background:#fff8df;
-border-radius:12px;
-font-weight:bold;">
-📏 المسافة: لم يتم تحديدها
-</div>
-  
-  
-<div class="form-group">
+  <div id="customerRideStatus" class="customer-ride-status">
+    <span>🕒</span>
+    لم تقم بطلب رحلة بعد
+  </div>
 
-<label>نقطة الانطلاق</label>
-
-<input
-id="pickup"
-type="text"
-placeholder="مثال: وسط المدينة"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>الوجهة</label>
-
-<input
-id="destination"
-type="text"
-placeholder="مثال: محطة القطار"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>نوع السيارة</label>
-
-<select id="carType">
-
-<option value="normal">
-🚕 سيارة عادية
-</option>
-
-<option value="comfort">
-🚘 سيارة مريحة
-</option>
-
-</select>
-
-</div>
-
-
-<div class="price-box">
-
-<div>
-السعر التقديري
-</div>
-
-<div class="price">
-<span id="price">500</span> دج
-</div>
-
-</div>
-
-
-<button
-class="btn btn-primary"
-onclick="createRide()"
->
-🚕 اطلب السيارة الآن
-</button>
-
-  <div
-id="customerRideStatus"
-style="
-margin-top:15px;
-padding:15px;
-border-radius:12px;
-background:#f4f7f9;
-text-align:center;
-font-weight:bold;
-">
-⏳ لم يتم طلب سيارة بعد
-</div>
-
-</div>
+  <div class="customer-security">
+    🔒 حافظ على معلوماتك وتأكد من تفاصيل الرحلة قبل التأكيد
+  </div>
 
 </section>
+<!-- ================= END CUSTOMER PREMIUM ================= -->
 
 
+</section>
 
 <!-- ================= DRIVER ================= -->
 
@@ -1444,9 +1786,38 @@ function showPage(page){
 }
 // ================= PRICE =================
 
-document
-.getElementById("carType")
-.addEventListener("change", function(){
+
+function selectCustomerCar(type) {
+    document.getElementById("carType").value = type;
+
+    document.getElementById("normalCarChoice")
+        .classList.toggle("selected", type === "normal");
+
+    document.getElementById("comfortCarChoice")
+        .classList.toggle("selected", type === "comfort");
+
+    updateCustomerPrice();
+}
+
+function updateCustomerPrice() {
+    const type = document.getElementById("carType").value;
+
+    let price;
+
+    if (selectedDistance > 0) {
+        const base = 200 + selectedDistance * 50;
+        price = type === "comfort" ? base * 1.4 : base;
+    } else {
+        price = type === "comfort" ? 700 : 500;
+    }
+
+    price = Math.round(price / 10) * 10;
+    document.getElementById("price").textContent = price;
+}
+
+document.getElementById("carType")
+    .addEventListener("change", updateCustomerPrice);
+
 
     const price =
     this.value === "comfort"
@@ -2427,7 +2798,7 @@ function initMap(){
     }
 
     map = L.map("map").setView(
-        [35.6971, -0.6308],
+        [31.9526, 5.3330],
         12
     );
 
@@ -2448,6 +2819,14 @@ function initMap(){
         lat: lat,
         lng: lng
     };
+
+    document.getElementById("destination").value =
+    "وجهة محددة على الخريطة (" +
+    lat.toFixed(5) + ", " +
+    lng.toFixed(5) + ")";
+
+document.getElementById("destinationInfo").textContent =
+    "🏁 تم اختيار موقع الوجهة بنجاح";
 
     if(destinationMarker){
 
