@@ -2310,214 +2310,233 @@ async function toggleDriver(){
 }
 
 
+ // ================= HTML SECURITY =================
+
+function escapeHTML(value){
+
+    return String(value ?? "").replace(/[&<>"']/g, function(char){
+
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+
+    });
+
+}
+
+
 // ================= DRIVER RIDES =================
 
 async function loadDriverRides(){
 
+    const container = document.getElementById("driverRides");
+
+    if(!container){
+        return;
+    }
+
+    // لا نحمل الرحلات قبل تسجيل السائق
+    if(!currentDriver || !currentDriver.id){
+
+        container.innerHTML = `
+            <div class="empty">
+                سجل دخولك كسائق لعرض الرحلات
+            </div>
+        `;
+
+        return;
+    }
+
     try{
 
-        const response =
-await fetch(
-    `/api/rides?driverId=${currentDriver ? currentDriver.id : ""}`
-);
+        const response = await fetch(
+            `/api/rides?driverId=${encodeURIComponent(currentDriver.id)}`
+        );
 
-        const data =
-        await response.json();
+        const data = await response.json();
 
-
-        const container =
-        document
-        .getElementById("driverRides");
-
-
-        if(!data.rides.length){
+        if(!response.ok || !data.success){
 
             container.innerHTML = `
-            <div class="empty">
-            لا توجد طلبات حاليًا
-            </div>
+                <div class="empty">
+                    ${data.message || "تعذر تحميل الرحلات"}
+                </div>
             `;
 
             return;
-
         }
 
+        if(!Array.isArray(data.rides) || !data.rides.length){
 
-        container.innerHTML =
-        data.rides
-        .map(ride => `
+            container.innerHTML = `
+                <div class="empty">
+                    لا توجد طلبات حاليًا
+                </div>
+            `;
 
-        <div class="ride">
+            return;
+        }
 
-            <div class="ride-row">
-            👤 ${ride.customerName}
-            </div>
+        container.innerHTML = data.rides.map(ride => {
 
-            <div class="ride-row">
-            📍 ${ride.pickup}
-            </div>
+            const pickup = ride.pickupLocation;
+            const destination = ride.destinationCoords;
 
-            <div class="ride-row">
-            🏁 ${ride.destination}
-            </div>
+            const validPickup =
+                pickup &&
+                Number.isFinite(Number(pickup.lat)) &&
+                Number.isFinite(Number(pickup.lng));
 
-            <div class="ride-row">
-            💰 ${ride.price} دج
-            </div>
+            const validDestination =
+                destination &&
+                Number.isFinite(Number(destination.lat)) &&
+                Number.isFinite(Number(destination.lng));
 
-            <div class="ride-row">
-📏 ${ride.distance || 0} كم
-</div>
+            return `
 
-<div class="ride-row">
-📍 موقع الانطلاق:
-${ride.pickupLocation
-    ? ride.pickupLocation.lat.toFixed(5) + ", " +
-      ride.pickupLocation.lng.toFixed(5)
-    : "غير متوفر"}
-</div>
+            <div class="ride">
 
-${
-ride.pickupLocation
-?
-`
-<div class="actions">
+                <div class="ride-row">
+                    👤 ${escapeHTML(ride.customerName)}
+                </div>
 
-    <button
-    class="btn btn-primary"
-    onclick="openPickupLocation(
-        ${ride.pickupLocation.lat},
-        ${ride.pickupLocation.lng}
-    )">
+                <div class="ride-row">
+                    📍 ${escapeHTML(ride.pickup)}
+                </div>
 
-    📍 فتح موقع الزبون
+                <div class="ride-row">
+                    🏁 ${escapeHTML(ride.destination)}
+                </div>
 
-    </button>
+                <div class="ride-row">
+                    💰 ${Number(ride.price || 0)} دج
+                </div>
 
-</div>
-`
-:
-""
-}
+                <div class="ride-row">
+                    📏 ${Number(ride.distance || 0)} كم
+                </div>
 
-<div class="ride-row">
-🏁 موقع الوجهة:
-${ride.destinationCoords
-    ? ride.destinationCoords.lat.toFixed(5) + ", " +
-      ride.destinationCoords.lng.toFixed(5)
-    : "غير متوفر"}
-</div>
+                <div class="ride-row">
+                    📍 موقع الانطلاق:
+                    ${
+                        validPickup
+                        ? Number(pickup.lat).toFixed(5) + ", " +
+                          Number(pickup.lng).toFixed(5)
+                        : "غير متوفر"
+                    }
+                </div>
 
-${
-ride.destinationCoords
-?
-`
-<div class="actions">
+                ${
+                    validPickup
+                    ? `
+                    <div class="actions">
+                        <button
+                            class="btn btn-primary"
+                            onclick="openPickupLocation(${Number(pickup.lat)},${Number(pickup.lng)})">
+                            📍 فتح موقع الزبون
+                        </button>
+                    </div>
+                    `
+                    : ""
+                }
 
-    <button
-    class="btn btn-primary"
-    onclick="openDestinationLocation(
-        ${ride.destinationCoords.lat},
-        ${ride.destinationCoords.lng}
-    )">
+                <div class="ride-row">
+                    🏁 موقع الوجهة:
+                    ${
+                        validDestination
+                        ? Number(destination.lat).toFixed(5) + ", " +
+                          Number(destination.lng).toFixed(5)
+                        : "غير متوفر"
+                    }
+                </div>
 
-    🏁 فتح موقع الوجهة
+                ${
+                    validDestination
+                    ? `
+                    <div class="actions">
+                        <button
+                            class="btn btn-primary"
+                            onclick="openDestinationLocation(${Number(destination.lat)},${Number(destination.lng)})">
+                            🏁 فتح موقع الوجهة
+                        </button>
+                    </div>
+                    `
+                    : ""
+                }
 
-    </button>
+                <div class="ride-row">
+                    <span class="status">
+                        ${getStatus(ride.status)}
+                    </span>
+                </div>
 
-</div>
-`
-:
-""
-}
+                ${
+                    ride.status === "pending"
+                    ? `
+                    <div class="actions">
+                        <button
+                            class="btn btn-green"
+                            onclick="acceptRide(${Number(ride.id)})">
+                            ✅ قبول
+                        </button>
+                    </div>
+                    `
+                    : ""
+                }
 
-            <div class="ride-row">
+                ${
+                    ride.status === "accepted" &&
+                    ride.driverId == currentDriver.id
+                    ? `
+                    <div class="actions">
+                        <button
+                            class="btn btn-primary"
+                            onclick="startRide(${Number(ride.id)})">
+                            🚕 بدء الرحلة
+                        </button>
+                    </div>
+                    `
+                    : ""
+                }
 
-            <span class="status">
-            ${getStatus(ride.status)}
-            </span>
-
-            </div>
-
-
-            ${
-            ride.status === "pending"
-            ?
-            `
-            <div class="actions">
-
-                <button
-                class="btn btn-green"
-                onclick="acceptRide(${ride.id})">
-                ✅ قبول
-                </button>
-
-            </div>
-            `
-            :
-            ""
-            }
-
-
-            ${
-            ride.status === "accepted"
-            &&
-            currentDriver
-            &&
-            ride.driverId == currentDriver.id
-            ?
-            `
-            <div class="actions">
-
-                <button
-                class="btn btn-primary"
-                onclick="startRide(${ride.id})">
-                🚕 بدء الرحلة
-                </button>
-
-            </div>
-            `
-            :
-            ""
-            }
-
-
-            ${
-            ride.status === "started"
-            &&
-            currentDriver
-            &&
-            ride.driverId == currentDriver.id
-            ?
-            `
-            <div class="actions">
-
-                <button
-                class="btn btn-green"
-                onclick="completeRide(${ride.id})">
-                🏁 إنهاء الرحلة
-                </button>
+                ${
+                    ride.status === "started" &&
+                    ride.driverId == currentDriver.id
+                    ? `
+                    <div class="actions">
+                        <button
+                            class="btn btn-green"
+                            onclick="completeRide(${Number(ride.id)})">
+                            🏁 إنهاء الرحلة
+                        </button>
+                    </div>
+                    `
+                    : ""
+                }
 
             </div>
-            `
-            :
-            ""
-            }
 
-        </div>
+            `;
 
-        `)
-        .join("");
-
+        }).join("");
 
     }catch(error){
 
-        console.error(error);
+        console.error("Driver rides error:", error);
+
+        container.innerHTML = `
+            <div class="empty">
+                تعذر الاتصال بالخادم، حاول مرة أخرى
+            </div>
+        `;
 
     }
 
 }
-
 
 // ================= ACCEPT =================
 
@@ -2748,68 +2767,41 @@ async function loadAdmin(){
 
 }
 
+
 // ================= ADMIN RIDES =================
 
 function loadAdminRides(rides){
 
-    const container =
-    document
-    .getElementById("adminRides");
+    const container = document.getElementById("adminRides");
 
+    if(!Array.isArray(rides) || rides.length === 0){
 
-    if(!rides.length){
-
-        container.innerHTML = `
-        <div class="empty">
-        لا توجد رحلات
-        </div>
-        `;
+        container.innerHTML = `<div class="empty">لا توجد رحلات</div>`;
 
         return;
-
     }
 
+    container.innerHTML = rides.slice().reverse().map(ride => `
 
-    container.innerHTML =
-    rides
-    .slice()
-    .reverse()
-    .map(ride => `
+        <div class="ride">
 
-    <div class="ride">
+            <strong>🚕 رحلة #${Number(ride.id)}</strong>
 
-        <strong>
-        🚕 رحلة #${ride.id}
-        </strong>
+            <div class="ride-row">👤 ${escapeHTML(ride.customerName)}</div>
 
-        <div class="ride-row">
-        👤 ${ride.customerName}
-        </div>
+            <div class="ride-row">📍 ${escapeHTML(ride.pickup)}</div>
 
-        <div class="ride-row">
-        📍 ${ride.pickup}
-        </div>
+            <div class="ride-row">🏁 ${escapeHTML(ride.destination)}</div>
 
-        <div class="ride-row">
-        🏁 ${ride.destination}
-        </div>
+            <div class="ride-row">💰 ${Number(ride.price) || 0} دج</div>
 
-        <div class="ride-row">
-        💰 ${ride.price} دج
-        </div>
-
-        <div class="ride-row">
-
-        <span class="status">
-        ${getStatus(ride.status)}
-        </span>
+            <div class="ride-row">
+                <span class="status">${escapeHTML(getStatus(ride.status))}</span>
+            </div>
 
         </div>
 
-    </div>
-
-    `)
-    .join("");
+    `).join("");
 
 }
 
@@ -2818,80 +2810,36 @@ function loadAdminRides(rides){
 
 function loadAdminDrivers(drivers){
 
-    const container =
-    document
-    .getElementById("adminDrivers");
+    const container = document.getElementById("adminDrivers");
 
+    if(!Array.isArray(drivers) || drivers.length === 0){
 
-    if(!drivers.length){
-
-        container.innerHTML = `
-        <div class="empty">
-        لا يوجد سائقون
-        </div>
-        `;
+        container.innerHTML = `<div class="empty">لا يوجد سائقون</div>`;
 
         return;
-
     }
 
+    container.innerHTML = drivers.map(driver => `
 
-    container.innerHTML =
-    drivers
-    .map(driver => `
+        <div class="ride">
 
-    <div class="ride">
+            <strong>🚗 ${escapeHTML(driver.name)}</strong>
 
-        <strong>
-        🚗 ${driver.name}
-        </strong>
+            <div class="ride-row">📱 ${escapeHTML(driver.phone)}</div>
 
-        <div class="ride-row">
-        📱 ${driver.phone}
-        </div>
+            <div class="ride-row">🚘 ${escapeHTML(driver.car)}</div>
 
-        <div class="ride-row">
-        🚘 ${driver.car}
-        </div>
+            <div class="ride-row">🔢 ${escapeHTML(driver.plate)}</div>
 
-        <div class="ride-row">
-        🔢 ${driver.plate}
-        </div>
-
-        <div class="ride-row">
-
-        ${
-        driver.online
-        ? "🟢 متصل"
-        : "🔴 غير متصل"
-        }
+            <div class="ride-row">
+                ${driver.online ? "🟢 متصل" : "🔴 غير متصل"}
+            </div>
 
         </div>
 
-    </div>
-
-    `)
-    .join("");
+    `).join("");
 
 }
-
-
-// تحديث الطلبات تلقائياً
-
-setInterval(() => {
-
-    if(
-        document
-        .getElementById("driver")
-        .classList
-        .contains("active")
-    ){
-
-        loadDriverRides();
-
-    }
-
-},5000);
 
 // ================= MAP & GPS =================
 
@@ -3183,6 +3131,34 @@ async function calculateDistance(){
     }
 
 }
+
+  
+ // ================= OPEN PICKUP LOCATION =================
+
+function openPickupLocation(lat, lng){
+
+    lat = Number(lat);
+    lng = Number(lng);
+
+    if(
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng) ||
+        lat < -90 || lat > 90 ||
+        lng < -180 || lng > 180
+    ){
+
+        alert("⚠️ موقع الانطلاق غير صحيح");
+
+        return;
+    }
+
+    const url =
+        `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
+    window.open(url, "_blank");
+
+}
+
 
   function openDestinationLocation(lat, lng){
 
