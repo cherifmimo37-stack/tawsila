@@ -172,6 +172,23 @@ async function initializeDatabase() {
         ON rides(driver_id)
     `);
 
+    
+    // جلسات دخول السائقين
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS driver_sessions (
+            token_hash TEXT PRIMARY KEY,
+            driver_id BIGINT NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+            expires_at TIMESTAMPTZ NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS driver_sessions_driver_id_idx
+        ON driver_sessions(driver_id)
+    `);
+
+
     console.log("PostgreSQL tables are ready.");
 }
 
@@ -386,12 +403,15 @@ app.get("/api/rides", async (req, res) => {
     }
 });
 
-// ================= REGISTER DRIVER =================
+
+
+ // ================= REGISTER DRIVER =================
 
 app.post("/api/driver", async (req, res) => {
     try {
         const name = String(req.body.name || "").trim();
         const phone = String(req.body.phone || "").trim();
+        const password = req.body.password;
         const car = String(req.body.car || "").trim();
         const plate = String(req.body.plate || "").trim();
 
@@ -399,6 +419,17 @@ app.post("/api/driver", async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "أكمل معلومات السائق"
+            });
+        }
+
+        if (
+            typeof password !== "string" ||
+            password.length < 8 ||
+            password.length > 128
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "كلمة المرور يجب أن تكون بين 8 و128 حرفاً"
             });
         }
 
@@ -410,28 +441,41 @@ app.post("/api/driver", async (req, res) => {
         if (existing.rowCount) {
             return res.status(409).json({
                 success: false,
-                message: "رقم الهاتف مسجل من قبل. تسجيل دخول السائق يحتاج إلى تفعيل."
+                message: "رقم الهاتف مسجل من قبل. يرجى تسجيل الدخول أو تفعيل الحساب القديم."
             });
         }
 
+        const passwordHash = await hashPassword(password);
+
         const result = await pool.query(
-            `INSERT INTO drivers (id, name, phone, car, plate)
-             VALUES ($1,$2,$3,$4,$5)
+            `INSERT INTO drivers
+             (id, name, phone, car, plate, password_hash)
+             VALUES ($1,$2,$3,$4,$5,$6)
              RETURNING *`,
-            [Date.now(), name, phone, car, plate]
+            [
+                Date.now(),
+                name,
+                phone,
+                car,
+                plate,
+                passwordHash
+            ]
         );
 
         res.json({
             success: true,
             driver: formatDriver(result.rows[0])
         });
+
     } catch (error) {
+
         if (error.code === "23505") {
             return res.status(409).json({
                 success: false,
                 message: "رقم الهاتف مسجل من قبل"
             });
         }
+
         return sendError(res, error);
     }
 });
