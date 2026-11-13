@@ -2654,54 +2654,99 @@ function getStatus(status){
 
 // ================= ADMIN =================
 
+
 async function loadAdmin(){
 
     try{
 
-        const response =
-        await fetch("/api/admin");
+        let adminKey = sessionStorage.getItem("tawsilaAdminKey");
 
-        const data =
-        await response.json();
+        if(!adminKey){
 
+            adminKey = prompt("أدخل كلمة سر الإدارة:");
 
-        document
-        .getElementById("customersCount")
-        .textContent =
-        data.statistics.customers;
+            if(!adminKey){
+                return;
+            }
 
+            const loginResponse = await fetch("/api/admin/login",{
 
-        document
-        .getElementById("driversCount")
-        .textContent =
-        data.statistics.drivers;
+                method:"POST",
 
+                headers:{
+                    "Content-Type":"application/json"
+                },
 
-        document
-        .getElementById("ridesCount")
-        .textContent =
-        data.statistics.rides;
+                body:JSON.stringify({
+                    key:adminKey
+                })
 
+            });
 
-        document
-        .getElementById("completedCount")
-        .textContent =
-        data.statistics.completed;
+            const loginData = await loginResponse.json();
 
+            if(!loginResponse.ok || !loginData.success){
+
+                alert(loginData.message || "رمز الإدارة غير صحيح");
+
+                return;
+            }
+
+            sessionStorage.setItem("tawsilaAdminKey",adminKey);
+
+        }
+
+        const response = await fetch("/api/admin",{
+
+            headers:{
+                "x-admin-key":adminKey
+            }
+
+        });
+
+        const data = await response.json();
+
+        if(response.status === 401){
+
+            sessionStorage.removeItem("tawsilaAdminKey");
+
+            alert("انتهت جلسة الإدارة. أعد تسجيل الدخول.");
+
+            return;
+        }
+
+        if(!response.ok || !data.success){
+
+            alert(data.message || "تعذر تحميل بيانات الإدارة");
+
+            return;
+        }
+
+        document.getElementById("customersCount").textContent =
+            data.statistics.customers;
+
+        document.getElementById("driversCount").textContent =
+            data.statistics.drivers;
+
+        document.getElementById("ridesCount").textContent =
+            data.statistics.rides;
+
+        document.getElementById("completedCount").textContent =
+            data.statistics.completed;
 
         loadAdminRides(data.rides);
 
         loadAdminDrivers(data.drivers);
 
-
     }catch(error){
 
-        console.error(error);
+        console.error("Admin error:",error);
+
+        alert("تعذر الاتصال بالخادم");
 
     }
 
 }
-
 
 // ================= ADMIN RIDES =================
 
