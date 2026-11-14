@@ -3492,6 +3492,138 @@ async function completeRide(id){
 
 }
 
+// ================= DRIVER PANEL & LOGOUT =================
+
+function showDriverPanel(){
+
+    if(!currentDriver){
+        return;
+    }
+
+    const panel = document.getElementById("driverPanel");
+
+    if(!panel){
+        return;
+    }
+
+    panel.innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                👋 مرحباً ${escapeHTML(currentDriver.name)}
+            </h2>
+
+            <p style="color:#64748b;margin-bottom:15px;">
+                مرحباً بك في لوحة السائق الخاصة بتوصيلة.
+            </p>
+
+            <div class="driver-status">
+
+                <strong>حالة الاتصال</strong>
+
+                <span id="driverState">
+                    ${currentDriver.online ? "🟢 متصل" : "🔴 غير متصل"}
+                </span>
+
+            </div>
+
+            <button
+                class="btn btn-red"
+                onclick="logoutDriver()">
+                🚪 تسجيل الخروج
+            </button>
+
+        </div>
+
+    `;
+
+    const onlineBox =
+        document.getElementById("driverOnlineBox");
+
+    if(onlineBox){
+        onlineBox.style.display = "block";
+    }
+
+    updateDriverOnlineButton();
+
+}
+
+
+// ================= DRIVER LOGOUT =================
+
+async function logoutDriver(){
+
+    if(!currentDriver){
+        return;
+    }
+
+    const token =
+        localStorage.getItem("driverSessionToken");
+
+    if(currentDriver.online && token){
+
+        try{
+
+            const response = await fetch("/api/driver/status",{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":"Bearer " + token
+                },
+
+                body:JSON.stringify({
+                    online:false
+                })
+
+            });
+
+            const data = await response.json();
+
+            if(!response.ok || !data.success){
+
+                alert(
+                    "❌ تعذر تسجيل الخروج: " +
+                    (data.message || "حاول مرة أخرى")
+                );
+
+                return;
+            }
+
+        }catch(error){
+
+            console.error("Driver logout error:",error);
+
+            alert("❌ تعذر الاتصال بالخادم. حاول مرة أخرى.");
+
+            return;
+
+        }
+
+    }
+
+    localStorage.removeItem("driverSessionToken");
+
+    currentDriver = null;
+
+    document.getElementById("driverPanel").innerHTML = "";
+
+    document.getElementById("driverRides").innerHTML = `
+        <div class="empty">
+            سجل دخولك كسائق لعرض الرحلات
+        </div>
+    `;
+
+    document.getElementById("driverOnlineBox").style.display = "none";
+
+    alert("✅ تم تسجيل الخروج بنجاح");
+
+}
+
+// ================= END DRIVER PANEL & LOGOUT =================
+  
 // ================= END COMPLETE RIDE =================
   
 </script>
