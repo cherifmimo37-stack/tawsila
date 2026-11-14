@@ -1188,7 +1188,401 @@ section {
     font-size:26px;
   }
 }
- 
+
+
+/* ==========================================
+   TAWSILA — ROYAL PREMIUM DESIGN 2026
+   Navy Blue • Golden Yellow • Glass UI
+========================================== */
+
+:root {
+    --tawsila-navy: #071a30;
+    --tawsila-blue: #102d4d;
+    --tawsila-blue-light: #19466f;
+    --tawsila-gold: #ffc928;
+    --tawsila-gold-dark: #d99d00;
+    --tawsila-white: #ffffff;
+    --tawsila-bg: #f3f6fa;
+    --tawsila-muted: #718096;
+    --tawsila-border: rgba(255,255,255,.14);
+    --tawsila-shadow: 0 15px 40px rgba(7,26,48,.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Cairo", "Tahoma", sans-serif;
+    color: var(--tawsila-navy);
+    background:
+        radial-gradient(circle at 10% 5%, rgba(255,201,40,.10), transparent 28%),
+        linear-gradient(145deg, #f8fafc, #eaf0f7);
+    min-height: 100vh;
+}
+
+/* HEADER */
+
+header {
+    background: linear-gradient(120deg, #06172b, #123b61);
+    color: white;
+    padding: 17px 5%;
+    border-bottom: 2px solid var(--tawsila-gold);
+    box-shadow: 0 8px 30px rgba(4,20,38,.20);
+}
+
+header img {
+    max-height: 55px;
+    object-fit: contain;
+}
+
+header button {
+    border: 1px solid rgba(255,255,255,.17);
+    background: rgba(255,255,255,.08);
+    color: white;
+    padding: 11px 17px;
+    border-radius: 12px;
+    font-weight: 800;
+    transition: .25s;
+}
+
+header button:hover {
+    background: var(--tawsila-gold);
+    color: var(--tawsila-navy);
+    transform: translateY(-2px);
+}
+
+/* MAIN PAGES */
+
+.page {
+    padding: 24px 16px;
+    min-height: 70vh;
+}
+
+.page.active {
+    animation: tawsilaAppear .45s ease;
+}
+
+@keyframes tawsilaAppear {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* CARDS */
+
+.card,
+.customer-card,
+.entry-panel {
+    background: rgba(255,255,255,.88);
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: var(--tawsila-shadow);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.card h2,
+.customer-card h2 {
+    color: var(--tawsila-navy);
+    font-weight: 900;
+}
+
+/* INPUTS */
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid #dce4ed;
+    border-radius: 13px;
+    background: #f9fbfd;
+    color: var(--tawsila-navy);
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: .25s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--tawsila-gold-dark);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255,201,40,.15);
+}
+
+/* BUTTONS */
+
+.btn,
+button.btn {
+    border: none;
+    border-radius: 13px;
+    padding: 13px 20px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #102d4d, #19466f);
+    color: white;
+    box-shadow: 0 7px 18px rgba(16,45,77,.20);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #19466f, #071a30);
+    transform: translateY(-2px);
+}
+
+.btn-green {
+    background: linear-gradient(135deg, #dca900, #ffc928);
+    color: #10243a;
+    box-shadow: 0 7px 18px rgba(217,157,0,.22);
+}
+
+.btn-green:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.04);
+}
+
+.btn-red {
+    background: linear-gradient(135deg, #34465a, #172b42);
+    color: white;
+}
+
+button:active,
+.btn:active {
+    transform: scale(.97);
+}
+
+/* WELCOME SCREEN */
+
+#welcome {
+    position: relative;
+    overflow: hidden;
+}
+
+#welcome h1 {
+    color: var(--tawsila-navy);
+    font-weight: 1000;
+    letter-spacing: -.5px;
+}
+
+#welcome p {
+    color: var(--tawsila-muted);
+    line-height: 1.9;
+}
+
+#welcome .card {
+    border-top: 4px solid var(--tawsila-gold);
+    transition: .3s;
+}
+
+#welcome .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 45px rgba(7,26,48,.16);
+}
+
+/* CUSTOMER */
+
+.customer-card {
+    border-top: 4px solid var(--tawsila-gold);
+}
+
+.customer-welcome {
+    border-radius: 22px;
+}
+
+.customer-steps {
+    background: rgba(255,255,255,.75);
+    border: 1px solid #e5ebf2;
+    border-radius: 16px;
+    padding: 15px;
+}
+
+.gps-button {
+    background: linear-gradient(135deg, #ffc928, #e7aa00);
+    color: #10243a;
+    border: none;
+    border-radius: 13px;
+    font-weight: 900;
+    padding: 14px;
+}
+
+#map {
+    border: 3px solid white;
+    border-radius: 19px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(7,26,48,.14);
+    z-index: 1;
+}
+
+#price {
+    color: #9a6b00;
+    font-weight: 1000;
+}
+
+#customerRideStatus {
+    background: #edf4fb;
+    color: #102d4d;
+    border-right: 4px solid var(--tawsila-gold);
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+    font-weight: 800;
+}
+
+/* DRIVER & ADMIN */
+
+#driver .card,
+#admin .card {
+    border-top: 4px solid var(--tawsila-gold);
+}
+
+#driverOnlineBox {
+    background: rgba(255,255,255,.9);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: var(--tawsila-shadow);
+}
+
+.driver-status {
+    background: #edf3f8;
+    border-radius: 13px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+/* ADMIN STATISTICS */
+
+#admin .stat,
+#admin .stats,
+#admin .stat-card {
+    border-radius: 17px;
+}
+
+#adminRides,
+#adminDrivers,
+#driverRides {
+    display: grid;
+    gap: 15px;
+}
+
+.ride {
+    background: white;
+    border: 1px solid #e6ebf1;
+    border-right: 4px solid var(--tawsila-gold);
+    border-radius: 17px;
+    padding: 17px;
+    box-shadow: 0 7px 20px rgba(7,26,48,.06);
+    transition: .25s;
+}
+
+.ride:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(7,26,48,.10);
+}
+
+.ride strong {
+    color: var(--tawsila-navy);
+    font-size: 16px;
+}
+
+.ride-row {
+    color: #536579;
+    margin-top: 10px;
+    line-height: 1.7;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 30px;
+    background: #fff5d5;
+    color: #876000;
+    font-weight: 900;
+}
+
+.empty {
+    background: rgba(255,255,255,.85);
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    color: #718096;
+}
+
+/* FOOTER */
+
+footer {
+    background: linear-gradient(120deg, #06172b, #123b61);
+    color: rgba(255,255,255,.85);
+    border-top: 3px solid var(--tawsila-gold);
+    padding: 22px;
+    text-align: center;
+    margin-top: 35px;
+}
+
+/* MOBILE */
+
+@media(max-width: 700px) {
+
+    .page {
+        padding: 15px 11px;
+    }
+
+    .card,
+    .customer-card,
+    .entry-panel {
+        padding: 17px;
+        border-radius: 18px;
+    }
+
+    header {
+        padding: 13px 10px;
+    }
+
+    header button {
+        padding: 9px 11px;
+        font-size: 12px;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    .btn,
+    button.btn {
+        width: 100%;
+        margin-top: 7px;
+    }
+
+    #map {
+        height: 300px;
+    }
+
+    .ride {
+        padding: 14px;
+    }
+}
+
+  
 </style>
 
 </head>
