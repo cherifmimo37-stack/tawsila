@@ -2022,6 +2022,9 @@ function entryNotice() {
 // ================= PAGE =================
 
 function showPage(page){
+    if(page !== "driver"){
+        stopDriverRidesAutoRefresh();
+    }  
 
     document
     .querySelectorAll(".page")
@@ -3708,6 +3711,7 @@ function showDriverPanel(){
     }
 
     updateDriverOnlineButton();
+    startDriverRidesAutoRefresh();
 
 }
 
