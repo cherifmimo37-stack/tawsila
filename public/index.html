@@ -18,7 +18,7 @@ content="width=device-width, initial-scale=1.0">
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
 </script>
 
- 
+<style> 
 /* ================= TAWSILA WELCOME PREMIUM ================= */
 
 .tawsila-home {
@@ -217,8 +217,6 @@ content="width=device-width, initial-scale=1.0">
   }
 }
  
-<style>
-
 *{
     box-sizing:border-box;
     margin:0;
@@ -539,9 +537,6 @@ footer{
     font-family:Arial,Tahoma,sans-serif;
 }
 
-
-
-<style>
 /* =====================================
    TAWSILA — PREMIUM DESIGN SYSTEM 2026
    Navy Blue • Golden Yellow • Glass UI
@@ -1418,14 +1413,6 @@ footer {
   </div>
 </div>
 
-<div class="menu">
-
-<button onclick="showPage('admin')">
-👨‍💼 الإدارة
-</button>
-
-</div>
-
 </div>
 
 </header>
@@ -1720,7 +1707,8 @@ id="driverPhone"
 placeholder="05xxxxxxxx"
 >
 
-  
+</div>
+
 <div class="form-group">
 
 <label>كلمة المرور السرية</label>
@@ -1733,9 +1721,6 @@ minlength="8"
 autocomplete="new-password"
 >
 
-</div>
-
-  
 </div>
 
 
@@ -3366,7 +3351,6 @@ function openPickupLocation(lat, lng){
 
 }  
   // ================= CUSTOMER RIDE STATUS =================
-
 async function updateCustomerRideStatus(){
 
     const rideId =
@@ -3380,12 +3364,20 @@ async function updateCustomerRideStatus(){
     try{
 
         const response = await fetch(
-            `/api/rides/${encodeURIComponent(rideId)}`
+            `/api/rides/${encodeURIComponent(rideId)}`,
+            {
+                cache: "no-store"
+            }
         );
 
         const data = await response.json();
 
-        if(!response.ok || !data.status){
+        if(
+            !response.ok ||
+            !data.success ||
+            !data.ride ||
+            !data.ride.status
+        ){
 
             statusBox.textContent =
                 "❌ تعذر جلب حالة الرحلة";
@@ -3393,25 +3385,27 @@ async function updateCustomerRideStatus(){
             return;
         }
 
-        if(data.status === "pending"){
+        const status = data.ride.status;
+
+        if(status === "pending"){
 
             statusBox.textContent =
                 "🔎 جاري البحث عن سائق...";
 
         }
-        else if(data.status === "accepted"){
+        else if(status === "accepted"){
 
             statusBox.textContent =
                 "✅ تم قبول الرحلة — السائق في الطريق إليك 🚕";
 
         }
-        else if(data.status === "started"){
+        else if(status === "started"){
 
             statusBox.textContent =
                 "🚕 الرحلة بدأت";
 
         }
-        else if(data.status === "completed"){
+        else if(status === "completed"){
 
             statusBox.textContent =
                 "🏁 تم إنهاء الرحلة بنجاح";
@@ -3420,7 +3414,7 @@ async function updateCustomerRideStatus(){
         else{
 
             statusBox.textContent =
-                "حالة الرحلة: " + data.status;
+                "حالة الرحلة: " + status;
 
         }
 
@@ -3436,7 +3430,6 @@ async function updateCustomerRideStatus(){
 
     }
 }
-
   // ================= DRIVER ONLINE STATUS =================
 
 async function setDriverOnline(online){
