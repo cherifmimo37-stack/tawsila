@@ -2674,18 +2674,24 @@ const response = await fetch("/api/rides",{
                 </div>
 
                 ${
-                    ride.status === "pending"
-                    ? `
-                    <div class="actions">
-                        <button
-                            class="btn btn-green"
-                            onclick="acceptRide(${Number(ride.id)})">
-                            ✅ قبول
-                        </button>
-                    </div>
-                    `
-                    : ""
-                }
+    ride.status === "pending" && currentDriver.online
+    ? `
+    <div class="actions">
+        <button
+            class="btn btn-green"
+            onclick="acceptRide(${Number(ride.id)})">
+            ✅ قبول الرحلة
+        </button>
+    </div>
+    `
+    : ride.status === "pending"
+    ? `
+    <div class="empty">
+        فعّل حالة الاتصال حتى تتمكن من قبول هذه الرحلة
+    </div>
+    `
+    : ""
+}
 
                 ${
                     ride.status === "accepted" &&
