@@ -1906,6 +1906,45 @@ RideDZ V1 © 2026
 
 let currentDriver = null;
 
+// تحديث تلقائي لطلبات السائق
+let driverRidesRefreshTimer = null;
+let driverRidesRequestInProgress = false;
+
+function startDriverRidesAutoRefresh(){
+
+    stopDriverRidesAutoRefresh();
+
+    if(!currentDriver) return;
+
+    driverRidesRefreshTimer = setInterval(() => {
+
+        const driverPage = document.getElementById("driver");
+
+        if(
+            document.visibilityState === "visible" &&
+            driverPage &&
+            driverPage.classList.contains("active") &&
+            currentDriver
+        ){
+            loadDriverRides();
+        }
+
+    }, 8000);
+
+}
+
+function stopDriverRidesAutoRefresh(){
+
+    if(driverRidesRefreshTimer){
+
+        clearInterval(driverRidesRefreshTimer);
+
+        driverRidesRefreshTimer = null;
+
+    }
+
+}  
+
   // ================= RESTORE DRIVER SESSION =================
 
 async function restoreDriverSession(){
@@ -2479,7 +2518,7 @@ async function loadDriverRides(){
     }
 
     // لا نحمل الرحلات قبل تسجيل السائق
-    if(!currentDriver || !currentDriver.id){
+       if(!currentDriver || !currentDriver.id){
 
         container.innerHTML = `
             <div class="empty">
@@ -2489,6 +2528,10 @@ async function loadDriverRides(){
 
         return;
     }
+
+    if(driverRidesRequestInProgress) return;
+
+    driverRidesRequestInProgress = true;
 
     try{
 
@@ -2677,7 +2720,7 @@ const response = await fetch("/api/rides",{
 
         }).join("");
 
-    }catch(error){
+        }catch(error){
 
         console.error("Driver rides error:", error);
 
@@ -2686,6 +2729,10 @@ const response = await fetch("/api/rides",{
                 تعذر الاتصال بالخادم، حاول مرة أخرى
             </div>
         `;
+
+    }finally{
+
+        driverRidesRequestInProgress = false;
 
     }
 
@@ -3669,40 +3716,59 @@ function showDriverPanel(){
 
 async function logoutDriver(){
 
-    if(!currentDriver){
-        return;
-    }
+    if(!currentDriver) return;
 
-    const token =
-        localStorage.getItem("driverSessionToken");
+    const token = localStorage.getItem("driverSessionToken");
 
-    if(currentDriver.online && token){
+    if(token){
 
         try{
 
-            const response = await fetch("/api/driver/status",{
+            // تحويل السائق إلى غير متصل
+            if(currentDriver.online){
+
+                const statusResponse = await fetch("/api/driver/status",{
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":"Bearer " + token
+                    },
+
+                    body:JSON.stringify({
+                        online:false
+                    })
+
+                });
+
+                const statusData = await statusResponse.json();
+
+                if(!statusResponse.ok || !statusData.success){
+
+                    alert("❌ تعذر إيقاف حالة الاتصال");
+
+                    return;
+                }
+
+            }
+
+            // إلغاء جلسة الدخول من الخادم
+            const logoutResponse = await fetch("/api/driver/logout",{
 
                 method:"POST",
 
                 headers:{
-                    "Content-Type":"application/json",
                     "Authorization":"Bearer " + token
-                },
-
-                body:JSON.stringify({
-                    online:false
-                })
+                }
 
             });
 
-            const data = await response.json();
+            const logoutData = await logoutResponse.json();
 
-            if(!response.ok || !data.success){
+            if(!logoutResponse.ok || !logoutData.success){
 
-                alert(
-                    "❌ تعذر تسجيل الخروج: " +
-                    (data.message || "حاول مرة أخرى")
-                );
+                alert("❌ تعذر إنهاء جلسة الدخول");
 
                 return;
             }
@@ -3711,7 +3777,7 @@ async function logoutDriver(){
 
             console.error("Driver logout error:",error);
 
-            alert("❌ تعذر الاتصال بالخادم. حاول مرة أخرى.");
+            alert("❌ تعذر الاتصال بالخادم");
 
             return;
 
@@ -3719,24 +3785,37 @@ async function logoutDriver(){
 
     }
 
+    stopDriverRidesAutoRefresh();
+
     localStorage.removeItem("driverSessionToken");
 
     currentDriver = null;
 
-    document.getElementById("driverPanel").innerHTML = "";
+    const panel = document.getElementById("driverPanel");
 
-    document.getElementById("driverRides").innerHTML = `
-        <div class="empty">
-            سجل دخولك كسائق لعرض الرحلات
-        </div>
-    `;
+    const rides = document.getElementById("driverRides");
 
-    document.getElementById("driverOnlineBox").style.display = "none";
+    const onlineBox = document.getElementById("driverOnlineBox");
 
-    alert("✅ تم تسجيل الخروج بنجاح");
+    if(panel) panel.innerHTML = "";
+
+    if(rides){
+
+        rides.innerHTML = `
+            <div class="empty">
+                سجل دخولك كسائق لعرض الرحلات
+            </div>
+        `;
+
+    }
+
+    if(onlineBox){
+        onlineBox.style.display = "none";
+    }
+
+    alert("✅ تم تسجيل الخروج وإلغاء الجلسة بنجاح");
 
 }
-
 // ================= END DRIVER PANEL & LOGOUT =================
   
 // ================= END COMPLETE RIDE =================
