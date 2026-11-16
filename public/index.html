@@ -2060,65 +2060,51 @@ footer {
           onclick="setDriverOnline(true)">🟢 أنا متصل وأستقبل الطلبات</button>
       </div>
 
-      <section id="driverRequestsSection" class="driver-content-section">
-        <div class="driver-section-heading">
-          <div>
-            <span class="driver-section-kicker">AVAILABLE RIDES</span>
-            <h2>📋 الطلبات المتاحة</h2>
-            <p>الطلبات الجديدة التي يمكنك قبولها.</p>
-          </div>
-          <span class="driver-section-symbol">📍</span>
-        </div>
-        <div id="driverRides">
-          <div class="empty">جاري تحميل الطلبات...</div>
-        </div>
-      </section>
+      
+<section id="driverRequestsSection" class="driver-content-section">
 
-      <section id="driverHistorySection" class="driver-content-section">
-        <div class="driver-section-heading">
-          <div>
-            <span class="driver-section-kicker">RIDE HISTORY</span>
-            <h2>📚 سجل الرحلات المكتملة</h2>
-            <p>راجع الرحلات التي أنهيتها سابقاً.</p>
-          </div>
-          <span class="driver-section-symbol">🏁</span>
-        </div>
-        <div id="driverCompletedRides">
-          <div class="empty">جاري تحميل سجل الرحلات...</div>
-        </div>
-      </section>
+  <div class="driver-section-heading">
+    <div>
+      <span class="driver-section-kicker">MY RIDE REQUESTS</span>
+      <h2>📋 طلباتي</h2>
+      <p>تابع الطلبات الجديدة والرحلات التي تعمل عليها.</p>
     </div>
+    <span class="driver-section-symbol">🚕</span>
   </div>
 
-  <nav id="driverBottomNav" class="driver-bottom-nav" style="display:none;"
-    aria-label="التنقل في لوحة السائق">
+  <!-- الطلبات الجديدة -->
+  <div class="driver-requests-group">
 
-    <button type="button" onclick="scrollDriverSection('driverAccountSection')">
-      <span>👤</span>
-      <small>حسابي</small>
-    </button>
+    <div class="driver-section-heading">
+      <div>
+        <span class="driver-section-kicker">NEW REQUESTS</span>
+        <h2>🆕 الطلبات الجديدة</h2>
+        <p>الطلبات المتاحة التي يمكنك قبولها.</p>
+      </div>
+    </div>
 
-    <button type="button" onclick="scrollDriverSection('driverRequestsSection')">
-      <span>📋</span>
-      <small>الطلبات</small>
-    </button>
+    <div id="driverRides">
+      <div class="empty">جاري تحميل الطلبات...</div>
+    </div>
 
-    <button type="button" onclick="scrollDriverSection('driverOnlineBox')">
-      <span>🟢</span>
-      <small>الاتصال</small>
-    </button>
+  </div>
 
-    <button type="button" onclick="scrollDriverSection('driverHistorySection')">
-      <span>📚</span>
-      <small>السجل</small>
-    </button>
+  <!-- الطلبات الجارية -->
+  <div class="driver-requests-group">
 
-    <button type="button" onclick="logoutDriver()">
-      <span>🚪</span>
-      <small>خروج</small>
-    </button>
+    <div class="driver-section-heading">
+      <div>
+        <span class="driver-section-kicker">ACTIVE RIDES</span>
+        <h2>🚘 الطلبات الجارية</h2>
+        <p>الرحلات التي قبلتها أو بدأت تنفيذها.</p>
+      </div>
+    </div>
 
-</nav>
+    <div id="driverCurrentRides">
+      <div class="empty">لا توجد رحلات جارية حالياً.</div>
+    </div>
+
+  </div>
 
 </section>
 
@@ -4163,7 +4149,7 @@ function showDriverPanel(){
     if(!panel) return;
 
     panel.innerHTML = `
-        <div class="card">
+        <div id="driverAccountSection" class="card">
             <h2>👋 مرحباً ${escapeHTML(currentDriver.name || "سائق توصيلة")}</h2>
             <p style="color:#64748b;margin-bottom:10px;">
                 هذه مساحة عملك لمتابعة الطلبات والرحلات.
