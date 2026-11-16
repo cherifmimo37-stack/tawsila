@@ -494,6 +494,54 @@ app.get("/api/rides", async (req, res) => {
 });
 
 // ================= END GET RIDES =================
+
+// ================= DRIVER COMPLETED RIDES =================
+
+app.get("/api/driver/completed-rides", async (req, res) => {
+    try {
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "يرجى تسجيل الدخول كسائق",
+                rides: []
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة",
+                rides: []
+            });
+        }
+
+        const result = await pool.query(
+            `SELECT *
+             FROM rides
+             WHERE driver_id = $1
+               AND status = 'completed'
+             ORDER BY created_at DESC
+             LIMIT 100`,
+            [String(driver.id)]
+        );
+
+        return res.json({
+            success: true,
+            rides: result.rows.map(formatRide)
+        });
+
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
+
+// ================= END DRIVER COMPLETED RIDES =================
+
  // ================= REGISTER DRIVER =================
 
 app.post("/api/driver", async (req, res) => {
