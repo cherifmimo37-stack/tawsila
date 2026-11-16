@@ -1452,7 +1452,10 @@ footer {
 #driver .ride{margin:0;padding:17px;border:1px solid #e3eaf1;border-right:4px solid #f0bd2f;border-radius:15px;background:#fff;box-shadow:0 5px 16px rgba(7,26,48,.045)}
 #driver .ride .actions{flex-direction:row}
 #driver .ride .actions button{width:auto;margin:0}
-.driver-bottom-nav{display:none}
+.driver-bottom-nav{position:fixed;z-index:1000;right:0;bottom:0;left:0;display:flex;justify-content:space-around;gap:6px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #dce5ee;background:rgba(255,255,255,.97);box-shadow:0 -7px 24px rgba(7,26,48,.10);backdrop-filter:blur(12px)}
+.driver-bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;padding:5px 3px;border:0;border-radius:11px;background:transparent;color:#29435d;cursor:pointer}
+.driver-bottom-nav button span{font-size:19px;line-height:1.2}
+.driver-bottom-nav button small{font-size:11px;font-weight:800}
 @media(max-width:700px){
  .driver-shell{padding-bottom:88px}
  .driver-topbar{padding:20px 18px;border-radius:18px}
@@ -1469,12 +1472,12 @@ footer {
  .driver-section-heading h2{font-size:17px}
  #driver .ride .actions{flex-direction:column}
  #driver .ride .actions button{width:100%}
- .driver-bottom-nav{position:fixed;z-index:1000;right:0;bottom:0;left:0;display:flex;justify-content:space-around;gap:4px;padding:9px 7px calc(9px + env(safe-area-inset-bottom));border-top:1px solid #dce5ee;background:rgba(255,255,255,.97);box-shadow:0 -7px 24px rgba(7,26,48,.10);backdrop-filter:blur(12px)}
- .driver-bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 2px;border:0;border-radius:10px;background:transparent;color:#29435d}
+ .driver-shell{padding-bottom:100px}
+ .driver-bottom-nav{gap:4px;padding:8px 7px calc(8px + env(safe-area-inset-bottom))}
+ .driver-bottom-nav button{min-height:46px;padding:4px 2px}
  .driver-bottom-nav button span{font-size:18px}
- .driver-bottom-nav button small{font-size:10px;font-weight:800}
+ .driver-bottom-nav button small{font-size:10px}
 }
-@media(min-width:701px){.driver-bottom-nav{display:none!important}}
 
 
 
@@ -4140,7 +4143,7 @@ function showDriverPanel(){
 
     if(auth) auth.style.display = "none";
     if(workspace) workspace.style.display = "block";
-    if(nav) nav.style.display = window.matchMedia("(max-width: 700px)").matches ? "flex" : "none";
+    if(nav) nav.style.display = "flex";
 
     const panel = document.getElementById("driverPanel");
     if(!panel) return;
