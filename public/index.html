@@ -1394,6 +1394,67 @@ footer {
     padding: 14px;
   }
 }
+
+/* ===== DRIVER WORKSPACE: CLEAN PREMIUM LAYOUT ===== */
+.driver-shell{max-width:1000px;margin:0 auto;padding-bottom:24px}
+.driver-topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:25px 28px;margin-bottom:20px;border-radius:22px;color:#fff;background:linear-gradient(120deg,#071a30,#174b75);box-shadow:0 14px 34px rgba(7,26,48,.14);border:1px solid rgba(255,255,255,.1)}
+.driver-eyebrow,.driver-section-kicker{display:block;color:#ffd34e;font-size:10px;font-weight:900;letter-spacing:2px;direction:ltr;text-align:right}
+.driver-topbar h1{margin:8px 0;color:#fff;font-size:27px;font-weight:900}
+.driver-topbar p{color:#d3dfeb;font-size:13px;line-height:1.7}
+.driver-top-icon{width:62px;height:62px;display:grid;place-items:center;flex-shrink:0;border-radius:18px;background:rgba(255,255,255,.12);font-size:31px;border:1px solid rgba(255,255,255,.15)}
+.driver-auth{max-width:620px;margin:0 auto 22px;padding:23px;border:1px solid #e1e8f0;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(7,26,48,.08)}
+.driver-auth-heading{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+.driver-auth-mark{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:#fff5d7;font-size:22px}
+.driver-auth-heading h2{margin:0 0 5px;font-size:19px;color:#0b2945}
+.driver-auth-heading p,.driver-form-note,.driver-form-footnote{color:#77869a;font-size:12px;line-height:1.8}
+.driver-auth-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;margin-bottom:20px;border-radius:13px;background:#f0f4f8}
+.driver-auth-switch button{min-height:43px;border:0;border-radius:10px;background:transparent;color:#62748a;font-weight:800}
+.driver-auth-switch button.active{background:#102f4d;color:#ffd34e;box-shadow:0 4px 12px rgba(7,26,48,.15)}
+.driver-auth-card h3{margin:0 0 7px;color:#102f4d;font-size:18px}
+.driver-form-note{margin-bottom:18px}
+.driver-auth-card .form-group{margin-bottom:14px}
+.driver-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.driver-main-action{width:100%;min-height:51px;margin-top:7px;border:0;border-radius:13px;background:linear-gradient(120deg,#ffd84b,#f2ae16);color:#142b40;font-weight:900;box-shadow:0 7px 17px rgba(217,157,0,.2)}
+.driver-main-action span{font-size:20px}
+.driver-form-footnote{margin-top:12px;text-align:center}
+.driver-online-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;margin:0 0 20px;border:1px solid #dce6ef;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(7,26,48,.06)}
+.driver-online-card strong{display:block;color:#102f4d;font-size:16px;margin-bottom:5px}
+.driver-online-card p{color:#7b8999;font-size:12px;line-height:1.7}
+.driver-online-card .btn{width:auto;min-width:210px;margin:0}
+.driver-content-section{padding:20px;margin-bottom:20px;border:1px solid #e1e8f0;border-radius:20px;background:rgba(255,255,255,.94);box-shadow:0 9px 25px rgba(7,26,48,.06);scroll-margin-top:18px}
+.driver-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;margin-bottom:15px;border-bottom:1px solid #edf1f5}
+.driver-section-heading h2{margin:6px 0;color:#102f4d;font-size:19px}
+.driver-section-heading p{color:#8794a3;font-size:12px}
+.driver-section-symbol{width:45px;height:45px;display:grid;place-items:center;border-radius:14px;background:#fff5d8;font-size:22px}
+#driverPanel .card{padding:20px;margin-bottom:18px;border:1px solid #dce6ef;border-radius:18px;border-top:3px solid #f2bd2d;background:#fff;box-shadow:0 8px 24px rgba(7,26,48,.06)}
+#driverPanel .card h2{margin-bottom:7px;color:#102f4d;font-size:20px}
+#driverPanel .driver-status{margin:14px 0 0;padding:12px 14px;background:#f4f7fa}
+#driverPanel .btn-red{width:auto;min-width:130px;margin-top:13px;background:#eef2f6;color:#263e56;border:1px solid #dce4ed}
+#driverRides,#driverCompletedRides{display:grid;gap:12px}
+#driver .ride{margin:0;padding:17px;border:1px solid #e3eaf1;border-right:4px solid #f0bd2f;border-radius:15px;background:#fff;box-shadow:0 5px 16px rgba(7,26,48,.045)}
+#driver .ride .actions{flex-direction:row}
+#driver .ride .actions button{width:auto;margin:0}
+.driver-bottom-nav{display:none}
+@media(max-width:700px){
+ .driver-shell{padding-bottom:88px}
+ .driver-topbar{padding:20px 18px;border-radius:18px}
+ .driver-topbar h1{font-size:23px}
+ .driver-top-icon{width:52px;height:52px;font-size:26px}
+ .driver-auth{padding:18px;border-radius:18px}
+ .driver-form-grid{grid-template-columns:1fr}
+ .driver-online-card{align-items:stretch;flex-direction:column;padding:16px}
+ .driver-online-card .btn{width:100%;min-width:0}
+ .driver-content-section{padding:16px;border-radius:17px}
+ .driver-section-heading h2{font-size:17px}
+ #driver .ride .actions{flex-direction:column}
+ #driver .ride .actions button{width:100%}
+ .driver-bottom-nav{position:fixed;z-index:1000;right:0;bottom:0;left:0;display:flex;justify-content:space-around;gap:4px;padding:9px 7px calc(9px + env(safe-area-inset-bottom));border-top:1px solid #dce5ee;background:rgba(255,255,255,.97);box-shadow:0 -7px 24px rgba(7,26,48,.10);backdrop-filter:blur(12px)}
+ .driver-bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 2px;border:0;border-radius:10px;background:transparent;color:#29435d}
+ .driver-bottom-nav button span{font-size:18px}
+ .driver-bottom-nav button small{font-size:10px;font-weight:800}
+}
+@media(min-width:701px){.driver-bottom-nav{display:none!important}}
+
 </style>
 
 </head>
@@ -1633,174 +1694,138 @@ footer {
 
 <section id="driver" class="page">
 
-<div class="hero">
-
-<h1>
-🚗 لوحة السائق
-</h1>
-
-<p>
-سجل معلوماتك ثم فعّل حالة الاتصال لاستقبال طلبات الزبائن.
-</p>
-
-</div>
-
-<!-- ================= DRIVER LOGIN ================= -->
-
-<div class="card">
-
-    <h2>🔐 دخول السائق</h2>
-
-    <div class="form-group">
-        <label>رقم الهاتف</label>
-
-        <input
-            type="tel"
-            id="driverLoginPhone"
-            placeholder="05xxxxxxxx"
-            autocomplete="username"
-        >
+  <div class="driver-shell">
+    <div class="driver-topbar">
+      <div>
+        <span class="driver-eyebrow">TAWSILA • DRIVER CENTER</span>
+        <h1>مساحة السائق</h1>
+        <p>كل رحلاتك وطلباتك في مكان واحد.</p>
+      </div>
+      <div class="driver-top-icon">🚘</div>
     </div>
 
-    <div class="form-group">
-        <label>كلمة المرور السرية</label>
-
-        <input
-            type="password"
-            id="driverLoginPassword"
-            placeholder="أدخل كلمة المرور"
-            autocomplete="current-password"
-        >
-    </div>
-
-    <button
-        class="btn btn-primary"
-        onclick="loginDriver()">
-        🔐 تسجيل الدخول
-    </button>
-
-</div>
-
-<!-- ================= END DRIVER LOGIN ================= -->
-<div class="card">
-
-<h2>🚗 تسجيل السائق</h2>
-
-<div class="form-group">
-
-<label>اسم السائق</label>
-
-<input
-id="driverName"
-placeholder="اسمك"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>رقم الهاتف</label>
-
-<input
-id="driverPhone"
-placeholder="05xxxxxxxx"
->
-
-</div>
-
-<div class="form-group">
-
-<label>كلمة المرور السرية</label>
-
-<input
-type="password"
-id="driverPassword"
-placeholder="اختر كلمة مرور من 8 أحرف على الأقل"
-minlength="8"
-autocomplete="new-password"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>نوع السيارة</label>
-
-<input
-id="driverCar"
-placeholder="مثال: Fiat Panda"
->
-
-</div>
-
-
-<div class="form-group">
-
-<label>رقم السيارة</label>
-
-<input
-id="driverPlate"
-placeholder="مثال: 123456-111-48"
->
-
-</div>
-
-
-<button
-class="btn btn-primary"
-onclick="registerDriver()"
->
-🚗 تسجيل السائق
-</button>
-
-</div>
-
-
-<div id="driverPanel"></div>
-
-  <div
-id="driverOnlineBox"
-style="
-margin-top:15px;
-text-align:center;
-">
-
-<button
-id="driverOnlineButton"
-class="btn btn-green"
-onclick="setDriverOnline(true)">
-🟢 أنا متصل وأستقبل الطلبات
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>📋 الطلبات الحالية</h2>
-
-<div id="driverRides">
-
-<div class="empty">
-لا توجد طلبات حاليًا
-</div>  
-
-</div>
-
-</div>
-
-<div class="card" style="margin-top:20px;">
-
-    <h2>📚 سجل الرحلات المكتملة</h2>
-
-    <div id="driverCompletedRides">
-        <div class="empty">
-            جاري تحميل سجل الرحلات...
+    <div id="driverAuth" class="driver-auth">
+      <div class="driver-auth-heading">
+        <span class="driver-auth-mark">🔐</span>
+        <div>
+          <h2>مرحباً بك في توصيلة</h2>
+          <p>ادخل إلى حسابك أو أنشئ حساب سائق جديد</p>
         </div>
+      </div>
+
+      <div class="driver-auth-switch" role="tablist" aria-label="نوع العملية">
+        <button type="button" id="driverLoginTab" class="active"
+          onclick="showDriverAuthForm('login')">تسجيل الدخول</button>
+        <button type="button" id="driverRegisterTab"
+          onclick="showDriverAuthForm('register')">حساب جديد</button>
+      </div>
+
+      <div id="driverLoginCard" class="driver-auth-card">
+        <h3>تسجيل الدخول</h3>
+        <p class="driver-form-note">استعمل رقم الهاتف وكلمة المرور المسجلين في حسابك.</p>
+        <div class="form-group">
+          <label for="driverLoginPhone">رقم الهاتف</label>
+          <input type="tel" id="driverLoginPhone" placeholder="05xxxxxxxx"
+            autocomplete="username" inputmode="tel">
+        </div>
+        <div class="form-group">
+          <label for="driverLoginPassword">كلمة المرور</label>
+          <input type="password" id="driverLoginPassword"
+            placeholder="أدخل كلمة المرور" autocomplete="current-password">
+        </div>
+        <button type="button" class="btn driver-main-action"
+          onclick="loginDriver()">دخول إلى حسابي <span>←</span></button>
+      </div>
+
+      <div id="driverRegisterCard" class="driver-auth-card" style="display:none;">
+        <h3>إنشاء حساب سائق</h3>
+        <p class="driver-form-note">أدخل معلوماتك ومعلومات السيارة بدقة.</p>
+        <div class="form-group">
+          <label for="driverName">الاسم الكامل</label>
+          <input id="driverName" type="text" placeholder="اسمك الكامل" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="driverPhone">رقم الهاتف</label>
+          <input id="driverPhone" type="tel" placeholder="05xxxxxxxx" autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label for="driverPassword">كلمة المرور</label>
+          <input type="password" id="driverPassword"
+            placeholder="8 أحرف على الأقل" minlength="8" autocomplete="new-password">
+        </div>
+        <div class="driver-form-grid">
+          <div class="form-group">
+            <label for="driverCar">نوع السيارة</label>
+            <input id="driverCar" placeholder="مثال: Fiat Panda">
+          </div>
+          <div class="form-group">
+            <label for="driverPlate">رقم السيارة</label>
+            <input id="driverPlate" placeholder="مثال: 123456-111-48">
+          </div>
+        </div>
+        <button type="button" class="btn driver-main-action"
+          onclick="registerDriver()">إنشاء حساب السائق <span>←</span></button>
+        <p class="driver-form-footnote">بإنشاء الحساب، تأكد من صحة بيانات الاتصال والسيارة.</p>
+      </div>
     </div>
 
-</div>
+    <div id="driverWorkspace" style="display:none;">
+      <div id="driverPanel"></div>
+
+      <div id="driverOnlineBox" class="driver-online-card">
+        <div>
+          <strong>استقبال طلبات جديدة</strong>
+          <p>فعّل الاتصال عندما تكون مستعداً لاستقبال الرحلات.</p>
+        </div>
+        <button id="driverOnlineButton" class="btn btn-green"
+          onclick="setDriverOnline(true)">🟢 أنا متصل وأستقبل الطلبات</button>
+      </div>
+
+      <section id="driverRequestsSection" class="driver-content-section">
+        <div class="driver-section-heading">
+          <div>
+            <span class="driver-section-kicker">AVAILABLE RIDES</span>
+            <h2>📋 الطلبات المتاحة</h2>
+            <p>الطلبات الجديدة التي يمكنك قبولها.</p>
+          </div>
+          <span class="driver-section-symbol">📍</span>
+        </div>
+        <div id="driverRides">
+          <div class="empty">جاري تحميل الطلبات...</div>
+        </div>
+      </section>
+
+      <section id="driverHistorySection" class="driver-content-section">
+        <div class="driver-section-heading">
+          <div>
+            <span class="driver-section-kicker">RIDE HISTORY</span>
+            <h2>📚 سجل الرحلات المكتملة</h2>
+            <p>راجع الرحلات التي أنهيتها سابقاً.</p>
+          </div>
+          <span class="driver-section-symbol">🏁</span>
+        </div>
+        <div id="driverCompletedRides">
+          <div class="empty">جاري تحميل سجل الرحلات...</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <nav id="driverBottomNav" class="driver-bottom-nav" style="display:none;"
+    aria-label="التنقل في لوحة السائق">
+    <button type="button" onclick="scrollDriverSection('driverRequestsSection')">
+      <span>📋</span><small>الطلبات</small>
+    </button>
+    <button type="button" onclick="scrollDriverSection('driverOnlineBox')">
+      <span>🟢</span><small>الاتصال</small>
+    </button>
+    <button type="button" onclick="scrollDriverSection('driverHistorySection')">
+      <span>📚</span><small>السجل</small>
+    </button>
+    <button type="button" onclick="logoutDriver()">
+      <span>🚪</span><small>خروج</small>
+    </button>
+  </nav>
 
 </section>
 
@@ -2367,6 +2392,24 @@ async function registerDriver(){
     }
 
 }
+
+// ================= DRIVER AUTH & NAVIGATION =================
+function showDriverAuthForm(mode){
+    const loginCard = document.getElementById("driverLoginCard");
+    const registerCard = document.getElementById("driverRegisterCard");
+    const loginTab = document.getElementById("driverLoginTab");
+    const registerTab = document.getElementById("driverRegisterTab");
+    const showLogin = mode !== "register";
+    if(loginCard) loginCard.style.display = showLogin ? "block" : "none";
+    if(registerCard) registerCard.style.display = showLogin ? "none" : "block";
+    if(loginTab) loginTab.classList.toggle("active", showLogin);
+    if(registerTab) registerTab.classList.toggle("active", !showLogin);
+}
+function scrollDriverSection(sectionId){
+    const target = document.getElementById(sectionId);
+    if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+// ================= END DRIVER AUTH & NAVIGATION =================
 
 // ================= DRIVER LOGIN =================
 
@@ -3785,61 +3828,44 @@ async function completeRide(id){
 
 function showDriverPanel(){
 
-    if(!currentDriver){
-        return;
-    }
+    if(!currentDriver) return;
+
+    const auth = document.getElementById("driverAuth");
+    const workspace = document.getElementById("driverWorkspace");
+    const nav = document.getElementById("driverBottomNav");
+
+    if(auth) auth.style.display = "none";
+    if(workspace) workspace.style.display = "block";
+    if(nav) nav.style.display = window.matchMedia("(max-width: 700px)").matches ? "flex" : "none";
 
     const panel = document.getElementById("driverPanel");
-
-    if(!panel){
-        return;
-    }
+    if(!panel) return;
 
     panel.innerHTML = `
-
         <div class="card">
-
-            <h2>
-                👋 مرحباً ${escapeHTML(currentDriver.name)}
-            </h2>
-
-            <p style="color:#64748b;margin-bottom:15px;">
-                مرحباً بك في لوحة السائق الخاصة بتوصيلة.
+            <h2>👋 مرحباً ${escapeHTML(currentDriver.name || "سائق توصيلة")}</h2>
+            <p style="color:#64748b;margin-bottom:10px;">
+                هذه مساحة عملك لمتابعة الطلبات والرحلات.
             </p>
-
             <div class="driver-status">
-
                 <strong>حالة الاتصال</strong>
-
                 <span id="driverState">
                     ${currentDriver.online ? "🟢 متصل" : "🔴 غير متصل"}
                 </span>
-
             </div>
-
-            <button
-                class="btn btn-red"
-                onclick="logoutDriver()">
+            <button type="button" class="btn btn-red" onclick="logoutDriver()">
                 🚪 تسجيل الخروج
             </button>
-
         </div>
-
     `;
 
-    const onlineBox =
-        document.getElementById("driverOnlineBox");
-
-    if(onlineBox){
-        onlineBox.style.display = "block";
-    }
+    const onlineBox = document.getElementById("driverOnlineBox");
+    if(onlineBox) onlineBox.style.display = "flex";
 
     updateDriverOnlineButton();
     startDriverRidesAutoRefresh();
     loadDriverCompletedRides();
-
 }
-
 
 // ================= DRIVER LOGOUT =================
 
@@ -3927,6 +3953,14 @@ async function logoutDriver(){
     const onlineBox = document.getElementById("driverOnlineBox");
 
     if(panel) panel.innerHTML = "";
+
+    const auth = document.getElementById("driverAuth");
+    const workspace = document.getElementById("driverWorkspace");
+    const nav = document.getElementById("driverBottomNav");
+    if(auth) auth.style.display = "block";
+    if(workspace) workspace.style.display = "none";
+    if(nav) nav.style.display = "none";
+    showDriverAuthForm("login");
 
     if(rides){
 
