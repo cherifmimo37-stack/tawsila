@@ -1417,6 +1417,24 @@ footer {
 .driver-main-action{width:100%;min-height:51px;margin-top:7px;border:0;border-radius:13px;background:linear-gradient(120deg,#ffd84b,#f2ae16);color:#142b40;font-weight:900;box-shadow:0 7px 17px rgba(217,157,0,.2)}
 .driver-main-action span{font-size:20px}
 .driver-form-footnote{margin-top:12px;text-align:center}
+
+.driver-service-picker{padding:15px;margin:5px 0 17px;border:1px solid #e6ebf1;border-radius:17px;background:linear-gradient(145deg,#f8fafc,#fff)}
+.driver-service-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;color:#102f4d}
+.driver-service-title strong{font-size:14px}.driver-service-title span{font-size:10px;color:#8492a3}
+.driver-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.driver-service-option{min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 7px;border:1px solid #e2e8ef;border-radius:14px;background:#fff;color:#18344f;text-align:center;transition:.18s ease}
+.driver-service-option:hover{border-color:#d5a51c;transform:translateY(-2px)}
+.driver-service-option.selected{border:2px solid #d7a51b;padding:11px 6px;background:linear-gradient(160deg,#fff9e7,#fff);box-shadow:0 5px 14px rgba(201,151,50,.14)}
+.driver-service-art{width:48px;height:42px;display:grid;place-items:center;border-radius:12px;background:#eef4f9;color:#17466d}
+.driver-service-option.selected .driver-service-art{background:#ffefbd;color:#7b5900}
+.driver-service-art svg{width:39px;height:39px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.driver-service-option strong{font-size:12px;font-weight:900}.driver-service-option small{font-size:10px;color:#8492a3;line-height:1.4}
+.driver-dashboard-services{margin:14px 0 4px;padding:14px;border:1px solid #e5ebf2;border-radius:16px;background:#f8fafc}
+.driver-dashboard-services-heading{margin-bottom:10px;color:#102f4d;font-size:13px;font-weight:900}
+.driver-dashboard-services .driver-service-option{pointer-events:none;min-height:105px}
+.driver-dashboard-services-note{margin-top:10px;color:#8995a3;font-size:10px}
+.driver-service-summary{display:flex;align-items:center;gap:13px;padding:15px;margin:12px 0 0;border:1px solid #e5ebf2;border-radius:16px;background:linear-gradient(110deg,#f7fafc,#fff)}
+.driver-service-summary .driver-service-art{width:56px;height:52px;flex-shrink:0}.driver-service-summary strong{display:block;color:#102f4d;font-size:14px}.driver-service-summary small{display:block;margin-top:4px;color:#7d8b9a;font-size:11px}
 .driver-online-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;margin:0 0 20px;border:1px solid #dce6ef;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(7,26,48,.06)}
 .driver-online-card strong{display:block;color:#102f4d;font-size:16px;margin-bottom:5px}
 .driver-online-card p{color:#7b8999;font-size:12px;line-height:1.7}
@@ -1442,6 +1460,9 @@ footer {
  .driver-top-icon{width:52px;height:52px;font-size:26px}
  .driver-auth{padding:18px;border-radius:18px}
  .driver-form-grid{grid-template-columns:1fr}
+ .driver-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .driver-service-option{min-height:112px}
+ .driver-service-title{align-items:flex-start;flex-direction:column}
  .driver-online-card{align-items:stretch;flex-direction:column;padding:16px}
  .driver-online-card .btn{width:100%;min-width:0}
  .driver-content-section{padding:16px;border-radius:17px}
@@ -1739,7 +1760,40 @@ footer {
 
       <div id="driverRegisterCard" class="driver-auth-card" style="display:none;">
         <h3>إنشاء حساب سائق</h3>
-        <p class="driver-form-note">أدخل معلوماتك ومعلومات السيارة بدقة.</p>
+        <p class="driver-form-note">اختر نوع الخدمة التي تريد تقديمها، ثم أدخل معلومات مركبتك.</p>
+        <div class="driver-service-picker">
+          <div class="driver-service-title">
+            <strong>ما نوع الخدمة التي تقدمها؟</strong>
+            <span>اختر خدمة واحدة لحسابك</span>
+          </div>
+          <div class="driver-service-grid" id="driverServiceGrid">
+            <button type="button" class="driver-service-option selected" data-service="car" aria-pressed="true" onclick="selectDriverService('car',this)">
+              <span class="driver-service-art"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 37l4-13c1-4 4-6 8-6h17c4 0 7 2 9 6l5 13v11H9V37z"/><path d="M17 37h36M20 25h25l5 12H15l5-12z"/><circle cx="19" cy="48" r="5"/><circle cx="47" cy="48" r="5"/></svg></span>
+              <strong>سيارة أجرة</strong><small>تنقل الأشخاص</small>
+            </button>
+            <button type="button" class="driver-service-option" data-service="bike" aria-pressed="false" onclick="selectDriverService('bike',this)">
+              <span class="driver-service-art"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="16" cy="45" r="9"/><circle cx="48" cy="45" r="9"/><path d="M16 45l10-18 11 18H16l9-13h15l8 13M35 20h8M40 20l8 25M24 27h-7"/><path d="M29 19h8l4 6H27z"/></svg></span>
+              <strong>دراجة للتوصيل</strong><small>طلبات وطرود سريعة</small>
+            </button>
+            <button type="button" class="driver-service-option" data-service="van" aria-pressed="false" onclick="selectDriverService('van',this)">
+              <span class="driver-service-art"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M7 20h32v27H7zM39 29h10l8 10v8H39z"/><path d="M44 32h4l6 7H44z"/><circle cx="19" cy="48" r="5"/><circle cx="48" cy="48" r="5"/></svg></span>
+              <strong>شاحنة صغيرة</strong><small>نقل الأغراض والسلع</small>
+            </button>
+            <button type="button" class="driver-service-option" data-service="truck" aria-pressed="false" onclick="selectDriverService('truck',this)">
+              <span class="driver-service-art"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 17h34v29H6zM40 28h10l8 10v8H40z"/><path d="M44 31h5l6 7H44z"/><circle cx="18" cy="47" r="5"/><circle cx="49" cy="47" r="5"/></svg></span>
+              <strong>شاحنة نقل</strong><small>الأحمال الكبيرة</small>
+            </button>
+            <button type="button" class="driver-service-option" data-service="minibus" aria-pressed="false" onclick="selectDriverService('minibus',this)">
+              <span class="driver-service-art"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="17" width="48" height="30" rx="6"/><path d="M13 25h38M20 18v12m12-12v12m12-12v12M8 39h48"/><circle cx="19" cy="48" r="5"/><circle cx="46" cy="48" r="5"/></svg></span>
+              <strong>حافلة صغيرة</strong><small>نقل جماعي</small>
+            </button>
+            <button type="button" class="driver-service-option" data-service="moving" aria-pressed="false" onclick="selectDriverService('moving',this)">
+              <span class="driver-service-art"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 25h38v24H13zM20 25v-8h24v8M19 33h26M19 40h26"/><circle cx="21" cy="50" r="4"/><circle cx="44" cy="50" r="4"/><path d="M27 17v-5h10v5"/></svg></span>
+              <strong>نقل الأثاث</strong><small>أغراض المنازل والمكاتب</small>
+            </button>
+          </div>
+          <input type="hidden" id="driverServiceType" value="car">
+        </div>
         <div class="form-group">
           <label for="driverName">الاسم الكامل</label>
           <input id="driverName" type="text" placeholder="اسمك الكامل" autocomplete="name">
@@ -1755,8 +1809,8 @@ footer {
         </div>
         <div class="driver-form-grid">
           <div class="form-group">
-            <label for="driverCar">نوع السيارة</label>
-            <input id="driverCar" placeholder="مثال: Fiat Panda">
+            <label for="driverCar">المركبة / الموديل</label>
+            <input id="driverCar" placeholder="مثال: Fiat Panda أو Peugeot Partner">
           </div>
           <div class="form-group">
             <label for="driverPlate">رقم السيارة</label>
@@ -1765,7 +1819,7 @@ footer {
         </div>
         <button type="button" class="btn driver-main-action"
           onclick="registerDriver()">إنشاء حساب السائق <span>←</span></button>
-        <p class="driver-form-footnote">بإنشاء الحساب، تأكد من صحة بيانات الاتصال والسيارة.</p>
+        <p class="driver-form-footnote">تأكد من اختيار الخدمة المناسبة وإدخال بيانات مركبتك الصحيحة.</p>
       </div>
     </div>
 
@@ -1940,6 +1994,7 @@ RideDZ V1 © 2026
 
 
 let currentDriver = null;
+let selectedDriverService = "car";
 
 // تحديث تلقائي لطلبات السائق
 let driverRidesRefreshTimer = null;
@@ -2322,13 +2377,27 @@ async function registerDriver(){
     const password =
         document.getElementById("driverPassword").value;
 
-    const car =
+    const carModel =
         document.getElementById("driverCar").value.trim();
+
+    const serviceType =
+        document.getElementById("driverServiceType")?.value || "car";
+
+    const serviceLabels = {
+        car: "سيارة أجرة",
+        bike: "دراجة للتوصيل",
+        van: "شاحنة صغيرة",
+        truck: "شاحنة نقل",
+        minibus: "حافلة صغيرة",
+        moving: "نقل الأثاث"
+    };
+
+    const car = `${serviceLabels[serviceType] || serviceLabels.car} — ${carModel}`;
 
     const plate =
         document.getElementById("driverPlate").value.trim();
 
-    if(!name || !phone || !password || !car || !plate){
+    if(!name || !phone || !password || !carModel || !plate){
 
         alert("⚠️ أكمل جميع معلومات السائق");
 
@@ -2394,6 +2463,19 @@ async function registerDriver(){
 }
 
 // ================= DRIVER AUTH & NAVIGATION =================
+function selectDriverService(service, button){
+    const grid = document.getElementById("driverServiceGrid");
+    const hidden = document.getElementById("driverServiceType");
+    if(!grid || !hidden) return;
+    selectedDriverService = service;
+    hidden.value = service;
+    grid.querySelectorAll(".driver-service-option").forEach(option => {
+        const active = option.dataset.service === service;
+        option.classList.toggle("selected", active);
+        option.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+}
+
 function showDriverAuthForm(mode){
     const loginCard = document.getElementById("driverLoginCard");
     const registerCard = document.getElementById("driverRegisterCard");
@@ -3847,6 +3929,25 @@ function showDriverPanel(){
             <p style="color:#64748b;margin-bottom:10px;">
                 هذه مساحة عملك لمتابعة الطلبات والرحلات.
             </p>
+            <div class="driver-service-summary">
+                <span class="driver-service-art" aria-hidden="true">🚘</span>
+                <div>
+                    <strong>الخدمة المسجلة في حسابك</strong>
+                    <small>${escapeHTML((currentDriver.car || "مركبة غير محددة").split(" — ")[0])}</small>
+                </div>
+            </div>
+            <div class="driver-dashboard-services">
+                <div class="driver-dashboard-services-heading">خدمات النقل على توصيلة</div>
+                <div class="driver-service-grid">
+                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("سيارة أجرة") ? "selected" : ""}"><span class="driver-service-art">🚘</span><strong>سيارة أجرة</strong><small>نقل الأشخاص</small></div>
+                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("دراجة للتوصيل") ? "selected" : ""}"><span class="driver-service-art">🛵</span><strong>دراجة للتوصيل</strong><small>طلبات سريعة</small></div>
+                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("شاحنة صغيرة") ? "selected" : ""}"><span class="driver-service-art">🚐</span><strong>شاحنة صغيرة</strong><small>نقل الأغراض</small></div>
+                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("شاحنة نقل") ? "selected" : ""}"><span class="driver-service-art">🚚</span><strong>شاحنة نقل</strong><small>الأحمال الكبيرة</small></div>
+                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("حافلة صغيرة") ? "selected" : ""}"><span class="driver-service-art">🚐</span><strong>حافلة صغيرة</strong><small>نقل جماعي</small></div>
+                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("نقل الأثاث") ? "selected" : ""}"><span class="driver-service-art">📦</span><strong>نقل الأثاث</strong><small>منازل ومكاتب</small></div>
+                </div>
+                <p class="driver-dashboard-services-note">الخدمة المظللة بالذهبي هي الخدمة المرتبطة بحسابك.</p>
+            </div>
             <div class="driver-status">
                 <strong>حالة الاتصال</strong>
                 <span id="driverState">
