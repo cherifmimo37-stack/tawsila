@@ -1775,7 +1775,7 @@ onclick="setDriverOnline(true)">
 </button>
 
 </div>
-  
+
 <div class="card">
 
 <h2>📋 الطلبات الحالية</h2>
@@ -1784,15 +1784,25 @@ onclick="setDriverOnline(true)">
 
 <div class="empty">
 لا توجد طلبات حاليًا
+</div>  
+
 </div>
 
 </div>
+
+<div class="card" style="margin-top:20px;">
+
+    <h2>📚 سجل الرحلات المكتملة</h2>
+
+    <div id="driverCompletedRides">
+        <div class="empty">
+            جاري تحميل سجل الرحلات...
+        </div>
+    </div>
 
 </div>
 
 </section>
-
-
 
 <!-- ================= ADMIN ================= -->
 
@@ -2747,6 +2757,113 @@ const response = await fetch("/api/rides",{
 
 }
 
+// ================= LOAD DRIVER COMPLETED RIDES =================
+
+async function loadDriverCompletedRides(){
+
+    const container = document.getElementById("driverCompletedRides");
+
+    if(!container) return;
+
+    if(!currentDriver || !currentDriver.id) return;
+
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token) return;
+
+    try{
+
+        const response = await fetch("/api/driver/completed-rides",{
+            method:"GET",
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        });
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+
+            container.innerHTML = `
+                <div class="empty">
+                    ${escapeHTML(data.message || "تعذر تحميل سجل الرحلات")}
+                </div>
+            `;
+
+            return;
+        }
+
+        if(!Array.isArray(data.rides) || data.rides.length === 0){
+
+            container.innerHTML = `
+                <div class="empty">
+                    لم تُكمل أي رحلة حتى الآن
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = data.rides.map(ride => {
+
+            const rideDate = ride.createdAt
+                ? new Date(ride.createdAt).toLocaleString("ar-DZ")
+                : "غير محدد";
+
+            return `
+                <div class="ride">
+
+                    <div class="ride-row">
+                        👤 ${escapeHTML(ride.customerName)}
+                    </div>
+
+                    <div class="ride-row">
+                        📍 الانطلاق: ${escapeHTML(ride.pickup)}
+                    </div>
+
+                    <div class="ride-row">
+                        🏁 الوجهة: ${escapeHTML(ride.destination)}
+                    </div>
+
+                    <div class="ride-row">
+                        💰 السعر: ${Number(ride.price || 0)} دج
+                    </div>
+
+                    <div class="ride-row">
+                        📏 المسافة: ${Number(ride.distance || 0)} كم
+                    </div>
+
+                    <div class="ride-row">
+                        🕒 تاريخ الطلب: ${escapeHTML(rideDate)}
+                    </div>
+
+                    <div class="ride-row">
+                        <span class="status">
+                            ✅ رحلة مكتملة
+                        </span>
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    }catch(error){
+
+        console.error("Completed rides error:",error);
+
+        container.innerHTML = `
+            <div class="empty">
+                تعذر الاتصال بالخادم لتحميل السجل
+            </div>
+        `;
+
+    }
+
+}
+
+// ================= END LOAD COMPLETED RIDES =================
+
 // ================= ACCEPT =================
 
 
@@ -3652,6 +3769,7 @@ async function completeRide(id){
         alert("🏁 تم إنهاء الرحلة بنجاح");
 
         await loadDriverRides();
+        await loadDriverCompletedRides();
 
     }catch(error){
 
@@ -3718,6 +3836,7 @@ function showDriverPanel(){
 
     updateDriverOnlineButton();
     startDriverRidesAutoRefresh();
+    loadDriverCompletedRides();
 
 }
 
