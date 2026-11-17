@@ -2048,65 +2048,106 @@ footer {
       </div>
     </div>
 
-    <div id="driverWorkspace" style="display:none;">
-      <div id="driverPanel"></div>
+    
+<div id="driverWorkspace" style="display:none;">
+  <div id="driverPanel"></div>
 
-      <div id="driverOnlineBox" class="driver-online-card">
-        <div>
-          <strong>استقبال طلبات جديدة</strong>
-          <p>فعّل الاتصال عندما تكون مستعداً لاستقبال الرحلات.</p>
-        </div>
-        <button id="driverOnlineButton" class="btn btn-green"
-          onclick="setDriverOnline(true)">🟢 أنا متصل وأستقبل الطلبات</button>
-      </div>
-
-      
-<section id="driverRequestsSection" class="driver-content-section">
-
-  <div class="driver-section-heading">
+  <div id="driverOnlineBox" class="driver-online-card">
     <div>
-      <span class="driver-section-kicker">MY RIDE REQUESTS</span>
-      <h2>📋 طلباتي</h2>
-      <p>تابع الطلبات الجديدة والرحلات التي تعمل عليها.</p>
+      <strong>استقبال طلبات جديدة</strong>
+      <p>فعّل الاتصال عندما تكون مستعداً لاستقبال الرحلات.</p>
     </div>
-    <span class="driver-section-symbol">🚕</span>
+    <button id="driverOnlineButton" class="btn btn-green"
+      onclick="setDriverOnline(true)">🟢 أنا متصل وأستقبل الطلبات</button>
   </div>
 
-  <!-- الطلبات الجديدة -->
-  <div class="driver-requests-group">
+  <section id="driverRequestsSection" class="driver-content-section">
 
     <div class="driver-section-heading">
       <div>
-        <span class="driver-section-kicker">NEW REQUESTS</span>
-        <h2>🆕 الطلبات الجديدة</h2>
-        <p>الطلبات المتاحة التي يمكنك قبولها.</p>
+        <span class="driver-section-kicker">MY RIDE REQUESTS</span>
+        <h2>📋 طلباتي</h2>
+        <p>تابع الطلبات الجديدة والرحلات التي تعمل عليها.</p>
+      </div>
+      <span class="driver-section-symbol">🚕</span>
+    </div>
+
+    <div class="driver-requests-group">
+      <div class="driver-section-heading">
+        <div>
+          <span class="driver-section-kicker">NEW REQUESTS</span>
+          <h2>🆕 الطلبات الجديدة</h2>
+          <p>الطلبات المتاحة التي يمكنك قبولها.</p>
+        </div>
+      </div>
+
+      <div id="driverRides">
+        <div class="empty">جاري تحميل الطلبات...</div>
       </div>
     </div>
 
-    <div id="driverRides">
-      <div class="empty">جاري تحميل الطلبات...</div>
+    <div class="driver-requests-group">
+      <div class="driver-section-heading">
+        <div>
+          <span class="driver-section-kicker">ACTIVE RIDES</span>
+          <h2>🚘 الطلبات الجارية</h2>
+          <p>الرحلات التي قبلتها أو بدأت تنفيذها.</p>
+        </div>
+      </div>
+
+      <div id="driverCurrentRides">
+        <div class="empty">لا توجد رحلات جارية حالياً.</div>
+      </div>
     </div>
 
-  </div>
+  </section>
 
-  <!-- الطلبات الجارية -->
-  <div class="driver-requests-group">
-
+  <section id="driverHistorySection" class="driver-content-section">
     <div class="driver-section-heading">
       <div>
-        <span class="driver-section-kicker">ACTIVE RIDES</span>
-        <h2>🚘 الطلبات الجارية</h2>
-        <p>الرحلات التي قبلتها أو بدأت تنفيذها.</p>
+        <span class="driver-section-kicker">RIDE HISTORY</span>
+        <h2>📚 سجل الرحلات المكتملة</h2>
+        <p>راجع الرحلات التي أنهيتها سابقاً.</p>
       </div>
+      <span class="driver-section-symbol">🏁</span>
     </div>
 
-    <div id="driverCurrentRides">
-      <div class="empty">لا توجد رحلات جارية حالياً.</div>
+    <div id="driverCompletedRides">
+      <div class="empty">جاري تحميل سجل الرحلات...</div>
     </div>
+  </section>
 
-  </div>
+</div>
 
-</section>
+<nav id="driverBottomNav" class="driver-bottom-nav" style="display:none;"
+  aria-label="التنقل في لوحة السائق">
+
+  <button type="button" onclick="scrollDriverSection('driverAccountSection')">
+    <span>👤</span>
+    <small>حسابي</small>
+  </button>
+
+  <button type="button" onclick="scrollDriverSection('driverRequestsSection')">
+    <span>📋</span>
+    <small>الطلبات</small>
+  </button>
+
+  <button type="button" onclick="scrollDriverSection('driverOnlineBox')">
+    <span>🟢</span>
+    <small>الاتصال</small>
+  </button>
+
+  <button type="button" onclick="scrollDriverSection('driverHistorySection')">
+    <span>📚</span>
+    <small>السجل</small>
+  </button>
+
+  <button type="button" onclick="logoutDriver()">
+    <span>🚪</span>
+    <small>خروج</small>
+  </button>
+
+</nav>
 
 <!-- ================= ADMIN ================= -->
 
