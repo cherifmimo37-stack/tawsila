@@ -2412,11 +2412,13 @@ function showPage(page){
     .classList.add("active");
 
     if(page === "customer"){
-        setTimeout(() => {
-            initMap();
-            if(map) map.invalidateSize();
-        }, 200);
-    }
+    setTimeout(() => {
+        initMap();
+        initDestinationSearch();
+
+        if(map) map.invalidateSize();
+    }, 200);
+}
 
     if(page === "driver"){
 
