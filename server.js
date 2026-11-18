@@ -359,6 +359,24 @@ async function initializeDatabase() {
         ADD COLUMN IF NOT EXISTS password_hash TEXT
     `);
 
+    
+    // مواقع السائقين على الخريطة
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION
+    `);
+
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION
+    `);
+
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS location_updated_at TIMESTAMPTZ
+    `);
+
+
     await pool.query(`
         CREATE INDEX IF NOT EXISTS rides_status_idx
         ON rides(status)
@@ -962,6 +980,77 @@ app.post("/api/driver/status", async (req, res) => {
 });
 
 // ================= END DRIVER STATUS =================
+
+// ================= DRIVER LOCATION UPDATE =================
+
+app.post("/api/driver/location", async (req, res) => {
+    try {
+
+        const authHeader = req.get("authorization") || "";
+
+        if (!authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "يرجى تسجيل الدخول من جديد"
+            });
+        }
+
+        const token = authHeader.slice(7);
+        const driver = await getDriverFromSession(token);
+
+        if (!driver) {
+            return res.status(401).json({
+                success: false,
+                message: "جلسة الدخول غير صالحة"
+            });
+        }
+
+        const latitude = Number(req.body.latitude);
+        const longitude = Number(req.body.longitude);
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude) ||
+            latitude < -90 ||
+            latitude > 90 ||
+            longitude < -180 ||
+            longitude > 180
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "إحداثيات الموقع غير صحيحة"
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE drivers
+             SET latitude = $1,
+                 longitude = $2,
+                 location_updated_at = NOW()
+             WHERE id = $3
+               AND online = TRUE
+             RETURNING id`,
+            [latitude, longitude, String(driver.id)]
+        );
+
+        if (!result.rowCount) {
+            return res.status(403).json({
+                success: false,
+                message: "يجب تفعيل حالة الاتصال أولاً"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "تم تحديث الموقع"
+        });
+
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
+
+// ================= END DRIVER LOCATION UPDATE =================
 
 // ================= ACCEPT RIDE =================
 
