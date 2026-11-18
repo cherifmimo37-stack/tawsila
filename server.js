@@ -44,6 +44,116 @@ function validId(value) {
 }
 
 
+// ================= TAWSILA PLACE SEARCH =================
+
+// تخزين مؤقت لنتائج البحث لمدة 5 دقائق
+const placeSearchCache = new Map();
+
+app.get("/api/places/search", async (req, res) => {
+    try {
+        const q = String(req.query.q || "").trim();
+
+        if (q.length < 2 || q.length > 80) {
+            return res.json({
+                success: true,
+                places: []
+            });
+        }
+
+        const cacheKey = q.toLowerCase();
+        const cached = placeSearchCache.get(cacheKey);
+
+        if (cached && cached.expiresAt > Date.now()) {
+            return res.json({
+                success: true,
+                places: cached.places
+            });
+        }
+
+        const params = new URLSearchParams({
+            q: q + ", Ouargla, Algeria",
+            lat: "31.95",
+            lon: "5.32",
+            zoom: "10",
+            limit: "8",
+            lang: "ar"
+        });
+
+        const response = await fetch(
+            "https://photon.komoot.io/api/?" + params,
+            {
+                signal: AbortSignal.timeout(8000),
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Place search service unavailable");
+        }
+
+        const data = await response.json();
+
+        const places = (data.features || [])
+            .filter(feature => {
+                const props = feature.properties || {};
+                return props.countrycode === "DZ";
+            })
+            .map(feature => {
+                const props = feature.properties || {};
+                const coords = feature.geometry?.coordinates || [];
+
+                return {
+                    name: props.name || "",
+                    city: props.city || props.county || "",
+                    district: props.district || "",
+                    street: props.street || "",
+                    address: [
+                        props.name,
+                        props.street,
+                        props.district,
+                        props.city || props.county
+                    ].filter(Boolean).join("، "),
+                    lat: Number(coords[1]),
+                    lng: Number(coords[0])
+                };
+            })
+            .filter(place =>
+                place.name &&
+                Number.isFinite(place.lat) &&
+                Number.isFinite(place.lng)
+            );
+
+        placeSearchCache.set(cacheKey, {
+            places,
+            expiresAt: Date.now() + 5 * 60 * 1000
+        });
+
+        // الحد من حجم التخزين المؤقت
+        if (placeSearchCache.size > 200) {
+            const firstKey = placeSearchCache.keys().next().value;
+            placeSearchCache.delete(firstKey);
+        }
+
+        return res.json({
+            success: true,
+            places
+        });
+
+    } catch (error) {
+        console.error("Place search error:", error.message);
+
+        return res.status(503).json({
+            success: false,
+            message: "البحث عن الأماكن غير متاح حالياً",
+            places: []
+        });
+    }
+});
+
+// ================= END TAWSILA PLACE SEARCH =================
+
 // ================= PASSWORD SECURITY =================
 
 const scryptAsync = require("util").promisify(crypto.scrypt);
