@@ -2102,6 +2102,40 @@ footer {
         </div>
       </div>
 
+<!-- DRIVER ROUTE MAP -->
+<div id="driverRouteMapBox" style="display:none; margin:15px 0;">
+
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:10px;
+    ">
+        <strong>🗺️ مسار الرحلة</strong>
+
+        <button
+            type="button"
+            onclick="closeDriverRouteMap()"
+            class="btn btn-primary">
+            ✖ إغلاق
+        </button>
+    </div>
+
+    <div id="driverRouteMap"
+         style="
+            width:100%;
+            height:350px;
+            border-radius:12px;
+            overflow:hidden;
+         ">
+    </div>
+
+    <div id="driverRouteMapInfo" class="location-message">
+        موقع انطلاق الزبون ووجهته
+    </div>
+
+</div>
+      
       <div id="driverRides">
         <div class="empty">جاري تحميل الطلبات...</div>
       </div>
@@ -2934,6 +2968,128 @@ function escapeHTML(value){
 }
 
 
+// ================= DRIVER ROUTE MAP =================
+
+let driverRouteMap = null;
+let driverRouteMarkers = [];
+let driverRouteLine = null;
+
+function showDriverRouteMap(
+    pickupLat,
+    pickupLng,
+    destinationLat,
+    destinationLng
+){
+
+    const box = document.getElementById("driverRouteMapBox");
+    const info = document.getElementById("driverRouteMapInfo");
+
+    if(!box || !info) return;
+
+    const values = [
+        pickupLat,
+        pickupLng,
+        destinationLat,
+        destinationLng
+    ].map(Number);
+
+    if(!values.every(Number.isFinite)){
+        info.textContent = "إحداثيات الرحلة غير صحيحة";
+        box.style.display = "block";
+        return;
+    }
+
+    const [pLat, pLng, dLat, dLng] = values;
+
+    box.style.display = "block";
+
+    if(typeof L === "undefined"){
+        info.textContent = "تعذر تحميل الخريطة";
+        return;
+    }
+
+    if(!driverRouteMap){
+
+        driverRouteMap = L.map("driverRouteMap")
+            .setView([31.9526, 5.3330], 12);
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap contributors"
+            }
+        ).addTo(driverRouteMap);
+
+    }
+
+    driverRouteMarkers.forEach(marker => {
+        driverRouteMap.removeLayer(marker);
+    });
+
+    driverRouteMarkers = [];
+
+    if(driverRouteLine){
+        driverRouteMap.removeLayer(driverRouteLine);
+        driverRouteLine = null;
+    }
+
+    const pickupMarker = L.marker([pLat, pLng])
+        .addTo(driverRouteMap)
+        .bindPopup("📍 موقع انطلاق الزبون");
+
+    const destinationMarker = L.marker([dLat, dLng])
+        .addTo(driverRouteMap)
+        .bindPopup("🏁 وجهة الزبون");
+
+    driverRouteMarkers.push(
+        pickupMarker,
+        destinationMarker
+    );
+
+    driverRouteLine = L.polyline(
+        [
+            [pLat, pLng],
+            [dLat, dLng]
+        ],
+        {
+            color: "#7027a0",
+            weight: 5,
+            opacity: 0.8
+        }
+    ).addTo(driverRouteMap);
+
+    const bounds = L.latLngBounds(
+        [[pLat, pLng], [dLat, dLng]]
+    );
+
+    driverRouteMap.fitBounds(bounds, {
+        padding: [35, 35],
+        maxZoom: 15
+    });
+
+    setTimeout(() => {
+        driverRouteMap.invalidateSize();
+    }, 200);
+
+    info.textContent =
+        "📍 الانطلاق: " + pLat.toFixed(5) + ", " + pLng.toFixed(5) +
+        " | 🏁 الوجهة: " + dLat.toFixed(5) + ", " + dLng.toFixed(5);
+
+}
+
+function closeDriverRouteMap(){
+
+    const box = document.getElementById("driverRouteMapBox");
+
+    if(box){
+        box.style.display = "none";
+    }
+
+}
+
+// ================= END DRIVER ROUTE MAP =================
+
 // ================= DRIVER RIDES =================
 
 async function loadDriverRides(){
@@ -3053,20 +3209,7 @@ const response = await fetch("/api/rides",{
                     }
                 </div>
 
-                ${
-                    validPickup
-                    ? `
-                    <div class="actions">
-                        <button
-                            class="btn btn-primary"
-                            onclick="openPickupLocation(${Number(pickup.lat)},${Number(pickup.lng)})">
-                            📍 فتح موقع الزبون
-                        </button>
-                    </div>
-                    `
-                    : ""
-                }
-
+                
                 <div class="ride-row">
                     🏁 موقع الوجهة:
                     ${
@@ -3078,17 +3221,26 @@ const response = await fetch("/api/rides",{
                 </div>
 
                 ${
-                    validDestination
+                    validPickup && validDestination
                     ? `
                     <div class="actions">
                         <button
                             class="btn btn-primary"
-                            onclick="openDestinationLocation(${Number(destination.lat)},${Number(destination.lng)})">
-                            🏁 فتح موقع الوجهة
+                            onclick="showDriverRouteMap(
+                                ${Number(pickup.lat)},
+                                ${Number(pickup.lng)},
+                                ${Number(destination.lat)},
+                                ${Number(destination.lng)}
+                            )">
+                            🗺️ عرض موقع الزبون والوجهة
                         </button>
                     </div>
                     `
-                    : ""
+                    : `
+                    <div class="empty">
+                        لا يمكن عرض الخريطة: إحداثيات الانطلاق أو الوجهة غير متوفرة
+                    </div>
+                    `
                 }
 
                 <div class="ride-row">
