@@ -1849,11 +1849,32 @@ footer {
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="destination">عنوان الوجهة</label>
-      <input id="destination" type="text"
-        placeholder="مثال: جامعة ورقلة">
-    </div>
+    
+<div class="form-group">
+  <label for="destinationMunicipality">اختر البلدية</label>
+  <select id="destinationMunicipality">
+    <option value="">اختر البلدية</option>
+    <option value="ورقلة">ورقلة</option>
+    <option value="الرويسات">الرويسات</option>
+    <option value="حاسي مسعود">حاسي مسعود</option>
+    <option value="نقوسة">نقوسة</option>
+    <option value="عين البيضاء">عين البيضاء</option>
+    <option value="سيدي خويلد">سيدي خويلد</option>
+    <option value="حاسي بن عبد الله">حاسي بن عبد الله</option>
+    <option value="البرمة">البرمة</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label for="destination">ابحث عن الوجهة</label>
+  <input
+    id="destination"
+    type="text"
+    placeholder="اكتب اسم المستشفى أو الجامعة أو الحي..."
+    autocomplete="off">
+  <div id="destinationSuggestions"></div>
+</div>
+
 
     <div class="map-heading">
       <strong>📍 اختر الوجهة من الخريطة</strong>
@@ -3579,6 +3600,11 @@ let destinationMarker = null;
 let selectedDistance = 0;
 let routeRequestId = 0; 
 let routeLine = null;  
+
+  // متغيرات البحث عن الوجهة
+let destinationSearchTimer = null;
+let destinationSearchRequest = null;
+let selectedDestinationPlace = null;
 
 // إنشاء الخريطة
 function initMap(){
