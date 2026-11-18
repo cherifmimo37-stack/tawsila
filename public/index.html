@@ -3967,6 +3967,29 @@ function stopNearbyDriversUpdates(){
 
 // ================= END NEARBY DRIVERS MAP =================
 
+  
+// إيقاف تحديث السيارات عند مغادرة الصفحة
+document.addEventListener("visibilitychange", function(){
+
+    if(document.hidden){
+
+        stopNearbyDriversUpdates();
+
+    }else if(userLocation && map){
+
+        startNearbyDriversUpdates();
+
+    }
+
+});
+
+window.addEventListener("pagehide", function(){
+
+    stopNearbyDriversUpdates();
+
+});
+
+
 // تحديد الموقع الحالي
 function getMyLocation(){
 
