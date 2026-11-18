@@ -4031,11 +4031,45 @@ function selectDestinationPlace(place){
 // تشغيل البحث أثناء الكتابة
 function initDestinationSearch(){
 
+   function initDestinationSearch(){
+
     const input = document.getElementById("destination");
 
     if(!input) return;
 
+    // منع تكرار ربط الحدث
+    if(input.dataset.searchInitialized === "true") return;
+
+    input.dataset.searchInitialized = "true";
+
     input.addEventListener("input", function(){
+
+        // إلغاء اختيار الوجهة السابقة
+        selectedDestinationPlace = null;
+        destinationLocation = null;
+
+        // إلغاء أي حساب مسافة سابق
+        routeRequestId++;
+
+        selectedDistance = 0;
+
+        if(routeLine && map){
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
+
+        if(destinationMarker && map){
+            map.removeLayer(destinationMarker);
+            destinationMarker = null;
+        }
+
+        updateCustomerPrice();
+
+        document.getElementById("destinationInfo").textContent =
+            "🏁 اختر الوجهة من الاقتراحات أو الخريطة";
+
+        document.getElementById("distanceInfo").textContent =
+            "📏 بانتظار تحديد الوجهة وحساب المسافة";
 
         clearTimeout(destinationSearchTimer);
 
@@ -4047,7 +4081,6 @@ function initDestinationSearch(){
     });
 
 }
-
 // ================= END DESTINATION PLACE SEARCH ================= 
 
  // ================= OPEN DESTINATION LOCATION =================
