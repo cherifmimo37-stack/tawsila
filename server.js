@@ -901,11 +901,38 @@ app.post("/api/driver/logout", async (req, res) => {
 
         const tokenHash = hashSessionToken(token);
 
-        await pool.query(
-            `DELETE FROM driver_sessions
-             WHERE token_hash = $1`,
-            [tokenHash]
-        );
+        await pool.query("BEGIN");
+
+try {
+
+    await pool.query(
+        `UPDATE drivers
+         SET online = FALSE,
+             latitude = NULL,
+             longitude = NULL,
+             location_updated_at = NULL
+         WHERE id = (
+             SELECT driver_id
+             FROM driver_sessions
+             WHERE token_hash = $1
+         )`,
+        [tokenHash]
+    );
+
+    await pool.query(
+        `DELETE FROM driver_sessions
+         WHERE token_hash = $1`,
+        [tokenHash]
+    );
+
+    await pool.query("COMMIT");
+
+} catch (error) {
+
+    await pool.query("ROLLBACK");
+    throw error;
+
+}
 
         return res.json({
             success:true,
