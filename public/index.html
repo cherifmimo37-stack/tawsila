@@ -3885,7 +3885,168 @@ async function calculateDistance(){
 
 }
 
-  
+ // ================= DESTINATION PLACE SEARCH =================
+
+async function searchDestinationPlaces(){
+
+    const input = document.getElementById("destination");
+    const suggestions = document.getElementById("destinationSuggestions");
+    const municipality = document.getElementById("destinationMunicipality").value;
+
+    const query = input.value.trim();
+
+    selectedDestinationPlace = null;
+
+    if(query.length < 2){
+        suggestions.innerHTML = "";
+        return;
+    }
+
+    if(destinationSearchRequest){
+        destinationSearchRequest.abort();
+    }
+
+    destinationSearchRequest = new AbortController();
+
+    suggestions.innerHTML = "⏳ جارٍ البحث عن الأماكن...";
+
+    try{
+
+        const response = await fetch(
+            "/api/places/search?q=" +
+            encodeURIComponent(
+                query + (municipality ? ", " + municipality : "")
+            ),
+            {
+                signal: destinationSearchRequest.signal
+            }
+        );
+
+        const data = await response.json();
+
+        if(!data.success || !data.places || !data.places.length){
+            suggestions.innerHTML =
+                "لم نعثر على نتائج. جرّب اسماً آخر.";
+            return;
+        }
+
+        renderDestinationSuggestions(data.places);
+
+    }catch(error){
+
+        if(error.name === "AbortError") return;
+
+        console.error("Destination search:", error);
+
+        suggestions.innerHTML =
+            "تعذر البحث حالياً. حاول مرة أخرى.";
+
+    }
+
+}
+
+
+// عرض اقتراحات الأماكن
+function renderDestinationSuggestions(places){
+
+    const suggestions =
+        document.getElementById("destinationSuggestions");
+
+    suggestions.innerHTML = "";
+
+    places.forEach(place => {
+
+        const item = document.createElement("div");
+
+        item.textContent =
+            place.address || place.name;
+
+        item.style.padding = "12px";
+        item.style.cursor = "pointer";
+        item.style.borderBottom = "1px solid #eee";
+
+        item.addEventListener("click", function(){
+
+            selectDestinationPlace(place);
+
+        });
+
+        suggestions.appendChild(item);
+
+    });
+
+}
+
+
+// اختيار الوجهة
+function selectDestinationPlace(place){
+
+    const lat = Number(place.lat);
+    const lng = Number(place.lng);
+
+    if(!Number.isFinite(lat) || !Number.isFinite(lng)){
+        return;
+    }
+
+    selectedDestinationPlace = place;
+
+    destinationLocation = {
+        lat,
+        lng
+    };
+
+    document.getElementById("destination").value =
+        place.address || place.name;
+
+    document.getElementById("destinationSuggestions").innerHTML = "";
+
+    document.getElementById("destinationInfo").textContent =
+        "🏁 تم تحديد الوجهة: " + (place.name || place.address);
+
+    initMap();
+
+    if(destinationMarker){
+
+        destinationMarker.setLatLng([lat, lng]);
+
+    }else{
+
+        destinationMarker = L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup("🏁 الوجهة");
+
+    }
+
+    destinationMarker.openPopup();
+
+    map.setView([lat, lng], 16);
+
+    calculateDistance();
+
+}
+
+
+// تشغيل البحث أثناء الكتابة
+function initDestinationSearch(){
+
+    const input = document.getElementById("destination");
+
+    if(!input) return;
+
+    input.addEventListener("input", function(){
+
+        clearTimeout(destinationSearchTimer);
+
+        destinationSearchTimer = setTimeout(
+            searchDestinationPlaces,
+            500
+        );
+
+    });
+
+}
+
+// ================= END DESTINATION PLACE SEARCH ================= 
 
  // ================= OPEN DESTINATION LOCATION =================
 
