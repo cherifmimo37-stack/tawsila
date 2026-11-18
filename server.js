@@ -955,12 +955,15 @@ app.post("/api/driver/status", async (req, res) => {
         }
 
         const result = await pool.query(
-            `UPDATE drivers
-             SET online = $1
-             WHERE id = $2
-             RETURNING *`,
-            [online, String(driver.id)]
-        );
+    `UPDATE drivers
+     SET online = $1,
+         latitude = CASE WHEN $1 = FALSE THEN NULL ELSE latitude END,
+         longitude = CASE WHEN $1 = FALSE THEN NULL ELSE longitude END,
+         location_updated_at = CASE WHEN $1 = FALSE THEN NULL ELSE location_updated_at END
+     WHERE id = $2
+     RETURNING *`,
+    [online, String(driver.id)]
+);
 
         if (!result.rowCount) {
             return res.status(404).json({
@@ -1054,14 +1057,31 @@ app.post("/api/driver/location", async (req, res) => {
 
 // ================= NEARBY DRIVERS =================
 
+
 app.get("/api/drivers/nearby", async (req, res) => {
     try {
+
+        const latitude = Number(req.query.latitude);
+        const longitude = Number(req.query.longitude);
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude) ||
+            latitude < -90 ||
+            latitude > 90 ||
+            longitude < -180 ||
+            longitude > 180
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "موقع الزبون غير صحيح"
+            });
+        }
 
         const result = await pool.query(`
             SELECT
                 latitude,
-                longitude,
-                location_updated_at
+                longitude
             FROM drivers
             WHERE online = TRUE
               AND latitude IS NOT NULL
@@ -1069,13 +1089,24 @@ app.get("/api/drivers/nearby", async (req, res) => {
               AND latitude BETWEEN -90 AND 90
               AND longitude BETWEEN -180 AND 180
               AND location_updated_at >= NOW() - INTERVAL '60 seconds'
-        `);
+              AND (
+                  6371 * ACOS(
+                      LEAST(1, GREATEST(-1,
+                          COS(RADIANS($1))
+                          * COS(RADIANS(latitude))
+                          * COS(RADIANS(longitude) - RADIANS($2))
+                          + SIN(RADIANS($1))
+                          * SIN(RADIANS(latitude))
+                      ))
+                  )
+              ) <= 15
+        `, [latitude, longitude]);
 
         return res.json({
             success: true,
             drivers: result.rows.map(row => ({
-                latitude: row.latitude,
-                longitude: row.longitude
+                latitude: Number(row.latitude),
+                longitude: Number(row.longitude)
             }))
         });
 
@@ -1083,6 +1114,7 @@ app.get("/api/drivers/nearby", async (req, res) => {
         return sendError(res, error);
     }
 });
+
 
 // ================= END NEARBY DRIVERS =================
 
