@@ -3760,6 +3760,12 @@ let destinationSearchTimer = null;
 let destinationSearchRequest = null;
 let selectedDestinationPlace = null;
 
+// سيارات السائقين القريبين
+let nearbyDriversLayer = null;
+let nearbyDriversTimer = null;
+let nearbyDriversRequest = null;
+  
+
 // إنشاء الخريطة
 function initMap(){
 
@@ -3822,6 +3828,145 @@ document.getElementById("destinationInfo").textContent =
 }
 
 
+// ================= NEARBY DRIVERS MAP =================
+
+async function loadNearbyDrivers(){
+
+    if(!map || !userLocation){
+        return;
+    }
+
+    if(nearbyDriversRequest){
+        return;
+    }
+
+    const latitude = userLocation.lat;
+    const longitude = userLocation.lng;
+
+    const requestId = Date.now();
+    nearbyDriversRequest = requestId;
+
+    try{
+
+        const response = await fetch(
+            "/api/drivers/nearby?latitude=" +
+            encodeURIComponent(latitude) +
+            "&longitude=" +
+            encodeURIComponent(longitude)
+        );
+
+        if(!response.ok){
+            return;
+        }
+
+        const data = await response.json();
+
+        if(!data.success || !Array.isArray(data.drivers)){
+            return;
+        }
+
+        if(!map || !userLocation){
+            return;
+        }
+
+        if(!nearbyDriversLayer){
+            nearbyDriversLayer = L.layerGroup().addTo(map);
+        }
+
+        nearbyDriversLayer.clearLayers();
+
+        data.drivers.forEach(function(driver){
+
+            const lat = Number(driver.latitude);
+            const lng = Number(driver.longitude);
+
+            if(
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lng) ||
+                lat < -90 || lat > 90 ||
+                lng < -180 || lng > 180
+            ){
+                return;
+            }
+
+            const carIcon = L.divIcon({
+
+                className: "nearby-driver-icon",
+
+                html: `
+                    <div style="
+                        width:38px;
+                        height:38px;
+                        border-radius:50%;
+                        background:#7027a0;
+                        border:3px solid white;
+                        box-shadow:0 2px 8px #0005;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        font-size:21px;
+                    ">🚕</div>
+                `,
+
+                iconSize:[38,38],
+                iconAnchor:[19,19]
+
+            });
+
+            L.marker([lat,lng], {
+                icon:carIcon,
+                interactive:false
+            }).addTo(nearbyDriversLayer);
+
+        });
+
+    }catch(error){
+
+        console.error(
+            "Nearby drivers error:",
+            error
+        );
+
+    }finally{
+
+        if(nearbyDriversRequest === requestId){
+            nearbyDriversRequest = null;
+        }
+
+    }
+
+}
+
+function startNearbyDriversUpdates(){
+
+    if(nearbyDriversTimer){
+        clearInterval(nearbyDriversTimer);
+    }
+
+    loadNearbyDrivers();
+
+    nearbyDriversTimer = setInterval(
+        loadNearbyDrivers,
+        10000
+    );
+
+}
+
+function stopNearbyDriversUpdates(){
+
+    if(nearbyDriversTimer){
+        clearInterval(nearbyDriversTimer);
+        nearbyDriversTimer = null;
+    }
+
+    if(nearbyDriversLayer){
+        nearbyDriversLayer.clearLayers();
+    }
+
+}
+
+// ================= END NEARBY DRIVERS MAP =================
+
 // تحديد الموقع الحالي
 function getMyLocation(){
 
@@ -3850,6 +3995,7 @@ function getMyLocation(){
                 lat,
                 lng
             };
+          startNearbyDriversUpdates();
 
           document.getElementById("pickup").value =
     "موقعي الحالي (" + lat.toFixed(5) + ", " + lng.toFixed(5) + ")";
