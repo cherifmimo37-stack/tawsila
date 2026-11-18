@@ -1052,6 +1052,40 @@ app.post("/api/driver/location", async (req, res) => {
 
 // ================= END DRIVER LOCATION UPDATE =================
 
+// ================= NEARBY DRIVERS =================
+
+app.get("/api/drivers/nearby", async (req, res) => {
+    try {
+
+        const result = await pool.query(`
+            SELECT
+                latitude,
+                longitude,
+                location_updated_at
+            FROM drivers
+            WHERE online = TRUE
+              AND latitude IS NOT NULL
+              AND longitude IS NOT NULL
+              AND latitude BETWEEN -90 AND 90
+              AND longitude BETWEEN -180 AND 180
+              AND location_updated_at >= NOW() - INTERVAL '60 seconds'
+        `);
+
+        return res.json({
+            success: true,
+            drivers: result.rows.map(row => ({
+                latitude: row.latitude,
+                longitude: row.longitude
+            }))
+        });
+
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
+
+// ================= END NEARBY DRIVERS =================
+
 // ================= ACCEPT RIDE =================
 
 app.post("/api/rides/:id/accept", async (req, res) => {
