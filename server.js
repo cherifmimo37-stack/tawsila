@@ -1012,11 +1012,13 @@ app.post("/api/driver/status", async (req, res) => {
 
             const sub = subscription.rows[0];
 
-            if (
+                        if (
                 !sub ||
                 sub.subscription_status !== "active" ||
-                !sub.subscription_expires_at ||
-                new Date(sub.subscription_expires_at) <= new Date()
+                (
+                    sub.subscription_expires_at &&
+                    new Date(sub.subscription_expires_at) <= new Date()
+                )
             ) {
                 return res.status(403).json({
                     success: false,
