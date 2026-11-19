@@ -5079,6 +5079,7 @@ async function completeRide(id){
 
 // ================= DRIVER PANEL & LOGOUT =================
 
+
 function showDriverPanel(){
 
     if(!currentDriver) return;
@@ -5094,12 +5095,117 @@ function showDriverPanel(){
     const panel = document.getElementById("driverPanel");
     if(!panel) return;
 
+    // ================= SUBSCRIPTION STATUS =================
+
+    const subscriptionStatus =
+        currentDriver.subscriptionStatus || "pending";
+
+    const expiryDate =
+        currentDriver.subscriptionExpiresAt
+            ? new Date(currentDriver.subscriptionExpiresAt)
+            : null;
+
+    const isExpired =
+        expiryDate && !isNaN(expiryDate.getTime()) &&
+        expiryDate <= new Date();
+
+    const isActive =
+        subscriptionStatus === "active" && !isExpired;
+
+    let subscriptionCard = "";
+
+    if(!isActive){
+
+        const isPending =
+            subscriptionStatus === "pending";
+
+        const message = isPending
+            ? "تم تسجيل حسابك بنجاح، وهو الآن في انتظار تفعيل الإدارة."
+            : "اشتراكك غير نشط أو انتهت مدته. تواصل مع الإدارة لتفعيل اشتراكك أو تجديده.";
+
+        const title = isPending
+            ? "حسابك في انتظار التفعيل"
+            : "اشتراكك يحتاج إلى التجديد";
+
+        const whatsappMessage = isPending
+            ? "السلام عليكم، أنا السائق " +
+              (currentDriver.name || "") +
+              "، أود الاستفسار عن تفعيل حسابي في تطبيق توصيلة."
+            : "السلام عليكم، أنا السائق " +
+              (currentDriver.name || "") +
+              "، أود تجديد اشتراكي في تطبيق توصيلة.";
+
+        const whatsappLink =
+            "https://wa.me/213660485403?text=" +
+            encodeURIComponent(whatsappMessage);
+
+        const expiryText =
+            expiryDate && !isNaN(expiryDate.getTime())
+                ? `<small style="display:block;margin-top:8px;color:#64748b;">
+                    تاريخ انتهاء الاشتراك:
+                    ${expiryDate.toLocaleDateString("ar-DZ")}
+                   </small>`
+                : "";
+
+        subscriptionCard = `
+            <div style="
+                margin-top:18px;
+                padding:18px;
+                border:1px solid #e8d9b8;
+                border-radius:15px;
+                background:#fffaf0;
+                text-align:right;
+            ">
+                <div style="
+                    font-size:17px;
+                    font-weight:800;
+                    color:#72501c;
+                    margin-bottom:10px;
+                ">
+                    ${title}
+                </div>
+
+                <p style="
+                    margin:0;
+                    line-height:1.9;
+                    color:#475569;
+                    font-size:14px;
+                ">
+                    ${message}
+                </p>
+
+                ${expiryText}
+
+                <a href="${whatsappLink}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   style="
+                       display:block;
+                       margin-top:16px;
+                       padding:13px;
+                       border-radius:11px;
+                       background:#218c57;
+                       color:white;
+                       text-decoration:none;
+                       text-align:center;
+                       font-weight:800;
+                   ">
+                    التواصل مع إدارة توصيلة عبر واتساب
+                </a>
+            </div>
+        `;
+    }
+
+    // ================= DRIVER PANEL =================
+
     panel.innerHTML = `
         <div class="card">
             <h2>👋 مرحباً ${escapeHTML(currentDriver.name || "سائق توصيلة")}</h2>
+
             <p style="color:#64748b;margin-bottom:10px;">
                 هذه مساحة عملك لمتابعة الطلبات والرحلات.
             </p>
+
             <div class="driver-service-summary">
                 <span class="driver-service-art" aria-hidden="true">🚘</span>
                 <div>
@@ -5107,22 +5213,23 @@ function showDriverPanel(){
                     <small>${escapeHTML((currentDriver.car || "مركبة غير محددة").split(" — ")[0])}</small>
                 </div>
             </div>
-            
+
+            ${subscriptionCard}
+
             <div class="driver-status">
                 <strong>حالة الاتصال</strong>
                 <span id="driverState">
                     ${currentDriver.online ? "🟢 متصل" : "🔴 غير متصل"}
                 </span>
             </div>
-            
         </div>
     `;
 
     const onlineBox = document.getElementById("driverOnlineBox");
     if(onlineBox) onlineBox.style.display = "flex";
-  
-scrollDriverSection("driverAccountSection");
-  
+
+    scrollDriverSection("driverAccountSection");
+
     updateDriverOnlineButton();
     startDriverRidesAutoRefresh();
     loadDriverCompletedRides();
