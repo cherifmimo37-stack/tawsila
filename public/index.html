@@ -4014,71 +4014,107 @@ function loadAdminDrivers(drivers){
 }
 
 <CodeBlock language="javascript" editable>
+
 async function adminShowSubscriptionHistory(driverId, driverName){
 
+    const container = document.getElementById(
+        `subscriptionHistory-${driverId}`
+    );
 
-const container = document.getElementById(
-subscriptionHistory-$DIL1
-);
+    if(!container) return;
 
-if(!container) return;
+    if(container.style.display === "block"){
+        container.style.display = "none";
+        return;
+    }
 
-if(container.style.display === "block"){
-container.style.display = "none";
-return;
+    container.style.display = "block";
+    container.innerHTML = "⏳ جاري تحميل السجل...";
+
+    const adminKey = sessionStorage.getItem("tawsilaAdminKey");
+
+    if(!adminKey){
+        container.innerHTML = "يرجى تسجيل الدخول إلى الإدارة من جديد";
+        return;
+    }
+
+    try{
+
+        const response = await fetch(
+            `/api/admin/drivers/${driverId}/subscription-history`,
+            {
+                headers:{
+                    "x-admin-key":adminKey
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+            container.innerHTML = "تعذر تحميل سجل الاشتراكات";
+            return;
+        }
+
+        if(!Array.isArray(data.history) || data.history.length === 0){
+            container.innerHTML = "لا يوجد سجل اشتراكات سابق لهذا السائق.";
+            return;
+        }
+
+        const formatDate = value => {
+
+            if(!value) return "غير محدد";
+
+            const date = new Date(value);
+
+            if(Number.isNaN(date.getTime())) return "غير محدد";
+
+            return date.toLocaleString("ar-DZ");
+        };
+
+        container.innerHTML = `
+            <strong>📜 سجل اشتراكات ${escapeHTML(driverName)}</strong>
+
+            ${data.history.map(item => `
+                <div style="padding:10px 0;border-bottom:1px solid #e4eaf1;">
+
+                    <strong>
+                        ${item.action === "activate"
+                            ? "✅ تفعيل اشتراك"
+                            : item.action === "renew"
+                                ? "🔄 تجديد اشتراك"
+                                : "عملية اشتراك"}
+                    </strong>
+
+                    <div class="ride-row">
+                        📅 البداية:
+                        ${formatDate(item.subscription_started_at)}
+                    </div>
+
+                    <div class="ride-row">
+                        ⏳ النهاية:
+                        ${formatDate(item.subscription_expires_at)}
+                    </div>
+
+                    <div class="ride-row">
+                        🕒 تاريخ العملية:
+                        ${formatDate(item.created_at)}
+                    </div>
+
+                </div>
+            `).join("")}
+        `;
+
+    }catch(error){
+
+        console.error("Subscription history error:",error);
+
+        container.innerHTML = "تعذر الاتصال بالخادم";
+
+    }
+
 }
 
-container.style.display = "block";
-container.innerHTML = "⏳ جاري تحميل السجل...";
-
-const adminKey = sessionStorage.getItem("tawsilaAdminKey");
-
-if(!adminKey){
-container.innerHTML = "يرجى تسجيل الدخول إلى الإدارة من جديد";
-return;
-}
-
-try{
-
-const response = await fetch(
-/api/admin/drivers/$DIL0/subscription-history,
-{
-headers:{
-"x-admin-key":adminKey
-}
-}
-);
-
-const data = await response.json();
-
-if(!response.ok || !data.success){
-container.innerHTML = "تعذر تحميل سجل الاشتراكات";
-return;
-}
-
-if(!Array.isArray(data.history) || data.history.length === 0){
-container.innerHTML = "لا يوجد سجل اشتراكات سابق لهذا السائق.";
-return;
-}
-
-const formatDate = value => {
-
-if(!value) return "غير محدد";
-
-const date = new Date(value);
-
-if(Number.isNaN(date.getTime())) return "غير محدد";
-
-return date.toLocaleString("ar-DZ");
-};
-
-container.innerHTML = `
-
-            $`;
-
-}catch(error)
-
-}
   
 async function adminUpdateSubscription(driverId, action){
 
