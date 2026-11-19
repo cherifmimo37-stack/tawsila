@@ -351,6 +351,27 @@ async function initializeDatabase() {
         ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMPTZ
     `);
 
+    
+    // سجل تاريخ اشتراكات السائقين
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS driver_subscription_history (
+            id BIGSERIAL PRIMARY KEY,
+            driver_id BIGINT NOT NULL,
+            action TEXT NOT NULL
+                CHECK (action IN ('activate', 'renew')),
+            subscription_started_at TIMESTAMPTZ NOT NULL,
+            subscription_expires_at TIMESTAMPTZ NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+
+    await pool.query(`
+        CREATE INDEX IF NOT EXISTS
+        idx_driver_subscription_history_driver
+        ON driver_subscription_history (driver_id, created_at DESC)
+    `);
+
+
     await pool.query(`
         CREATE TABLE IF NOT EXISTS rides (
             id BIGINT PRIMARY KEY,
