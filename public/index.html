@@ -1697,7 +1697,100 @@ footer {
   }
 }
 /* ===== END TAWSILA GLASS WELCOME UPGRADE ===== */
+/* ===== HIDDEN ADMIN LOGIN MODAL ===== */
 
+.admin-login-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(20, 12, 30, 0.78);
+    backdrop-filter: blur(5px);
+}
+
+.admin-login-card {
+    position: relative;
+    width: min(100%, 390px);
+    padding: 28px 22px;
+    border-radius: 22px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    direction: rtl;
+}
+
+.admin-login-close {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    border: 0;
+    background: transparent;
+    color: #777;
+    font-size: 27px;
+    cursor: pointer;
+}
+
+.admin-login-icon {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.admin-login-card h2 {
+    margin: 8px 0;
+    color: #7027a0;
+    font-size: 23px;
+}
+
+.admin-login-card p {
+    margin: 0 0 22px;
+    color: #777;
+    font-size: 14px;
+}
+
+.admin-login-card input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    outline: none;
+    font-size: 16px;
+    text-align: center;
+}
+
+.admin-login-card input:focus {
+    border-color: #7027a0;
+    box-shadow: 0 0 0 3px rgba(112,39,160,.10);
+}
+
+#adminLoginError {
+    min-height: 22px;
+    margin: 10px 0;
+    color: #b42318;
+    font-size: 13px;
+}
+
+#adminLoginSubmit {
+    width: 100%;
+    padding: 13px;
+    border: 0;
+    border-radius: 12px;
+    background: #7027a0;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#adminLoginSubmit:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+/* ===== END HIDDEN ADMIN LOGIN MODAL ===== */
 /* ===== ENTRY LAYOUT REFINEMENT ===== */
 /* Keep customer and driver entry cards side by side on all screens. */
 .tawsila-entry-cards {
