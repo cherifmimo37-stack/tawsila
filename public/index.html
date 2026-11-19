@@ -3987,17 +3987,99 @@ function loadAdminDrivers(drivers){
                     onclick="adminUpdateSubscription(${Number(driver.id)}, '${action}')"
                 >
                     ${buttonLabel}
+                
                 </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    style="margin-top:8px;padding:12px;font-size:14px;width:100%;"
+                    onclick="adminShowSubscriptionHistory(${Number(driver.id)}, '${escapeHTML(driver.name)}')"
+                >
+                    📜 سجل الاشتراكات
+                </button>
+
+                <div
+                    id="subscriptionHistory-${Number(driver.id)}"
+                    style="display:none;margin-top:12px;padding:12px;background:#f8f6fb;border-radius:10px;"
+                ></div>
 
             </div>
 
         `;
 
+
     }).join("");
 
 }
 
+<CodeBlock language="javascript" editable>
+async function adminShowSubscriptionHistory(driverId, driverName){
 
+
+const container = document.getElementById(
+subscriptionHistory-$DIL1
+);
+
+if(!container) return;
+
+if(container.style.display === "block"){
+container.style.display = "none";
+return;
+}
+
+container.style.display = "block";
+container.innerHTML = "⏳ جاري تحميل السجل...";
+
+const adminKey = sessionStorage.getItem("tawsilaAdminKey");
+
+if(!adminKey){
+container.innerHTML = "يرجى تسجيل الدخول إلى الإدارة من جديد";
+return;
+}
+
+try{
+
+const response = await fetch(
+/api/admin/drivers/$DIL0/subscription-history,
+{
+headers:{
+"x-admin-key":adminKey
+}
+}
+);
+
+const data = await response.json();
+
+if(!response.ok || !data.success){
+container.innerHTML = "تعذر تحميل سجل الاشتراكات";
+return;
+}
+
+if(!Array.isArray(data.history) || data.history.length === 0){
+container.innerHTML = "لا يوجد سجل اشتراكات سابق لهذا السائق.";
+return;
+}
+
+const formatDate = value => {
+
+if(!value) return "غير محدد";
+
+const date = new Date(value);
+
+if(Number.isNaN(date.getTime())) return "غير محدد";
+
+return date.toLocaleString("ar-DZ");
+};
+
+container.innerHTML = `
+
+            $`;
+
+}catch(error)
+
+}
+  
 async function adminUpdateSubscription(driverId, action){
 
     const adminKey = sessionStorage.getItem("tawsilaAdminKey");
