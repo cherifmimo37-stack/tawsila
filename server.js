@@ -1499,6 +1499,88 @@ app.post("/api/admin/login", (req, res) => {
     res.json({ success: true });
 });
 
+
+// ================= ADMIN DRIVER SUBSCRIPTION =================
+
+app.post("/api/admin/drivers/:id/subscription", async (req, res) => {
+    try {
+        const adminKey = process.env.ADMIN_KEY;
+
+        if (!adminKey) {
+            return res.status(503).json({
+                success: false,
+                message: "إعداد دخول الإدارة غير مكتمل"
+            });
+        }
+
+        if (req.get("x-admin-key") !== adminKey) {
+            return res.status(401).json({
+                success: false,
+                message: "يجب تسجيل الدخول إلى الإدارة"
+            });
+        }
+
+        const driverId = req.params.id;
+        const action = req.body.action;
+
+        if (!validId(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "رقم السائق غير صحيح"
+            });
+        }
+
+        if (!["activate", "renew"].includes(action)) {
+            return res.status(400).json({
+                success: false,
+                message: "عملية الاشتراك غير صحيحة"
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE drivers
+             SET
+                subscription_status = 'active',
+                subscription_started_at =
+                    CASE
+                        WHEN subscription_started_at IS NULL
+                        THEN NOW()
+                        ELSE subscription_started_at
+                    END,
+                subscription_expires_at =
+                    CASE
+                        WHEN subscription_expires_at > NOW()
+                        THEN subscription_expires_at + INTERVAL '1 month'
+                        ELSE NOW() + INTERVAL '1 month'
+                    END
+             WHERE id = $1
+             RETURNING *`,
+            [driverId]
+        );
+
+        if (!result.rowCount) {
+            return res.status(404).json({
+                success: false,
+                message: "السائق غير موجود"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: action === "activate"
+                ? "تم تفعيل اشتراك السائق بنجاح"
+                : "تم تجديد اشتراك السائق بنجاح",
+            driver: formatDriver(result.rows[0])
+        });
+
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
+
+// ================= END ADMIN DRIVER SUBSCRIPTION =================
+
+
 // ================= ADMIN DATA =================
 
 app.get("/api/admin", async (req, res) => {
