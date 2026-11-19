@@ -2356,6 +2356,8 @@ let selectedDriverService = "car";
 
 // تحديث تلقائي لطلبات السائق
 let driverRidesRefreshTimer = null;
+let driverSubscriptionRefreshTimer = null;
+let driverSubscriptionCheckInProgress = false;  
 let driverRidesRequestInProgress = false;
 
 function startDriverRidesAutoRefresh(){
@@ -2392,6 +2394,114 @@ function stopDriverRidesAutoRefresh(){
     }
 
 }  
+
+
+// ================= DRIVER SUBSCRIPTION AUTO REFRESH =================
+
+async function checkDriverSubscriptionStatus(){
+
+    if(!currentDriver || driverSubscriptionCheckInProgress){
+        return;
+    }
+
+    const token = localStorage.getItem("driverSessionToken");
+
+    if(!token) return;
+
+    driverSubscriptionCheckInProgress = true;
+
+    try{
+
+        const response = await fetch("/api/driver/me",{
+            method:"GET",
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        });
+
+        if(!response.ok) return;
+
+        const data = await response.json();
+
+        if(!data.success || !data.driver) return;
+
+        const oldStatus =
+            currentDriver.subscriptionStatus || "";
+
+        const newStatus =
+            data.driver.subscriptionStatus || "";
+
+        const oldExpiry =
+            currentDriver.subscriptionExpiresAt || "";
+
+        const newExpiry =
+            data.driver.subscriptionExpiresAt || "";
+
+        if(
+            oldStatus !== newStatus ||
+            String(oldExpiry) !== String(newExpiry)
+        ){
+
+            currentDriver = data.driver;
+
+            showDriverPanel();
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Driver subscription refresh error:",
+            error
+        );
+
+    }finally{
+
+        driverSubscriptionCheckInProgress = false;
+
+    }
+
+}
+
+function startDriverSubscriptionAutoRefresh(){
+
+    stopDriverSubscriptionAutoRefresh();
+
+    if(!currentDriver) return;
+
+    driverSubscriptionRefreshTimer = setInterval(() => {
+
+        const driverPage = document.getElementById("driver");
+
+        if(
+            document.visibilityState === "visible" &&
+            driverPage &&
+            driverPage.classList.contains("active") &&
+            currentDriver
+        ){
+
+            checkDriverSubscriptionStatus();
+
+        }
+
+    }, 30000);
+
+}
+
+function stopDriverSubscriptionAutoRefresh(){
+
+    if(driverSubscriptionRefreshTimer){
+
+        clearInterval(driverSubscriptionRefreshTimer);
+
+        driverSubscriptionRefreshTimer = null;
+
+    }
+
+}
+
+// ================= END DRIVER SUBSCRIPTION AUTO REFRESH =================
+  
 
   // ================= RESTORE DRIVER SESSION =================
 
@@ -2472,7 +2582,8 @@ function entryNotice() {
 function showPage(page){
     if(page !== "driver"){
         stopDriverRidesAutoRefresh();
-    }  
+        stopDriverSubscriptionAutoRefresh();
+    }
 
     document
     .querySelectorAll(".page")
@@ -5233,6 +5344,7 @@ function showDriverPanel(){
     updateDriverOnlineButton();
     startDriverRidesAutoRefresh();
     loadDriverCompletedRides();
+  startDriverSubscriptionAutoRefresh();
 }
 
 // ================= DRIVER LOGOUT =================
@@ -5310,6 +5422,8 @@ async function logoutDriver(){
     stopDriverLocationTracking();
   
     stopDriverRidesAutoRefresh();
+
+    stopDriverSubscriptionAutoRefresh();
 
     localStorage.removeItem("driverSessionToken");
 
