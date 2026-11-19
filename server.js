@@ -352,6 +352,16 @@ async function initializeDatabase() {
     `);
 
     
+    // تحويل حسابات السائقين القديمة إلى انتظار تفعيل الاشتراك
+    await pool.query(`
+        UPDATE drivers
+        SET subscription_status = 'pending'
+        WHERE subscription_status = 'active'
+          AND subscription_expires_at IS NULL
+    `);
+
+
+    
     // سجل تاريخ اشتراكات السائقين
     await pool.query(`
         CREATE TABLE IF NOT EXISTS driver_subscription_history (
