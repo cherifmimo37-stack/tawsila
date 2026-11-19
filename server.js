@@ -1555,6 +1555,60 @@ app.post("/api/admin/login", (req, res) => {
 });
 
 
+// ================= ADMIN SUBSCRIPTION HISTORY =================
+
+app.get("/api/admin/drivers/:id/subscription-history", async (req, res) => {
+    try {
+        const adminKey = process.env.ADMIN_KEY;
+
+        if (!adminKey) {
+            return res.status(503).json({
+                success: false,
+                message: "إعداد دخول الإدارة غير مكتمل"
+            });
+        }
+
+        if (req.get("x-admin-key") !== adminKey) {
+            return res.status(401).json({
+                success: false,
+                message: "يجب تسجيل الدخول إلى الإدارة"
+            });
+        }
+
+        const driverId = req.params.id;
+
+        if (!validId(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "رقم السائق غير صحيح"
+            });
+        }
+
+        const result = await pool.query(
+            `SELECT
+                id,
+                action,
+                subscription_started_at,
+                subscription_expires_at,
+                created_at
+             FROM driver_subscription_history
+             WHERE driver_id = $1
+             ORDER BY created_at DESC, id DESC`,
+            [driverId]
+        );
+
+        return res.json({
+            success: true,
+            history: result.rows
+        });
+
+    } catch (error) {
+        return sendError(res, error);
+    }
+});
+
+// ================= END ADMIN SUBSCRIPTION HISTORY =================
+
 // ================= ADMIN DRIVER SUBSCRIPTION =================
 
 
