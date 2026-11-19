@@ -2674,7 +2674,7 @@ async function createRide(){
 
         updateCustomerPrice();
 
-        updateCustomerRideStatus();
+        startCustomerRideStatusUpdates();
 
     }catch(error){
 
@@ -4457,6 +4457,52 @@ function openPickupLocation(lat, lng){
     window.open(mapUrl, "_blank");
 
 }  
+
+ 
+let customerRideStatusTimer = null;
+let customerRideStatusBusy = false;
+
+function startCustomerRideStatusUpdates(){
+
+    if(customerRideStatusTimer){
+        clearInterval(customerRideStatusTimer);
+    }
+
+    async function refreshStatus(){
+
+        if(customerRideStatusBusy) return;
+
+        customerRideStatusBusy = true;
+
+        try{
+            await updateCustomerRideStatus();
+        }finally{
+            customerRideStatusBusy = false;
+        }
+
+    }
+
+    refreshStatus();
+
+    customerRideStatusTimer = setInterval(
+        refreshStatus,
+        3000
+    );
+
+}
+
+function stopCustomerRideStatusUpdates(){
+
+    if(customerRideStatusTimer){
+
+        clearInterval(customerRideStatusTimer);
+
+        customerRideStatusTimer = null;
+
+    }
+
+}
+ 
   // ================= CUSTOMER RIDE STATUS =================
 async function updateCustomerRideStatus(){
 
@@ -4513,6 +4559,13 @@ async function updateCustomerRideStatus(){
 
         }
         else if(status === "completed"){
+
+    statusBox.textContent =
+        "🏁 تم إنهاء الرحلة بنجاح";
+
+    stopCustomerRideStatusUpdates();
+
+}
 
             statusBox.textContent =
                 "🏁 تم إنهاء الرحلة بنجاح";
