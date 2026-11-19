@@ -1090,15 +1090,20 @@ app.post("/api/driver/location", async (req, res) => {
                  longitude = $2,
                  location_updated_at = NOW()
              WHERE id = $3
-               AND online = TRUE
-             RETURNING id`,
+  AND online = TRUE
+  AND subscription_status = 'active'
+  AND (
+      subscription_expires_at IS NULL
+      OR subscription_expires_at > NOW()
+  )
+RETURNING id`,
             [latitude, longitude, String(driver.id)]
         );
 
         if (!result.rowCount) {
             return res.status(403).json({
                 success: false,
-                message: "يجب تفعيل حالة الاتصال أولاً"
+                message: "اشتراكك غير نشط أو يجب تفعيل حالة الاتصال أولاً"
             });
         }
 
