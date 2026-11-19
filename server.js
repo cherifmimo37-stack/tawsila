@@ -730,17 +730,20 @@ app.post("/api/driver", async (req, res) => {
         const passwordHash = await hashPassword(password);
 
         const result = await pool.query(
-            `INSERT INTO drivers
-             (id, name, phone, car, plate, password_hash)
-             VALUES ($1,$2,$3,$4,$5,$6)
-             RETURNING *`,
+            
+`INSERT INTO drivers
+ (id, name, phone, car, plate, password_hash, subscription_status)
+ VALUES ($1,$2,$3,$4,$5,$6,$7)
+ RETURNING *`,
+
             [
                 Date.now(),
                 name,
                 phone,
                 car,
                 plate,
-                passwordHash
+                passwordHash,
+                "pending"
             ]
         );
 
