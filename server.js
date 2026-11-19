@@ -603,13 +603,27 @@ app.get("/api/rides", async (req, res) => {
         const driverId = String(driver.id);
 
         const result = await pool.query(
-            `SELECT * FROM rides
-             WHERE status = 'pending'
-                OR (
-                    driver_id = $1
-                    AND status IN ('accepted', 'started')
-                )
-             ORDER BY created_at DESC`,
+            
+`SELECT * FROM rides
+ WHERE (
+     status = 'pending'
+     AND EXISTS (
+         SELECT 1
+         FROM drivers
+         WHERE drivers.id = $1
+           AND drivers.subscription_status = 'active'
+           AND (
+               drivers.subscription_expires_at IS NULL
+               OR drivers.subscription_expires_at > NOW()
+           )
+     )
+ )
+ OR (
+     driver_id = $1
+     AND status IN ('accepted', 'started')
+ )
+ ORDER BY created_at DESC`
+,
             [driverId]
         );
 
