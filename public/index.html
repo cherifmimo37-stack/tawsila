@@ -3785,6 +3785,7 @@ function loadAdminRides(rides){
 
 // ================= ADMIN DRIVERS =================
 
+
 function loadAdminDrivers(drivers){
 
     const container = document.getElementById("adminDrivers");
@@ -3796,25 +3797,149 @@ function loadAdminDrivers(drivers){
         return;
     }
 
-    container.innerHTML = drivers.map(driver => `
+    container.innerHTML = drivers.map(driver => {
 
-        <div class="ride">
+        const status = driver.subscriptionStatus || "pending";
+        const expiresAt = driver.subscriptionExpiresAt
+            ? new Date(driver.subscriptionExpiresAt)
+            : null;
 
-            <strong>🚗 ${escapeHTML(driver.name)}</strong>
+        const isExpired = expiresAt && expiresAt <= new Date();
 
-            <div class="ride-row">📱 ${escapeHTML(driver.phone)}</div>
+        let subscriptionLabel = "⏳ في انتظار التفعيل";
 
-            <div class="ride-row">🚘 ${escapeHTML(driver.car)}</div>
+        if(status === "active" && !expiresAt){
+            subscriptionLabel = "🟢 نشط مؤقتاً";
+        } else if(status === "active" && isExpired){
+            subscriptionLabel = "🔴 منتهي";
+        } else if(status === "active"){
+            subscriptionLabel = "🟢 نشط";
+        }
 
-            <div class="ride-row">🔢 ${escapeHTML(driver.plate)}</div>
+        const formatDate = value => {
 
-            <div class="ride-row">
-                ${driver.online ? "🟢 متصل" : "🔴 غير متصل"}
+            if(!value) return "غير محدد";
+
+            const date = new Date(value);
+
+            if(Number.isNaN(date.getTime())) return "غير محدد";
+
+            return date.toLocaleDateString("ar-DZ");
+        };
+
+        const action = status === "active" && expiresAt
+            ? "renew"
+            : "activate";
+
+        const buttonLabel = action === "renew"
+            ? "🔄 تجديد شهر"
+            : "✅ تفعيل الاشتراك";
+
+        return `
+
+            <div class="ride">
+
+                <strong>🚗 ${escapeHTML(driver.name)}</strong>
+
+                <div class="ride-row">📱 ${escapeHTML(driver.phone)}</div>
+
+                <div class="ride-row">🚘 ${escapeHTML(driver.car)}</div>
+
+                <div class="ride-row">🔢 ${escapeHTML(driver.plate)}</div>
+
+                <div class="ride-row">
+                    ${driver.online ? "🟢 متصل" : "⚪ غير متصل"}
+                </div>
+
+                <hr style="border:0;border-top:1px solid #e4eaf1;margin:14px 0;">
+
+                <div class="ride-row">
+                    <strong>📋 الاشتراك: ${subscriptionLabel}</strong>
+                </div>
+
+                <div class="ride-row">
+                    📅 بداية الاشتراك:
+                    ${formatDate(driver.subscriptionStartedAt)}
+                </div>
+
+                <div class="ride-row">
+                    ⏳ نهاية الاشتراك:
+                    ${formatDate(driver.subscriptionExpiresAt)}
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    style="margin-top:12px;padding:12px;font-size:14px;"
+                    onclick="adminUpdateSubscription(${Number(driver.id)}, '${action}')"
+                >
+                    ${buttonLabel}
+                </button>
+
             </div>
 
-        </div>
+        `;
 
-    `).join("");
+    }).join("");
+
+}
+
+
+async function adminUpdateSubscription(driverId, action){
+
+    const adminKey = sessionStorage.getItem("tawsilaAdminKey");
+
+    if(!adminKey){
+        alert("يرجى تسجيل الدخول إلى الإدارة من جديد");
+        return;
+    }
+
+    const confirmation = action === "activate"
+        ? "هل تريد تفعيل اشتراك هذا السائق لمدة شهر؟"
+        : "هل تريد تجديد اشتراك هذا السائق لمدة شهر إضافي؟";
+
+    if(!confirm(confirmation)){
+        return;
+    }
+
+    try{
+
+        const response = await fetch(
+            `/api/admin/drivers/${driverId}/subscription`,
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json",
+                    "x-admin-key":adminKey
+                },
+
+                body:JSON.stringify({
+                    action:action
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+
+            alert(data.message || "تعذرت معالجة الاشتراك");
+
+            return;
+        }
+
+        alert(data.message);
+
+        await loadAdmin();
+
+    }catch(error){
+
+        console.error("Subscription error:",error);
+
+        alert("تعذر الاتصال بالخادم");
+
+    }
 
 }
 
