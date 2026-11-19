@@ -3832,8 +3832,10 @@ function loadAdminDrivers(drivers){
             : "activate";
 
         const buttonLabel = action === "renew"
-            ? "🔄 تجديد شهر"
-            : "✅ تفعيل الاشتراك";
+    ? "🔄 تجديد شهر"
+    : (status === "active" && !expiresAt)
+        ? "📅 بدء الاشتراك الشهري"
+        : "✅ تفعيل الاشتراك";
 
         return `
 
