@@ -434,28 +434,13 @@ function formatDriver(row) {
         car: row.car,
         plate: row.plate,
         online: row.online,
-        createdAt: row.created_at
+        createdAt: row.created_at,
+
+        subscriptionStatus: row.subscription_status,
+        subscriptionStartedAt: row.subscription_started_at,
+        subscriptionExpiresAt: row.subscription_expires_at
     };
 }
-
-function formatRide(row) {
-    return {
-        id: Number(row.id),
-        customerName: row.customer_name,
-        customerPhone: row.customer_phone,
-        pickup: row.pickup,
-        destination: row.destination,
-        price: Number(row.price),
-        distance: Number(row.distance),
-        carType: row.car_type,
-        pickupLocation: row.pickup_location,
-        destinationCoords: row.destination_coords,
-        status: row.status,
-        driverId: row.driver_id === null ? null : Number(row.driver_id),
-        createdAt: row.created_at
-    };
-}
-
 // ================= HOME =================
 
 app.get("/", (req, res) => {
