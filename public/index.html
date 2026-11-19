@@ -3898,6 +3898,133 @@ function getStatus(status){
 
 // ================= ADMIN =================
 
+// ===== HIDDEN ADMIN LOGIN =====
+
+let adminLogoTapCount = 0;
+let adminLogoTapTimer = null;
+
+function handleAdminLogoTap(){
+
+    adminLogoTapCount++;
+
+    if(adminLogoTapTimer){
+        clearTimeout(adminLogoTapTimer);
+    }
+
+    adminLogoTapTimer = setTimeout(() => {
+        adminLogoTapCount = 0;
+        adminLogoTapTimer = null;
+    }, 2500);
+
+    if(adminLogoTapCount >= 5){
+
+        adminLogoTapCount = 0;
+
+        clearTimeout(adminLogoTapTimer);
+        adminLogoTapTimer = null;
+
+        openAdminLoginModal();
+    }
+}
+
+
+function openAdminLoginModal(){
+
+    const modal = document.getElementById("adminLoginModal");
+    const input = document.getElementById("adminLoginPassword");
+    const error = document.getElementById("adminLoginError");
+
+    if(!modal || !input) return;
+
+    if(error) error.textContent = "";
+
+    input.value = "";
+    modal.style.display = "flex";
+
+    setTimeout(() => input.focus(), 100);
+}
+
+
+function closeAdminLoginModal(){
+
+    const modal = document.getElementById("adminLoginModal");
+
+    if(modal){
+        modal.style.display = "none";
+    }
+}
+
+
+async function submitHiddenAdminLogin(event){
+
+    event.preventDefault();
+
+    const input = document.getElementById("adminLoginPassword");
+    const error = document.getElementById("adminLoginError");
+    const submit = document.getElementById("adminLoginSubmit");
+
+    const key = input ? input.value.trim() : "";
+
+    if(!key) return;
+
+    if(submit) submit.disabled = true;
+    if(error) error.textContent = "";
+
+    try{
+
+        const response = await fetch("/api/admin/login", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({ key })
+
+        });
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+
+            if(error){
+                error.textContent =
+                    data.message || "رمز الإدارة غير صحيح";
+            }
+
+            if(input){
+                input.value = "";
+                input.focus();
+            }
+
+            return;
+        }
+
+        sessionStorage.setItem("tawsilaAdminKey", key);
+
+        closeAdminLoginModal();
+
+        showPage("admin");
+
+    }catch(err){
+
+        console.error("Hidden admin login error:", err);
+
+        if(error){
+            error.textContent =
+                "تعذر الاتصال بالخادم، حاول مجدداً.";
+        }
+
+    }finally{
+
+        if(submit) submit.disabled = false;
+
+    }
+}
+
+// ===== END HIDDEN ADMIN LOGIN =====
+
 
 async function loadAdmin(){
 
