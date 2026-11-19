@@ -1557,7 +1557,10 @@ app.post("/api/admin/login", (req, res) => {
 
 // ================= ADMIN DRIVER SUBSCRIPTION =================
 
+
 app.post("/api/admin/drivers/:id/subscription", async (req, res) => {
+    let client;
+
     try {
         const adminKey = process.env.ADMIN_KEY;
 
@@ -1592,18 +1595,22 @@ app.post("/api/admin/drivers/:id/subscription", async (req, res) => {
             });
         }
 
-        const result = await pool.query(
+        client = await pool.connect();
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
             `UPDATE drivers
              SET
                 subscription_status = 'active',
-                
-subscription_started_at =
-    CASE
-        WHEN subscription_expires_at IS NULL
-          OR subscription_expires_at <= NOW()
-        THEN NOW()
-        ELSE subscription_started_at
-    END,
+
+                subscription_started_at =
+                    CASE
+                        WHEN subscription_expires_at IS NULL
+                          OR subscription_expires_at <= NOW()
+                        THEN NOW()
+                        ELSE subscription_started_at
+                    END,
 
                 subscription_expires_at =
                     CASE
@@ -1611,30 +1618,70 @@ subscription_started_at =
                         THEN subscription_expires_at + INTERVAL '1 month'
                         ELSE NOW() + INTERVAL '1 month'
                     END
+
              WHERE id = $1
              RETURNING *`,
             [driverId]
         );
 
         if (!result.rowCount) {
+            await client.query("ROLLBACK");
+
             return res.status(404).json({
                 success: false,
                 message: "السائق غير موجود"
             });
         }
 
+        const driver = result.rows[0];
+
+        await client.query(
+            `INSERT INTO driver_subscription_history (
+                driver_id,
+                action,
+                subscription_started_at,
+                subscription_expires_at
+            )
+            VALUES ($1, $2, $3, $4)`,
+            [
+                driver.id,
+                action,
+                driver.subscription_started_at,
+                driver.subscription_expires_at
+            ]
+        );
+
+        await client.query("COMMIT");
+
         return res.json({
             success: true,
             message: action === "activate"
                 ? "تم تفعيل اشتراك السائق بنجاح"
                 : "تم تجديد اشتراك السائق بنجاح",
-            driver: formatDriver(result.rows[0])
+            driver: formatDriver(driver)
         });
 
     } catch (error) {
+
+        if (client) {
+            try {
+                await client.query("ROLLBACK");
+            } catch (rollbackError) {
+                console.error("Subscription rollback error:", rollbackError);
+            }
+        }
+
         return sendError(res, error);
+
+    } finally {
+
+        if (client) {
+            client.release();
+        }
+
     }
 });
+
 
 // ================= END ADMIN DRIVER SUBSCRIPTION =================
 
