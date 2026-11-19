@@ -1091,11 +1091,21 @@ app.post("/api/driver/location", async (req, res) => {
                  location_updated_at = NOW()
              WHERE id = $3
   AND online = TRUE
-  AND subscription_status = 'active'
   AND (
-      subscription_expires_at IS NULL
-      OR subscription_expires_at > NOW()
-  )
+    (
+        subscription_status = 'active'
+        AND (
+            subscription_expires_at IS NULL
+            OR subscription_expires_at > NOW()
+        )
+    )
+    OR EXISTS (
+        SELECT 1
+        FROM rides
+        WHERE rides.driver_id = drivers.id
+          AND rides.status IN ('accepted', 'started')
+    )
+)
 RETURNING id`,
             [latitude, longitude, String(driver.id)]
         );
@@ -1654,13 +1664,59 @@ app.get("/api/admin", async (req, res) => {
     }
 });
 
+
+// ================= AUTO EXPIRE DRIVER SUBSCRIPTIONS =================
+
+async function expireExpiredDriverSubscriptions() {
+    try {
+        const result = await pool.query(`
+            UPDATE drivers AS d
+            SET online = FALSE,
+                latitude = NULL,
+                longitude = NULL,
+                location_updated_at = NULL
+            WHERE d.online = TRUE
+              AND d.subscription_status = 'active'
+              AND d.subscription_expires_at IS NOT NULL
+              AND d.subscription_expires_at <= NOW()
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM rides AS r
+                  WHERE r.driver_id = d.id
+                    AND r.status IN ('accepted', 'started')
+              )
+            RETURNING d.id
+        `);
+
+        if (result.rowCount > 0) {
+            console.log(
+                `Auto-offline: ${result.rowCount} expired driver(s)`
+            );
+        }
+    } catch (error) {
+        console.error(
+            "Subscription expiry check failed:",
+            error
+        );
+    }
+}
+
+// ================= END AUTO EXPIRE DRIVER SUBSCRIPTIONS =================
+
+
 // ================= START SERVER =================
 
 async function startServer() {
     try {
         await initializeDatabase();
 
-        app.listen(PORT, () => {
+await expireExpiredDriverSubscriptions();
+
+setInterval(() => {
+    expireExpiredDriverSubscriptions();
+}, 60 * 1000);
+
+app.listen(PORT, () => {
             console.log(`Tawsila running on port ${PORT}`);
             console.log("PostgreSQL connection successful!");
         });
