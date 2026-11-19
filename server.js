@@ -1241,10 +1241,12 @@ app.post("/api/rides/:id/accept", async (req, res) => {
 
         const subscription = driverResult.rows[0];
 
-        if (
+                if (
             subscription.subscription_status !== "active" ||
-            !subscription.subscription_expires_at ||
-            new Date(subscription.subscription_expires_at) <= new Date()
+            (
+                subscription.subscription_expires_at &&
+                new Date(subscription.subscription_expires_at) <= new Date()
+            )
         ) {
             return res.status(403).json({
                 success: false,
