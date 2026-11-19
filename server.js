@@ -1561,12 +1561,15 @@ app.post("/api/admin/drivers/:id/subscription", async (req, res) => {
             `UPDATE drivers
              SET
                 subscription_status = 'active',
-                subscription_started_at =
-                    CASE
-                        WHEN subscription_started_at IS NULL
-                        THEN NOW()
-                        ELSE subscription_started_at
-                    END,
+                
+subscription_started_at =
+    CASE
+        WHEN subscription_expires_at IS NULL
+          OR subscription_expires_at <= NOW()
+        THEN NOW()
+        ELSE subscription_started_at
+    END,
+
                 subscription_expires_at =
                     CASE
                         WHEN subscription_expires_at > NOW()
