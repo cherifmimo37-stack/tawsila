@@ -1143,7 +1143,12 @@ app.get("/api/drivers/nearby", async (req, res) => {
                 longitude
             FROM drivers
             WHERE online = TRUE
-              AND latitude IS NOT NULL
+  AND subscription_status = 'active'
+  AND (
+      subscription_expires_at IS NULL
+      OR subscription_expires_at > NOW()
+  )
+  AND latitude IS NOT NULL
               AND longitude IS NOT NULL
               AND latitude BETWEEN -90 AND 90
               AND longitude BETWEEN -180 AND 180
