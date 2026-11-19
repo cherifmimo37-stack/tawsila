@@ -1900,7 +1900,46 @@ footer {
   </div>
 </section>
 <!-- ===== END TAWSILA PREMIUM WELCOME ===== -->
+<!-- ===== HIDDEN ADMIN LOGIN MODAL ===== -->
 
+<div id="adminLoginModal" class="admin-login-overlay">
+    <div class="admin-login-card"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="adminLoginTitle">
+
+        <button type="button"
+                class="admin-login-close"
+                onclick="closeAdminLoginModal()"
+                aria-label="إغلاق">×</button>
+
+        <div class="admin-login-icon">🔐</div>
+
+        <h2 id="adminLoginTitle">دخول الإدارة</h2>
+
+        <p>أدخل رمز الإدارة للمتابعة</p>
+
+        <form onsubmit="submitHiddenAdminLogin(event)">
+
+            <input
+                id="adminLoginPassword"
+                type="password"
+                placeholder="كلمة سر الإدارة"
+                autocomplete="current-password"
+                required
+            >
+
+            <div id="adminLoginError" role="alert"></div>
+
+            <button id="adminLoginSubmit" type="submit">
+                دخول آمن
+            </button>
+
+        </form>
+    </div>
+</div>
+
+<!-- ===== END HIDDEN ADMIN LOGIN MODAL ===== -->
 <!-- ================= CUSTOMER PREMIUM ================= -->
 <section id="customer" class="page">
 
