@@ -2119,7 +2119,7 @@ footer {
   </div>
 </section>
 
-  <section id="driverRequestsSection" class="driver-tab-page">
+  <section id="driverRequestsSection" class="driver-tab-page driver-content-section">
 
     <div class="driver-section-heading">
       <div>
@@ -2194,7 +2194,7 @@ footer {
 
   </section>
 
-  <section id="driverHistorySection" class="driver-tab-page">
+  <section id="driverHistorySection" class="driver-tab-page driver-content-section">
     <div class="driver-section-heading">
       <div>
         <span class="driver-section-kicker">RIDE HISTORY</span>
@@ -2880,6 +2880,11 @@ function scrollDriverSection(sectionId){
 
         button.classList.toggle("active", isActive);
     });
+
+      // تحديث سجل الرحلات عند فتح صفحته
+    if(sectionId === "driverHistorySection"){
+        loadDriverCompletedRides();
+    }
 
     window.scrollTo({
         top: 0,
@@ -4975,27 +4980,14 @@ function showDriverPanel(){
                     <small>${escapeHTML((currentDriver.car || "مركبة غير محددة").split(" — ")[0])}</small>
                 </div>
             </div>
-            <div class="driver-dashboard-services">
-                <div class="driver-dashboard-services-heading">خدمات النقل على توصيلة</div>
-                <div class="driver-service-grid">
-                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("سيارة أجرة") ? "selected" : ""}"><span class="driver-service-art">🚘</span><strong>سيارة أجرة</strong><small>نقل الأشخاص</small></div>
-                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("دراجة للتوصيل") ? "selected" : ""}"><span class="driver-service-art">🛵</span><strong>دراجة للتوصيل</strong><small>طلبات سريعة</small></div>
-                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("شاحنة صغيرة") ? "selected" : ""}"><span class="driver-service-art">🚐</span><strong>شاحنة صغيرة</strong><small>نقل الأغراض</small></div>
-                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("شاحنة نقل") ? "selected" : ""}"><span class="driver-service-art">🚚</span><strong>شاحنة نقل</strong><small>الأحمال الكبيرة</small></div>
-                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("حافلة صغيرة") ? "selected" : ""}"><span class="driver-service-art">🚐</span><strong>حافلة صغيرة</strong><small>نقل جماعي</small></div>
-                    <div class="driver-service-option ${String(currentDriver.car || "").startsWith("نقل الأثاث") ? "selected" : ""}"><span class="driver-service-art">📦</span><strong>نقل الأثاث</strong><small>منازل ومكاتب</small></div>
-                </div>
-                <p class="driver-dashboard-services-note">الخدمة المظللة بالذهبي هي الخدمة المرتبطة بحسابك.</p>
-            </div>
+            
             <div class="driver-status">
                 <strong>حالة الاتصال</strong>
                 <span id="driverState">
                     ${currentDriver.online ? "🟢 متصل" : "🔴 غير متصل"}
                 </span>
             </div>
-            <button type="button" class="btn btn-red" onclick="logoutDriver()">
-                🚪 تسجيل الخروج
-            </button>
+            
         </div>
     `;
 
