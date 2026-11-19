@@ -4504,6 +4504,7 @@ function stopCustomerRideStatusUpdates(){
 }
  
   // ================= CUSTOMER RIDE STATUS =================
+
 async function updateCustomerRideStatus(){
 
     const rideId =
@@ -4560,15 +4561,10 @@ async function updateCustomerRideStatus(){
         }
         else if(status === "completed"){
 
-    statusBox.textContent =
-        "🏁 تم إنهاء الرحلة بنجاح";
-
-    stopCustomerRideStatusUpdates();
-
-}
-
             statusBox.textContent =
                 "🏁 تم إنهاء الرحلة بنجاح";
+
+            stopCustomerRideStatusUpdates();
 
         }
         else{
@@ -4590,7 +4586,7 @@ async function updateCustomerRideStatus(){
 
     }
 }
-  
+
 // ================= DRIVER GPS TRACKING =================
 
 let driverLocationWatchId = null;
