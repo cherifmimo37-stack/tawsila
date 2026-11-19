@@ -1001,6 +1001,31 @@ app.post("/api/driver/status", async (req, res) => {
             });
         }
 
+        
+        if (online === true) {
+            const subscription = await pool.query(
+                `SELECT subscription_status, subscription_expires_at
+                 FROM drivers
+                 WHERE id = $1`,
+                [String(driver.id)]
+            );
+
+            const sub = subscription.rows[0];
+
+            if (
+                !sub ||
+                sub.subscription_status !== "active" ||
+                !sub.subscription_expires_at ||
+                new Date(sub.subscription_expires_at) <= new Date()
+            ) {
+                return res.status(403).json({
+                    success: false,
+                    message: "اشتراكك غير مفعل أو انتهت صلاحيته. يرجى التواصل مع الإدارة."
+                });
+            }
+        }
+
+        
         const result = await pool.query(
     `UPDATE drivers
      SET online = $1,
@@ -1202,7 +1227,8 @@ app.post("/api/rides/:id/accept", async (req, res) => {
         const driverId = String(driver.id);
 
         const driverResult = await pool.query(
-            "SELECT id, online FROM drivers WHERE id = $1",
+            `SELECT id, online, subscription_status, subscription_expires_at
+ FROM drivers WHERE id = $1`,
             [driverId]
         );
 
@@ -1213,6 +1239,20 @@ app.post("/api/rides/:id/accept", async (req, res) => {
             });
         }
 
+        const subscription = driverResult.rows[0];
+
+        if (
+            subscription.subscription_status !== "active" ||
+            !subscription.subscription_expires_at ||
+            new Date(subscription.subscription_expires_at) <= new Date()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "اشتراكك غير مفعل أو انتهت صلاحيته. يرجى التواصل مع الإدارة."
+            });
+        }
+
+        
         if (!driverResult.rows[0].online) {
             return res.status(403).json({
                 success: false,
