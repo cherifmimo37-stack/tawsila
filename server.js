@@ -334,6 +334,23 @@ async function initializeDatabase() {
         )
     `);
 
+    
+    // بيانات الاشتراك الشهري للسائقين
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'active'
+    `);
+
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS subscription_started_at TIMESTAMPTZ
+    `);
+
+    await pool.query(`
+        ALTER TABLE drivers
+        ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMPTZ
+    `);
+
     await pool.query(`
         CREATE TABLE IF NOT EXISTS rides (
             id BIGINT PRIMARY KEY,
@@ -1353,11 +1370,13 @@ app.post("/api/rides/:id/complete", async (req, res) => {
 });
 
 // ================= END COMPLETE RIDE =================
+
 // ================= PUBLIC RIDE STATUS =================
 
-// الزبون يحتاج حالة الرحلة فقط، وليس بياناته الشخصية
+// حالة الرحلة وموقع السائق المرتبط بها فقط
 app.get("/api/rides/:id", async (req, res) => {
     try {
+
         if (!validId(req.params.id)) {
             return res.status(400).json({
                 success: false,
@@ -1366,7 +1385,16 @@ app.get("/api/rides/:id", async (req, res) => {
         }
 
         const result = await pool.query(
-            "SELECT id, status FROM rides WHERE id = $1",
+            `SELECT
+                r.id,
+                r.status,
+                d.latitude,
+                d.longitude,
+                d.location_updated_at
+             FROM rides r
+             LEFT JOIN drivers d
+                ON d.id = r.driver_id
+             WHERE r.id = $1`,
             [req.params.id]
         );
 
@@ -1377,17 +1405,43 @@ app.get("/api/rides/:id", async (req, res) => {
             });
         }
 
-        res.json({
+        const ride = result.rows[0];
+
+        let driverLocation = null;
+
+        // نعرض الموقع فقط أثناء توجه السائق للزبون
+        // أو أثناء تنفيذ الرحلة
+        if (
+            ["accepted", "started"].includes(ride.status) &&
+            ride.latitude !== null &&
+            ride.longitude !== null &&
+            ride.location_updated_at &&
+            Date.now() - new Date(ride.location_updated_at).getTime() <= 60000
+        ) {
+
+            driverLocation = {
+                latitude: Number(ride.latitude),
+                longitude: Number(ride.longitude),
+                updatedAt: ride.location_updated_at
+            };
+
+        }
+
+        return res.json({
             success: true,
             ride: {
-                id: Number(result.rows[0].id),
-                status: result.rows[0].status
+                id: Number(ride.id),
+                status: ride.status,
+                driverLocation
             }
         });
+
     } catch (error) {
         return sendError(res, error);
     }
 });
+
+// ================= END PUBLIC RIDE STATUS =================
 
 // ================= ADMIN LOGIN =================
 
