@@ -1776,6 +1776,7 @@ app.post("/api/admin/drivers/:id/subscription", async (req, res) => {
 
 app.get("/api/admin", async (req, res) => {
     try {
+        res.set("Cache-Control", "no-store");
         const adminKey = process.env.ADMIN_KEY;
 
         if (!adminKey) {
